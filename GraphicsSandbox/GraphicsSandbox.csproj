@@ -54,17 +54,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Ball.cs" />
-    <Compile Include="Boundry.cs" />
-    <Compile Include="Collision.cs" />
     <Compile Include="Element.cs" />
-    <Compile Include="Gravity.cs" />
-    <Compile Include="Shapes.cs" />
-    <Compile Include="SimpleUniverse.cs" />
     <Compile Include="Square.cs" />
-    <Compile Include="TimeDependentAction.cs" />
-    <Compile Include="UniversalTime.cs" />
     <Compile Include="Universe.cs" />
-    <Compile Include="Velocity.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -108,6 +100,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AMG.Physics\AMG.Physics.csproj">
+      <Project>{5B49724E-DEF9-4F7D-883D-AFA9B8D847F2}</Project>
+      <Name>AMG.Physics</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

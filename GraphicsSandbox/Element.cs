@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using AMG.Physics;
 
 namespace GraphicsSandbox
 {
-    public class Element : INotifyPropertyChanged
+    public class Element : INotifyPropertyChanged, IElement
     {
         public Element(Dimensions location)
         {
@@ -12,7 +13,7 @@ namespace GraphicsSandbox
         }
         
         private Dimensions _location;
-        public Velocity Velocity;
+        public Velocity Velocity {get;set;}
 
         public Dimensions Location {
             get { return _location; }

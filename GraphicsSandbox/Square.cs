@@ -1,4 +1,6 @@
-﻿namespace GraphicsSandbox
+﻿using AMG.Physics;
+
+namespace GraphicsSandbox
 {
     public class Square : Element{
         private int m_size;

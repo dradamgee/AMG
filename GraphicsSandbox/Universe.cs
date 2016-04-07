@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Threading;
+using AMG.Physics;
 
 namespace GraphicsSandbox {
     public class Universe : INotifyPropertyChanged, IDisposable
@@ -19,7 +20,7 @@ namespace GraphicsSandbox {
 
         public Universe(Dispatcher dispatcher) {
             Dispatcher = dispatcher;
-            elements = new ObservableCollection<Element>();
+            elements = new ObservableCollection<IElement>();
             elements.Add(new Ball(4, new Dimensions(100, 100)));
             elements.Add(new Square(4, new Dimensions(150, 150) ));
             elements.Add(new Square(4, new Dimensions(150, 150)));
@@ -47,7 +48,7 @@ namespace GraphicsSandbox {
             time = new UniversalTime(timeDependentActions, _cancellationTokenSource.Token);
         }
 
-        public void WireCollisions(Element[] elements) {
+        public void WireCollisions(IElement[] elements) {
             for(int i = 0; i < elements.Count(); i++)
             {
                 for (int j = i+1; j < elements.Count(); j++)
@@ -57,7 +58,7 @@ namespace GraphicsSandbox {
             }
         }
 
-        public ObservableCollection<Element> elements {
+        public ObservableCollection<IElement> elements {
             get;
             set;
         }
