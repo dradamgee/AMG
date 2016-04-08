@@ -18,11 +18,11 @@ namespace AMG.Physics
         {
             double interval = ResetInterval();
 
-            // todo: do we need this invoke?
-            Universe.Dispatcher.Invoke(new Action(() => {
+            //// todo: do we need this invoke?
+            //Universe.Dispatcher.Invoke(new Action(() => {
                 _element.Location += Dimensions * interval;
-            }));
+            //}));
             
         }
     }
-}
+} 
