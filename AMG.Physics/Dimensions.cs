@@ -46,7 +46,7 @@ namespace AMG.Physics {
                 if (_magnitude == null)
                 {
                     _magnitude = Math.Pow(
-                    Math.Pow(X, 2) + Math.Pow(X, 2)
+                    Math.Pow(X, 2) + Math.Pow(Y, 2)
                     , 0.5
                     );
                 }

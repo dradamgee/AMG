@@ -22,17 +22,27 @@ namespace GraphicsSandbox {
             Dispatcher = dispatcher;
             Elements = new ObservableCollection<IElement>();
             Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
+            Elements.Add(new Ball(10, new Dimensions(100, 100)));
             Elements.Add(new Square(10, new Dimensions(150, 150) ));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-            //Elements.Add(new Square(4, new Dimensions(150, 150)));
-
-            
+            Elements.Add(new Square(10, new Dimensions(151, 150)));
+            Elements.Add(new Square(10, new Dimensions(120, 150)));
+            Elements.Add(new Square(10, new Dimensions(250, 150)));
+            Elements.Add(new Square(10, new Dimensions(130, 150)));
+            Elements.Add(new Square(10, new Dimensions(140, 150)));
+            Elements.Add(new Square(10, new Dimensions(160, 150)));
+            Elements.Add(new Square(10, new Dimensions(170, 150)));
+            Elements.Add(new Square(10, new Dimensions(180, 150)));
+            Elements.Add(new Square(10, new Dimensions(150, 150)));
+            Elements.Add(new Square(10, new Dimensions(151, 150)));
 
             Gravity gravity = new Gravity(98, Elements);
             _boundry = new Boundry(new Dimensions(525, 350), Elements);
@@ -64,6 +74,18 @@ namespace GraphicsSandbox {
         public ObservableCollection<IElement> Elements {
             get;
             set;
+        }
+
+        public Dimensions Size
+        {
+            get
+            {
+                return _boundry.Dimensions;
+            }
+            set
+            {
+                _boundry.Dimensions = value;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

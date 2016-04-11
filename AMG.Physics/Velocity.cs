@@ -26,22 +26,11 @@ namespace AMG.Physics
 
         public void Bounce(Dimensions direction)
         {
-            if (direction.X != 0.0 && Dimensions.X != 0.0)
-            {
-                var rescaledDirection = direction * -Dimensions.X / direction.X;
-                var impulse = Dimensions.Y + rescaledDirection.Y;
+            var unit = direction;
 
+            var impulse = unit * (-unit.X * Dimensions.X - unit.Y * Dimensions.Y);
 
-                Dimensions = (-1.0 * Dimensions) + new Dimensions(impulse, impulse);
-
-            }
-            else if (direction.Y != 0.0 && Dimensions.Y != 0.0)
-            {
-                var rescaledDirection = direction * -Dimensions.Y / direction.Y;
-                var impulseX = Dimensions + rescaledDirection;
-                
-                Dimensions = (-1.0 * Dimensions) + impulseX + impulseY;
-            }
+            this.Dimensions = Dimensions + impulse * 2.0;
         }
     }
 } 

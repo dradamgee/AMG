@@ -10,7 +10,7 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <ItemsControl ItemsSource="{Binding Elements}">
+    <ItemsControl ItemsSource="{Binding Elements}" SizeChanged="ItemsControl_SizeChanged" Background="Gray">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <Canvas />

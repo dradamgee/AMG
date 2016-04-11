@@ -27,13 +27,9 @@ namespace AMG.Physics
                 return;
             }
 
-            Dimensions moveBy = distance.Unit * _distance; // double up.
 
-            //_e1.Location -= moveBy;
-            //_e2.Location += moveBy;
-
-            _e1.Velocity.Dimensions = _e1.Velocity.Dimensions * distance.Unit * -1;
-            _e2.Velocity.Dimensions = _e2.Velocity.Dimensions * distance.Unit;
+            _e2.Velocity.Bounce(distance.Unit);
+            _e1.Velocity.Bounce(-1.0 * distance.Unit);
 
         }
     }
