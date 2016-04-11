@@ -92,7 +92,7 @@ namespace AMG.Collections.Test {
         }
 
         [Test]
-        [ExpectedException(typeof(KeyNotFoundException))]
+        //[ExpectedException(typeof(KeyNotFoundException))]
         public void TestIndexer_Get() {
             var dictionary = new T();
 

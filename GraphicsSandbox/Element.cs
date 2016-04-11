@@ -4,7 +4,7 @@ using AMG.Physics;
 
 namespace GraphicsSandbox
 {
-    public class Element : INotifyPropertyChanged, IElement
+    public abstract class Element : INotifyPropertyChanged, IElement
     {
         public Element(Dimensions location)
         {
@@ -41,5 +41,7 @@ namespace GraphicsSandbox
             var handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public abstract double Radius { get; }
     }
 }

@@ -52,6 +52,7 @@
     <Compile Include="Collision.cs" />
     <Compile Include="Dimensions.cs" />
     <Compile Include="Gravity.cs" />
+    <Compile Include="IElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeDependentAction.cs" />
     <Compile Include="UniversalTime.cs" />
