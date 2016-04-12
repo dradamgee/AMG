@@ -19,5 +19,10 @@ namespace GraphicsSandbox
         {
             Size = size;
         }
+
+        public override double Radius
+        {
+            get { return m_size; }
+        }
     }
 }

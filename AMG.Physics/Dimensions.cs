@@ -12,9 +12,15 @@ namespace AMG.Physics {
         public readonly double Y;
         private double? _magnitude;
         private Dimensions _unit;
+        private Dimensions _inverse;
 
         public static Dimensions operator * (Dimensions subject, double multiplyBy){
             return new Dimensions(subject.X * multiplyBy, subject.Y * multiplyBy);
+        }
+
+        public static Dimensions operator *(double multiplyBy, Dimensions subject)
+        {
+            return subject * multiplyBy;
         }
 
         public static Dimensions operator /(Dimensions subject, double divideBy) {
@@ -57,6 +63,18 @@ namespace AMG.Physics {
                     _unit = Magnitude == 0d ? new Dimensions(1, 1) : this / Magnitude;
                 }
                 return _unit;
+            }
+        }
+
+        public Dimensions Inverse
+        {
+            get
+            {
+                if (_inverse == null)
+                {
+                    _inverse = new Dimensions(Y, X);
+                }
+                return _inverse;
             }
         }
 

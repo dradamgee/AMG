@@ -21,8 +21,16 @@ namespace AMG.Physics
             //// todo: do we need this invoke?
             //Universe.Dispatcher.Invoke(new Action(() => {
                 _element.Location += Dimensions * interval;
-            //}));
-            
+            //}));            
+        }
+
+        public void Bounce(Dimensions direction)
+        {
+            var unit = direction;
+
+            var impulse = unit * (-unit.X * Dimensions.X - unit.Y * Dimensions.Y);
+
+            this.Dimensions = Dimensions + impulse * 2.0;
         }
     }
 } 

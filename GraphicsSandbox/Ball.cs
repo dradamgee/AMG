@@ -18,5 +18,9 @@ namespace GraphicsSandbox
                 OnPropertyChanged();
             }
         }
+
+        public override double Radius {
+            get { return m_diameter; }
+        }
     }
 }

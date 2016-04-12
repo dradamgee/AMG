@@ -1,16 +1,7 @@
 ﻿using System;
 
-
-
-
 namespace AMG.Physics
 {
-
-    public interface IElement
-    {
-        Dimensions Location { get; set; }
-        Velocity Velocity { get; set; }
-    }
 
     public class Collision : TimeDependentAction {
         private readonly double _distance;
@@ -37,15 +28,7 @@ namespace AMG.Physics
             }
 
             _e1.Velocity.Bounce(distance.Unit);
-            _e1.Velocity.Bounce(distance.Unit*-1.0);
-
-            //Dimensions moveBy = distance.Unit * _distance; // double up.
-
-            //_e1.Location -= moveBy;
-            //_e2.Location += moveBy;
-
-
-
+            _e2.Velocity.Bounce(distance.Unit*-1.0);
         }
     }
 }

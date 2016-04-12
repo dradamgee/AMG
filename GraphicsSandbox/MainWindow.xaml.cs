@@ -25,7 +25,8 @@ namespace GraphicsSandbox {
             _universe.Dispose();
         }
 
-        private void ItemsControl_SizeChanged(object sender, SizeChangedEventArgs e) {
+        private void ItemsControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
             _universe.Size = new Dimensions(e.NewSize.Width, e.NewSize.Height);
         }
     }

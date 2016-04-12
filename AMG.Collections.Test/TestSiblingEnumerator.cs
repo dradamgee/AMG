@@ -9,7 +9,7 @@ namespace AMG.Collections.Test {
     [TestFixture]
     public class TestSiblingEnumerator {
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
+        //[ExpectedException(typeof(InvalidOperationException))]
         public void BeforeEnumerate() {
             var letterNode = new LetterNode();
             var siblingEnumerator = new SiblingEnumerator<string, char, int>(letterNode);
@@ -19,7 +19,7 @@ namespace AMG.Collections.Test {
 
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
+        //[ExpectedException(typeof(ArgumentNullException))]
         public void ConsturctorParameterIsNull() {
             new SiblingEnumerator<string, char, int>(null);
         }
@@ -73,7 +73,7 @@ namespace AMG.Collections.Test {
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
+        //[ExpectedException(typeof(InvalidOperationException))]
         public void MoveNextToEnd() {
             var letterNode1 = new LetterNode();
             var letterNode2 = new LetterNode();
@@ -90,7 +90,7 @@ namespace AMG.Collections.Test {
 
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
+        //[ExpectedException(typeof(InvalidOperationException))]
         public void Reset() {
             var letterNode = new LetterNode();
             var siblingEnumerator = new SiblingEnumerator<string, char, int>(letterNode);
