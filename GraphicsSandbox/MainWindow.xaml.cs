@@ -9,7 +9,7 @@ namespace GraphicsSandbox {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        readonly IDisposable _universe;
+        readonly Universe _universe;
 
         public MainWindow() {
             InitializeComponent();
@@ -23,6 +23,10 @@ namespace GraphicsSandbox {
 
         private void OnClosing(object sender, CancelEventArgs cancelEventArgs){
             _universe.Dispose();
+        }
+
+        private void ItemsControl_SizeChanged(object sender, SizeChangedEventArgs e) {
+            _universe.Size = new Dimensions(e.NewSize.Width, e.NewSize.Height);
         }
     }
 }

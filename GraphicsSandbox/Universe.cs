@@ -17,48 +17,52 @@ namespace GraphicsSandbox {
         CancellationTokenSource _cancellationTokenSource;
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
+        private int height;
 
         public Universe(Dispatcher dispatcher) {
             Dispatcher = dispatcher;
-            elements = new ObservableCollection<IElement>();
-            elements.Add(new Ball(4, new Dimensions(100, 100)));
-            elements.Add(new Square(4, new Dimensions(150, 150) ));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
-            elements.Add(new Square(4, new Dimensions(150, 150)));
+            Elements = new ObservableCollection<IElement>();
+            Elements.Add(new Ball(8, new Dimensions(100, 100)));
+            Elements.Add(new Square(8, new Dimensions(154, 154)));
+            Elements.Add(new Square(8, new Dimensions(158, 158)));
+            Elements.Add(new Square(8, new Dimensions(160, 151)));
+            Elements.Add(new Square(8, new Dimensions(170, 152)));
+            Elements.Add(new Square(8, new Dimensions(180, 153)));
+            Elements.Add(new Square(8, new Dimensions(190, 154)));
+            Elements.Add(new Square(8, new Dimensions(200, 155)));
+            Elements.Add(new Square(8, new Dimensions(220, 156)));
+            Elements.Add(new Square(8, new Dimensions(2100, 157)));
 
             
 
-            Gravity gravity = new Gravity(98, elements);
-            _boundry = new Boundry(new Dimensions(525, 350), elements);
+            Gravity gravity = new Gravity(98, Elements);
+            _boundry = new Boundry(new Dimensions(525, 350), Elements);
                                    
             timeDependentActions = new List<TimeDependentAction>();
 
-            WireCollisions(elements.ToArray());
+            WireCollisions(Elements.ToArray());
             timeDependentActions.Add(gravity);
             timeDependentActions.Add(_boundry);
-            timeDependentActions.AddRange(elements.Select(e => e.Velocity));
+            timeDependentActions.AddRange(Elements.Select(e => e.Velocity));
 
             _cancellationTokenSource = new CancellationTokenSource();
             time = new UniversalTime(timeDependentActions, _cancellationTokenSource.Token);
         }
 
         public void WireCollisions(IElement[] elements) {
-            for(int i = 0; i < elements.Count(); i++)
-            {
-                for (int j = i+1; j < elements.Count(); j++)
-                {
-                    timeDependentActions.Add(new Collision(4, elements[i], elements[j]));
+            for (int i = 0; i < elements.Count(); i++) {
+                for (int j = i + 1; j < elements.Count(); j++) {
+                    timeDependentActions.Add(new Collision(8, elements[i], elements[j]));
                 }
             }
         }
 
-        public ObservableCollection<IElement> elements {
+        public Dimensions Size {
+            get { return _boundry.Dimensions; }
+            set { _boundry.Dimensions = value; }
+        }
+
+        public ObservableCollection<IElement> Elements {
             get;
             set;
         }
