@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,10 +27,21 @@ namespace AMG.Physics
                 if (_cancelToken.IsCancellationRequested) {
                     return;
                 }
-
+                var start = DateTime.Now;
+                //Debug.WriteLine("Time Tick - start - " + start);
                 foreach (TimeDependentAction timeDependentAction in _actions) {
                     timeDependentAction.Act();
                 }
+                var end = DateTime.Now;
+                //Debug.WriteLine("Time Tick - 2 - " + DateTime.Now);
+
+                var totalMilliseconds = new TimeSpan(end.Ticks - start.Ticks).TotalMilliseconds;
+                //if (totalMilliseconds > _interval)
+                //{
+                    Debug.WriteLine("Warning tick took " + totalMilliseconds);
+                //}
+
+                
                 _cancelToken.WaitHandle.WaitOne(_interval);
             }
         }

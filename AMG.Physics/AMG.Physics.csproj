@@ -51,7 +51,7 @@
     <Compile Include="Bounce.cs" />
     <Compile Include="Boundry.cs" />
     <Compile Include="Collision.cs" />
-    <Compile Include="CollisionDetection.cs" />
+    <Compile Include="PairCollisionDetector.cs" />
     <Compile Include="Dimensions.cs" />
     <Compile Include="Gravity.cs" />
     <Compile Include="IElement.cs" />
