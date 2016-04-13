@@ -9,7 +9,7 @@ namespace AMG.Physics
     public class UniversalTime {
         private readonly IEnumerable<TimeDependentAction> _actions;
         private readonly CancellationToken _cancelToken;
-        private int _interval = 10;
+        private int _interval = 25;
 
         public UniversalTime(IEnumerable<TimeDependentAction> actions, CancellationToken cancelToken)
         {
@@ -36,10 +36,10 @@ namespace AMG.Physics
                 //Debug.WriteLine("Time Tick - 2 - " + DateTime.Now);
 
                 var totalMilliseconds = new TimeSpan(end.Ticks - start.Ticks).TotalMilliseconds;
-                //if (totalMilliseconds > _interval)
-                //{
+                if (totalMilliseconds > _interval) 
+                {
                     Debug.WriteLine("Warning tick took " + totalMilliseconds);
-                //}
+                }
 
                 
                 _cancelToken.WaitHandle.WaitOne(_interval);

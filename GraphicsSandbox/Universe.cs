@@ -24,7 +24,7 @@ namespace GraphicsSandbox {
             Elements = new ObservableCollection<IElement>();
 
 
-            int i = 400;
+            int i = 800;
             while (i-- > 1)
             {
                 Elements.Add(NewSquare());
@@ -58,14 +58,13 @@ namespace GraphicsSandbox {
             return new Ball(4, new Dimensions(RandomX, RandomY));
         }
 
-        Random randomX = new Random();
-        Random randomY = new Random();
+        Random random = new Random();
 
         private int RandomX {
-            get { return randomX.Next(525); }
+            get { return random.Next(525); }
         }
         private int RandomY {
-            get { return randomY.Next(350); }
+            get { return random.Next(350); }
         }
 
 
