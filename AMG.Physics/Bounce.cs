@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 
 namespace AMG.Physics {
     public static class VelocityExtentions {
-        //public static void Bounce(this Velocity velocity, Dimensions dimensions)
-        //{
 
-        //}
     }
 }

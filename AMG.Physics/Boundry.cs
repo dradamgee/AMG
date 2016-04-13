@@ -14,8 +14,14 @@ namespace AMG.Physics
             Dimensions = dimensions;
         }
 
+
+
+
         public override void Act() {
-            var d = 0.9;
+            var d = .7
+                
+                
+                ;
 
             ResetInterval();
 

@@ -1,8 +1,8 @@
 ﻿using AMG.Physics;
 using NUnit.Framework;
 using System;
-using static NUnit.Framework.Assert;
-using static System.Math;
+//using static NUnit.Framework.Assert;
+//using static System.Math;
 
 
 namespace AMG.Physics.Test
@@ -52,13 +52,13 @@ namespace AMG.Physics.Test
         public void TestUnit()
         {
             var unit = new Dimensions(1, 1).Unit;
-            AreClose(Pow(0.5, 0.5), unit.X);
-            AreClose(Pow(0.5, 0.5), unit.Y);
+            AreClose(Math.Pow(0.5, 0.5), unit.X);
+            AreClose(Math.Pow(0.5, 0.5), unit.Y);
         }
         
         public void AreClose(double expected, double actual, double spread = 0.000000001)
         {
-            IsTrue(Abs(expected - actual) < spread, actual + " is not very equal to " + expected);
+            Assert.IsTrue(Math.Abs(expected - actual) < spread, actual + " is not very equal to " + expected);
         }
 
         public void AreClose(Dimensions expected, Dimensions actual, double spread = 0.000000001)

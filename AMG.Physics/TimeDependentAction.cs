@@ -14,7 +14,6 @@ namespace AMG.Physics
             
             var resetInterval = ((double)now - _lastActedAt) / ticksPerSecond;
             _lastActedAt = now;
-            Debug.WriteLine(resetInterval);
             return resetInterval;
         }
 

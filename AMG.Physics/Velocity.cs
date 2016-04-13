@@ -20,13 +20,13 @@ namespace AMG.Physics
             _element.Location += Dimensions * interval;
         }
 
-        public void Bounce(Dimensions direction)
+        public void Bounce(Dimensions dimensions)
         {
-            var impulse = (-Dimensions.X * direction.X - Dimensions.Y * direction.Y);
+            var impulse = (-Dimensions.X * dimensions.X - Dimensions.Y * dimensions.Y);
 
             if (impulse > 0.0)
             {
-                var impulseVector = direction * impulse;
+                var impulseVector = dimensions * impulse;
                 Dimensions = Dimensions + impulseVector * 2.0;
             }
         }
