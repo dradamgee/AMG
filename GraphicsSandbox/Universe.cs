@@ -24,7 +24,7 @@ namespace GraphicsSandbox {
             Elements = new ObservableCollection<IElement>();
 
 
-            int i = 200;
+            int i = 800;
             while (i-- > 1)
             {
                 Elements.Add(NewSquare());
@@ -36,7 +36,7 @@ namespace GraphicsSandbox {
                                    
             timeDependentActions = new List<TimeDependentAction>();
 
-            WireCollisions(Elements.ToArray());
+            timeDependentActions.Add(new CollisionDetection(Elements));
             timeDependentActions.Add(gravity);
             timeDependentActions.Add(_boundry);
             timeDependentActions.AddRange(Elements.Select(e => e.Velocity));
@@ -49,8 +49,7 @@ namespace GraphicsSandbox {
 
         private Square NewSquare()
         {
-            var newSquare = new Square(8, new Dimensions(RandomX, RandomY));
-            return newSquare;
+            return new Square(8, new Dimensions(RandomX, RandomY));
         }
 
         private Ball NewBall() {
@@ -69,19 +68,6 @@ namespace GraphicsSandbox {
 
 
 
-        public void WireCollisions(IElement[] elements) {
-
-            for(int i = 0; i < elements.Count(); i++)
-            {
-                for (int j = i+1; j < elements.Count(); j++)
-                {
-                    var e1 = elements[i];
-                    var e2 = elements[j];
-
-                    timeDependentActions.Add(new Collision(e1.Radius+e2.Radius, e1, e2));
-                }
-            }
-        }
 
 
         public ObservableCollection<IElement> Elements {
