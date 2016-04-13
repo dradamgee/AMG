@@ -24,13 +24,14 @@ namespace AMG.Physics
             //}));            
         }
 
-        public void Bounce(Dimensions direction)
+        public void Bounce(Dimensions dimensions)
         {
-            var unit = direction;
+            var sumOfDimensions = (-Dimensions.X * dimensions.X - Dimensions.Y * dimensions.Y);
 
-            var impulse = unit * (-unit.X * Dimensions.X - unit.Y * Dimensions.Y);
-
-            this.Dimensions = Dimensions + impulse * 2.0;
+            if (sumOfDimensions > 0.0) {
+                var impulse = dimensions * sumOfDimensions;
+                Dimensions = Dimensions + impulse * 2.0;
+            }
         }
     }
 } 

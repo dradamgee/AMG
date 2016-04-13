@@ -23,38 +23,13 @@ namespace GraphicsSandbox {
             Dispatcher = dispatcher;
             Elements = new ObservableCollection<IElement>();
 
-            Elements.Add(new Ball(8, new Dimensions(100, 100)));
-            Elements.Add(new Square(8, new Dimensions(154, 154)));
-            Elements.Add(new Square(8, new Dimensions(158, 158)));
-            Elements.Add(new Square(8, new Dimensions(160, 151)));
-            Elements.Add(new Square(8, new Dimensions(170, 152)));
-            Elements.Add(new Square(8, new Dimensions(180, 153)));
-            Elements.Add(new Square(8, new Dimensions(190, 154)));
-            Elements.Add(new Square(8, new Dimensions(200, 155)));
-            Elements.Add(new Square(8, new Dimensions(220, 156)));
-            Elements.Add(new Square(8, new Dimensions(2100, 157)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Square(10, new Dimensions(150, 150) ));
-            Elements.Add(new Square(10, new Dimensions(151, 150)));
-            Elements.Add(new Square(10, new Dimensions(120, 150)));
-            Elements.Add(new Square(10, new Dimensions(250, 150)));
-            Elements.Add(new Square(10, new Dimensions(130, 150)));
-            Elements.Add(new Square(10, new Dimensions(140, 150)));
-            Elements.Add(new Square(10, new Dimensions(160, 150)));
-            Elements.Add(new Square(10, new Dimensions(170, 150)));
-            Elements.Add(new Square(10, new Dimensions(180, 150)));
-            Elements.Add(new Square(10, new Dimensions(150, 150)));
-            Elements.Add(new Square(10, new Dimensions(151, 150)));
 
+            int i = 200;
+            while (i-- > 1)
+            {
+                Elements.Add(NewSquare());
+                Elements.Add(NewBall());
+            }
 
             Gravity gravity = new Gravity(98, Elements);
             _boundry = new Boundry(new Dimensions(525, 350), Elements);
@@ -69,6 +44,30 @@ namespace GraphicsSandbox {
             _cancellationTokenSource = new CancellationTokenSource();
             time = new UniversalTime(timeDependentActions, _cancellationTokenSource.Token);
         }
+
+
+
+        private Square NewSquare()
+        {
+            var newSquare = new Square(8, new Dimensions(RandomX, RandomY));
+            return newSquare;
+        }
+
+        private Ball NewBall() {
+            return new Ball(8, new Dimensions(RandomX, RandomY));
+        }
+
+        Random randomX = new Random();
+        Random randomY = new Random();
+
+        private int RandomX {
+            get { return randomX.Next(525); }
+        }
+        private int RandomY {
+            get { return randomY.Next(350); }
+        }
+
+
 
         public void WireCollisions(IElement[] elements) {
 

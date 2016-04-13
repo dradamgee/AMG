@@ -1,3 +1,1 @@
-﻿internal class Math
-{
-}
+﻿
