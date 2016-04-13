@@ -17,20 +17,18 @@ namespace AMG.Physics
         public override void Act()
         {
             double interval = ResetInterval();
-
-            //// todo: do we need this invoke?
-            //Universe.Dispatcher.Invoke(new Action(() => {
-                _element.Location += Dimensions * interval;
-            //}));            
+            _element.Location += Dimensions * interval;
         }
 
         public void Bounce(Dimensions direction)
         {
-            var unit = direction;
+            var impulse = (-Dimensions.X * direction.X - Dimensions.Y * direction.Y);
 
-            var impulse = unit * (-unit.X * Dimensions.X - unit.Y * Dimensions.Y);
-
-            this.Dimensions = Dimensions + impulse * 2.0;
+            if (impulse > 0.0)
+            {
+                var impulseVector = direction * impulse;
+                Dimensions = Dimensions + impulseVector * 2.0;
+            }
         }
     }
 } 

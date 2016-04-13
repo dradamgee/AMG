@@ -27,16 +27,6 @@ namespace GraphicsSandbox {
             Elements.Add(new Square(8, new Dimensions(154, 154)));
             Elements.Add(new Square(8, new Dimensions(158, 158)));
             Elements.Add(new Square(8, new Dimensions(160, 151)));
-            Elements.Add(new Square(8, new Dimensions(170, 152)));
-            Elements.Add(new Square(8, new Dimensions(180, 153)));
-            Elements.Add(new Square(8, new Dimensions(190, 154)));
-            Elements.Add(new Square(8, new Dimensions(200, 155)));
-            Elements.Add(new Square(8, new Dimensions(220, 156)));
-            Elements.Add(new Square(8, new Dimensions(2100, 157)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
-            Elements.Add(new Ball(10, new Dimensions(100, 100)));
             Elements.Add(new Ball(10, new Dimensions(100, 100)));
             Elements.Add(new Ball(10, new Dimensions(100, 100)));
             Elements.Add(new Ball(10, new Dimensions(100, 100)));

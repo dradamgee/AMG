@@ -20,7 +20,7 @@ namespace AMG.Physics.Test
         }
 
         [Test]
-        public void BounceInAt45()
+        public void BounceAt45()
         {
             var v1 = new Velocity(null) { Dimensions = new Dimensions(0.0, -99.0) };
             v1.Bounce(new Dimensions(1, 1).Unit);
@@ -29,12 +29,22 @@ namespace AMG.Physics.Test
         }
 
         [Test]
-        public void BounceInAtNearly90()
+        public void BounceAtNearly90()
         {
             var v1 = new Velocity(null) { Dimensions = new Dimensions(0.0, -99.0) };
             v1.Bounce(new Dimensions(1, 0.000001).Unit);
 
             AreClose(new Dimensions(0.0, -99.0), v1.Dimensions, 0.01);
+        }
+
+
+        [Test]
+        public void BounceAt360()
+        {
+            var v1 = new Velocity(null) { Dimensions = new Dimensions(0.0, -99.0)};
+            v1.Bounce(new Dimensions(0, -1));
+
+            AreClose(new Dimensions(0.0, -99.0), v1.Dimensions);
         }
 
 
