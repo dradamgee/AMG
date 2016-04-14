@@ -3,24 +3,19 @@
 namespace GraphicsSandbox
 {
     public class Ball : Element{
-        private int m_diameter;
+        private int m_radius;
 
         public Ball(int diameter, Dimensions location) : base(location)
         {
-            Diameter = diameter;
+            m_radius = diameter;
         }
 
         public int Diameter {
-            get { return m_diameter; }
-            set
-            {
-                m_diameter = value;
-                OnPropertyChanged();
-            }
+            get { return m_radius * 2; }
         }
 
         public override double Radius {
-            get { return m_diameter; }
+            get { return m_radius; }
         }
     }
 }

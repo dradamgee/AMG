@@ -1,6 +1,7 @@
 ﻿using AMG.Physics;
+using Moq;
 using NUnit.Framework;
-using System;
+
 //using static NUnit.Framework.Assert;
 //using static System.Math;
 
@@ -8,7 +9,32 @@ using System;
 namespace AMG.Physics.Test
 {
     [TestFixture]
-    public class UnitTest1
+    public class TestCollision : TestAsserts
+    {
+        [Test]
+        public void HeadOnCollision() {
+            Mock<IElement> e1 = new Mock<IElement>();
+            var e1IsAt = new Dimensions(100, 0);
+            var e1IsGoing = new Velocity(e1.Object);
+
+            e1.SetupGet(e => e.Radius).Returns(10.0);
+            e1.SetupGet(e => e.Location).Returns(e1IsAt);
+            e1.SetupGet(e => e.Velocity).Returns(e1IsGoing);
+
+            Mock<IElement> e2 = new Mock<IElement>();
+            var e2IsAt = new Dimensions(90, 0);
+            var e2IsGoing = new Velocity(e1.Object);
+
+            e2.SetupGet(e => e.Radius).Returns(10.0);
+            e1.SetupGet(e => e.Location).Returns(e2IsAt);
+            e1.SetupGet(e => e.Velocity).Returns(e2IsGoing);
+
+            Collision.Act(e1.Object, e2.Object);
+        }
+    }
+
+    [TestFixture]
+    public class TestVelocity : TestAsserts
     {
         [Test]
         public void BounceAt180()
@@ -47,25 +73,6 @@ namespace AMG.Physics.Test
             AreClose(new Dimensions(0.0, -99.0), v1.Dimensions);
         }
 
-
-        [Test]
-        public void TestUnit()
-        {
-            var unit = new Dimensions(1, 1).Unit;
-            AreClose(Math.Pow(0.5, 0.5), unit.X);
-            AreClose(Math.Pow(0.5, 0.5), unit.Y);
-        }
-        
-        public void AreClose(double expected, double actual, double spread = 0.000000001)
-        {
-            Assert.IsTrue(Math.Abs(expected - actual) < spread, actual + " is not very equal to " + expected);
-        }
-
-        public void AreClose(Dimensions expected, Dimensions actual, double spread = 0.000000001)
-        {
-            AreClose(expected.X, actual.X, spread);
-            AreClose(expected.Y, actual.Y, spread);
-        }
        
 
 

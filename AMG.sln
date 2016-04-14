@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMG.Collections", "AMG.Collections\AMG.Collections.csproj", "{87C6086C-73EB-4021-B297-4E2820C9F334}"
 EndProject
@@ -25,6 +25,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMG.Physics", "AMG.Physics\AMG.Physics.csproj", "{5B49724E-DEF9-4F7D-883D-AFA9B8D847F2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMG.Physics.Test", "AMG.Physics.Test\AMG.Physics.Test.csproj", "{E6463AB2-C3C9-45E6-86FB-0BF1D29A0A31}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AMG.FySics", "AMG.FySics\AMG.FySics.fsproj", "{03115AE7-850C-461F-8977-A81893B48B63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -118,6 +120,16 @@ Global
 		{E6463AB2-C3C9-45E6-86FB-0BF1D29A0A31}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{E6463AB2-C3C9-45E6-86FB-0BF1D29A0A31}.Release|x86.ActiveCfg = Release|Any CPU
 		{E6463AB2-C3C9-45E6-86FB-0BF1D29A0A31}.Release|x86.Build.0 = Release|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{03115AE7-850C-461F-8977-A81893B48B63}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

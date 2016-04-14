@@ -6,6 +6,6 @@
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type graphicsSandbox:Square}">
-        <Rectangle Height="{Binding Size}" Width="{Binding Size}" Fill="Red"></Rectangle>
+        <Rectangle Height="{Binding SideLength}" Width="{Binding SideLength}" Fill="Red"></Rectangle>
     </DataTemplate>
 </ResourceDictionary>

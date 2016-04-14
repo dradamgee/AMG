@@ -50,11 +50,11 @@ namespace GraphicsSandbox {
 
         private Square NewSquare()
         {
-            return new Square(4, new Dimensions(RandomX, RandomY));
+            return new Square(14, new Dimensions(RandomX, RandomY));
         }
 
         private Ball NewBall() {
-            return new Ball( 5, new Dimensions(RandomX, RandomY));
+            return new Ball( 15, new Dimensions(RandomX, RandomY));
         }
 
         Random random = new Random();

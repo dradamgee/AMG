@@ -36,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AMG.FySics">
+      <HintPath>..\AMG.FySics\bin\Debug\AMG.FySics.dll</HintPath>
+    </Reference>
     <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
@@ -76,8 +79,10 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Math.cs" />
+    <Compile Include="TestAsserts.cs" />
     <Compile Include="TestCollisionDetector.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="TestDimensions.cs" />
+    <Compile Include="TestVelocity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

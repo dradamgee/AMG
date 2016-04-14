@@ -3,26 +3,28 @@
 namespace GraphicsSandbox
 {
     public class Square : Element{
-        private int m_size;
+        private int _sideLength;
+        private int _radius;
 
-        public int Size
+        public int SideLength
         {
-            get { return m_size; }
+            get { return _sideLength; }
             set
             {
-                m_size = value;
+                _sideLength = value;
+                _radius = value / 2;
                 OnPropertyChanged();
             }
         }
 
-        public Square(int size, Dimensions location) : base(location)
+        public Square(int sideLength, Dimensions location) : base(location)
         {
-            Size = size;
+            SideLength = sideLength;
         }
 
         public override double Radius
         {
-            get { return m_size; }
+            get { return _radius; }
         }
     }
 }
