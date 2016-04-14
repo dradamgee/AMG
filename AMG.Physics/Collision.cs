@@ -23,7 +23,7 @@ namespace AMG.Physics
             e2.Velocity.Bounce(distance.Unit * -loss);
         }
 
-        private static double loss = 0.77;
+        private static double loss = 0.9;
        
     }
 }

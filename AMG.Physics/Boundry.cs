@@ -15,14 +15,14 @@ namespace AMG.Physics
         }
 
 
+        static double d = 0.99;
+        Dimensions XUp = new Dimensions(d, 0.0);
+        Dimensions XDown = new Dimensions(-d, 0.0);
+        Dimensions YUp = new Dimensions(0.0, d);
+        Dimensions YDown = new Dimensions(0.0, -d);
 
 
         public override void Act() {
-            var d = .7
-                
-                
-                ;
-
             ResetInterval();
 
             foreach (var element in _elements) {
@@ -30,14 +30,14 @@ namespace AMG.Physics
                 {
                     if (element.Velocity.Dimensions.X > 0)
                     {
-                        element.Velocity.Dimensions *= new Dimensions(-1, 1) * d;
+                        element.Velocity.Bounce(XDown);
                     }
                 }
                 if (element.Location.X < 0) 
                 {
                     if (element.Velocity.Dimensions.X < 0) 
                     {
-                        element.Velocity.Dimensions *= new Dimensions(-1, 1) * d;
+                        element.Velocity.Bounce(XUp);
                     }
                 }
 
@@ -45,14 +45,14 @@ namespace AMG.Physics
                 {
                     if (element.Velocity.Dimensions.Y > 0) 
                     {
-                        element.Velocity.Dimensions *= new Dimensions(1, -1) * d;
+                        element.Velocity.Bounce(YDown);
                     }
                 }
                 if (element.Location.Y < 0) 
                 {
                     if (element.Velocity.Dimensions.Y < 0) 
                     {
-                        element.Velocity.Dimensions *= new Dimensions(1, -1) * d;
+                        element.Velocity.Bounce(YUp);
                     }
                 }
 

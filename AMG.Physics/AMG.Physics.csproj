@@ -48,7 +48,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bounce.cs" />
     <Compile Include="Boundry.cs" />
     <Compile Include="Collision.cs" />
     <Compile Include="ICollisionDetector.cs" />
