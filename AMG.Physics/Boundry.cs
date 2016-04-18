@@ -21,7 +21,6 @@ namespace AMG.Physics
         Dimensions YUp = new Dimensions(0.0, d);
         Dimensions YDown = new Dimensions(0.0, -d);
 
-
         public override void Act() {
             ResetInterval();
 
