@@ -1,8 +1,10 @@
-﻿using System;
+﻿using AMG.Physics;
+using AMG.FySics;
+using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Windows;
-using AMG.Physics;
+
 
 namespace GraphicsSandbox {
     /// <summary>

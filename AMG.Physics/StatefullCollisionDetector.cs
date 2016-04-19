@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AMG.FySics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,7 @@ namespace AMG.Physics
 {
     public class StatefullCollisionDetector : TimeDependentAction, ICollisionDetector
     {
+        private Collision collision = new Collision(0.9);
         private readonly IElement[] _elementsOrderedByX;
         private readonly IElement[] _elementsOrderedByY;
         private readonly int _count;
@@ -21,7 +23,10 @@ namespace AMG.Physics
         {
             var pairs = Detect().ToArray();
             foreach (var pair in pairs) {
-                Collision.Act(pair.Item1, pair.Item2);
+                var e1 = pair.Item1;
+                var e2 = pair.Item2;
+                var impulse = collision.Act(e1, e2);
+                e1.Velocity = new Velocity(new Dimensions(e1.Velocity.Dimensions.X, e1.Velocity.Dimensions.Y));
             }
         }
 

@@ -1,14 +1,18 @@
-﻿using System.ComponentModel;
+﻿using AMG.Physics;
+using AMG.FySics;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using AMG.Physics;
+
 
 namespace GraphicsSandbox
 {
     public abstract class Element : INotifyPropertyChanged, IElement
     {
+        public double Mass { get { return 1.0; } }
+
         public Element(Dimensions location)
         {
-            Velocity = new Velocity(this) {Dimensions = new Dimensions(20, 30)};
+            Velocity = new Velocity(new Dimensions(20, 30));
             _location = location;
         }
         

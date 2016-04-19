@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AMG.FySics;
+using System;
 using NUnit.Framework;
-using AMG.FySics;
 
 namespace AMG.Physics.Test
 {

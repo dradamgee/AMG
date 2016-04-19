@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AMG.FySics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,7 @@ namespace AMG.Physics
 {
     public class PairCollisionDetector : TimeDependentAction, ICollisionDetector
     {
+        private Collision collision = new Collision(0.9);
         private readonly IElement[] _elements;
 
         public PairCollisionDetector(IEnumerable<IElement> elements)
@@ -18,7 +20,7 @@ namespace AMG.Physics
             var pairs = Detect();
             foreach (var pair in pairs)
             {
-                Collision.Act(pair.Item1, pair.Item2);
+                collision.Act(pair.Item1, pair.Item2);
             }
         }
 

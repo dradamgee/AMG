@@ -36,9 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AMG.FySics">
-      <HintPath>..\AMG.FySics\bin\Debug\AMG.FySics.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Core, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
@@ -87,6 +84,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AMG.FySics\AMG.FySics.fsproj">
+      <Project>{03115ae7-850c-461f-8977-a81893b48b63}</Project>
+      <Name>AMG.FySics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AMG.Physics\AMG.Physics.csproj">
       <Project>{5B49724E-DEF9-4F7D-883D-AFA9B8D847F2}</Project>
       <Name>AMG.Physics</Name>

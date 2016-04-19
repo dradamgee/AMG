@@ -1,4 +1,5 @@
-﻿using AMG.Physics;
+﻿using AMG.FySics;
+using AMG.Physics;
 
 namespace GraphicsSandbox
 {

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AMG.FySics;
+using AMG.Physics;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -6,7 +8,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Threading;
-using AMG.Physics;
 
 namespace GraphicsSandbox {
     public class Universe : INotifyPropertyChanged, IDisposable
@@ -30,7 +31,7 @@ namespace GraphicsSandbox {
                 Elements.Add(NewBall());
             }
 
-            Gravity gravity = new Gravity(300, Elements);
+            Gravity gravity = new Gravity(300);
             _boundry = new Boundry(new Dimensions(525, 350), Elements);
                                    
             timeDependentActions = new List<TimeDependentAction>();
@@ -38,9 +39,9 @@ namespace GraphicsSandbox {
             timeDependentActions.Add(new StatefullCollisionDetector(Elements));
             //timeDependentActions.Add(new PairCollisionDetector(Elements));
 
-            timeDependentActions.Add(gravity);
+            //timeDependentActions.Add(gravity);
             timeDependentActions.Add(_boundry);
-            timeDependentActions.AddRange(Elements.Select(e => e.Velocity));
+            //timeDependentActions.AddRange(Elements.Select(e => e.Velocity));
 
             _cancellationTokenSource = new CancellationTokenSource();
             time = new UniversalTime(timeDependentActions, _cancellationTokenSource.Token);
