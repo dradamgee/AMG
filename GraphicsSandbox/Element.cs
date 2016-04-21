@@ -12,7 +12,7 @@ namespace GraphicsSandbox
 
         public Element(Dimensions location)
         {
-            Velocity = new Velocity(new Dimensions(20, 30));
+            Velocity = new Velocity(new Dimensions(10, 15));
             _location = location;
         }
         

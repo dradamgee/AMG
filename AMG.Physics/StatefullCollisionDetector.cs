@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.FSharp.Core;
 
 namespace AMG.Physics
 {
     public class StatefullCollisionDetector : TimeDependentAction, ICollisionDetector
     {
-        private Collision collision = new Collision(0.9);
+        private Collision collision = new Collision(0.5);
         private readonly IElement[] _elementsOrderedByX;
         private readonly IElement[] _elementsOrderedByY;
         private readonly int _count;
@@ -26,7 +27,11 @@ namespace AMG.Physics
                 var e1 = pair.Item1;
                 var e2 = pair.Item2;
                 var impulse = collision.Act(e1, e2);
-                e1.Velocity = new Velocity(new Dimensions(e1.Velocity.Dimensions.X, e1.Velocity.Dimensions.Y));
+                if (impulse != null)
+                {
+                    e1.Velocity = new Velocity(e1.Velocity.Dimensions + impulse.Value);
+                    e2.Velocity = new Velocity(e1.Velocity.Dimensions - impulse.Value);
+                }
             }
         }
 

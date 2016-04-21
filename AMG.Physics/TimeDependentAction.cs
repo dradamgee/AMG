@@ -3,6 +3,21 @@ using System.Diagnostics;
 
 namespace AMG.Physics
 {
+    public class TimeDependentActionable : TimeDependentAction
+    {
+        private readonly Action<double> _action;
+
+        public TimeDependentActionable(Action<double> action)
+        {
+            _action = action;
+        }
+
+        public override void Act()
+        {
+            _action(ResetInterval());
+        }
+    }
+
     public abstract class TimeDependentAction {
         public TimeDependentAction()
         {
