@@ -36,6 +36,7 @@ namespace AMG.Physics.Test
             e1.SetupGet(e => e.Radius).Returns(10.0);
             e1.SetupGet(e => e.Location).Returns(e1IsAt);
             e1.SetupGet(e => e.Velocity).Returns(e1IsGoing);
+            e1.SetupGet(e => e.Mass).Returns(1.0);
             return e1;
         }
     }

@@ -8,7 +8,7 @@ namespace AMG.Physics
 {
     public class StatefullCollisionDetector : TimeDependentAction, ICollisionDetector
     {
-        private Collision collision = new Collision(0.5);
+        private Collision collision = new Collision(0.75);
         private readonly IElement[] _elementsOrderedByX;
         private readonly IElement[] _elementsOrderedByY;
         private readonly int _count;
@@ -30,7 +30,7 @@ namespace AMG.Physics
                 if (impulse != null)
                 {
                     e1.Velocity = new Velocity(e1.Velocity.Dimensions + impulse.Value);
-                    e2.Velocity = new Velocity(e1.Velocity.Dimensions - impulse.Value);
+                    e2.Velocity = new Velocity(e2.Velocity.Dimensions - impulse.Value);
                 }
             }
         }

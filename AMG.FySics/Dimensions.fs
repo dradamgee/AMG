@@ -9,6 +9,9 @@
         member this.Inverse = Dimensions(Y, X)
         static member (*) (n : float, d: Dimensions) = Dimensions (d.X * n, d.Y * n)
         static member (*) (d: Dimensions, n : float) = n * d
+        static member (*) (d1: Dimensions, d2: Dimensions) = d1.X*d2.X + d1.Y*d2.Y
+        static member (*) (d1: Dimensions, d2: Unit) = d1.X*d2.X + d1.Y*d2.Y
+        static member (*) (d1: Unit, d2: Dimensions) = d1.X*d2.X + d1.Y*d2.Y
         static member (/) (d: Dimensions, n : float) = Dimensions (d.X / n, d.Y / n)
         static member (+) (d1 : Dimensions, d2: Dimensions) = Dimensions (d1.X + d2.X, d1.Y + d2.Y)
         static member (-) (d1 : Dimensions, d2: Dimensions) = Dimensions (d1.X - d2.X, d1.Y - d2.Y)
@@ -43,7 +46,15 @@
             let distance = e1.Location - e2.Location
             if distance.Magnitude > sumOfRadii 
                 then None 
-                else Some(distance.Unit * Loss * (e1.Velocity.Dimensions.Magnitude + e1.Velocity.Dimensions.Magnitude)) // TODO work out the impulse.    
+                else                     
+                    Some(
+                        -2.0 *
+                        Loss *
+                        distance.Unit *
+                        (e1.Velocity.Dimensions * distance.Unit - e2.Velocity.Dimensions * distance.Unit) 
+                        * (e1.Mass * e2.Mass) 
+                        / (e1.Mass + e2.Mass)
+                        ) 
 
     type Gravity(Acceleration : float) = 
         let Direction = new Dimensions(0.0, 1.0)     

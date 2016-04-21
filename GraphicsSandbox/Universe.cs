@@ -24,7 +24,7 @@ namespace GraphicsSandbox {
             Dispatcher = dispatcher;
             Elements = new ObservableCollection<IElement>();
 
-            int i = 5;
+            int i = 600;
             while (i-- > 1)
             {
                 //Elements.Add(NewSquare());
@@ -32,7 +32,7 @@ namespace GraphicsSandbox {
             }
 
 
-            Gravity gravity = new Gravity(300);
+            Gravity gravity = new Gravity(30);
             TimeDependentActionable gravityAction = new TimeDependentActionable
                 (
                     interval =>
@@ -74,11 +74,11 @@ namespace GraphicsSandbox {
 
         private Square NewSquare()
         {
-            return new Square(12, new Dimensions(RandomX, RandomY));
+            return new Square(4, new Dimensions(RandomX, RandomY));
         }
 
         private Ball NewBall() {
-            return new Ball( 13, new Dimensions(RandomX, RandomY));
+            return new Ball( 8, new Dimensions(RandomX, RandomY));
         }
 
         Random random = new Random();
