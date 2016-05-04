@@ -8,12 +8,13 @@ namespace GraphicsSandbox
 {
     public abstract class Element : INotifyPropertyChanged, IElement
     {
-        public double Mass { get { return 1.0; } }
+        public double Mass { get; set; }
 
-        public Element(Dimensions location)
+        public Element(Dimensions location, Velocity velocity)
         {
-            Velocity = new Velocity(new Dimensions(1, 2));
+            Velocity = velocity;
             _location = location;
+            Mass = 1.0d;
         }
         
         private Dimensions _location;
@@ -28,8 +29,7 @@ namespace GraphicsSandbox
                 OnPropertyChanged("Left");
             }
         }
-
-
+        
         public double Top {
             get { return Location.Y; }
         }
@@ -47,5 +47,10 @@ namespace GraphicsSandbox
         }
 
         public abstract double Radius { get; }
+
+        public override string ToString()
+        {
+            return Mass + "|" + Radius + "|" + Location + "|" + Velocity;
+        }
     }
 }

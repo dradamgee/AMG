@@ -6,7 +6,7 @@ using Microsoft.FSharp.Core;
 
 namespace AMG.Physics
 {
-    public class StatefullCollisionDetector : TimeDependentAction, ICollisionDetector
+    public class StatefullCollisionDetector : ICollisionDetector
     {
         private Collision collision = new Collision(0.75);
         private readonly IElement[] _elementsOrderedByX;
@@ -20,7 +20,7 @@ namespace AMG.Physics
             _count = _elementsOrderedByX.Length;
         }
 
-        public override void Act()
+        public IEnumerable<PendingImpulse> Act()
         {
             var pairs = Detect().ToArray();
             foreach (var pair in pairs) {
@@ -29,8 +29,8 @@ namespace AMG.Physics
                 var impulse = collision.Act(e1, e2);
                 if (impulse != null)
                 {
-                    e1.Velocity = new Velocity(e1.Velocity.Dimensions + impulse.Value);
-                    e2.Velocity = new Velocity(e2.Velocity.Dimensions - impulse.Value);
+                    yield return new PendingImpulse(e1, impulse.Value);
+                    yield return new PendingImpulse(e2, -impulse.Value);                    
                 }
             }
         }

@@ -24,23 +24,56 @@ namespace GraphicsSandbox {
             Dispatcher = dispatcher;
             Elements = new ObservableCollection<IElement>();
 
-            int i = 600;
-            while (i-- > 1)
+
+            var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
+            var e2 = (Ball)"1 | 8 | 185.307610553024 | 214.62117119859 | 15.1709404889631 | -5.65428572085577";
+
+              
+
+
+            Elements.Add(e1);
+            Elements.Add(e2);
+
+
+            int i = 0;
+            while (i-- > 0)
             {
                 //Elements.Add(NewSquare());
                 Elements.Add(NewBall());
+
             }
+            
+            Gravity gravity = new Gravity(100);
+            var collisions = new StatefullCollisionDetector(Elements);
 
-
-            Gravity gravity = new Gravity(30);
             TimeDependentActionable gravityAction = new TimeDependentActionable
                 (
                     interval =>
                     {
-                        foreach (var element in Elements)
+                        var pendingGravityImpulses =
+                        from e in Elements
+                        select gravity.Act(e, interval);
+
+                        var pendingCollisionImpulses = collisions.Act();
+
+                        var allImpulses = pendingCollisionImpulses
+                        //.Concat(pendingGravityImpulses)
+                        ;
+                        
+
+                        var impulseGroups = allImpulses.GroupBy(pe => pe.Element, pe => pe.Impulse);
+                        
+                        foreach (var impulseGroup in impulseGroups)
                         {
-                            element.Velocity = new Velocity(element.Velocity.Dimensions + gravity.Act(element, interval));
+                            IElement element = impulseGroup.Key;
+                            var totalImpulse = impulseGroup.Aggregate((d1, d2) => d1 + d2);
+
+                            System.Diagnostics.Debug.WriteLine(string.Empty);
+                            System.Diagnostics.Debug.WriteLine(element.ToString());
+                            element.Velocity = new Velocity(element.Velocity.Dimensions + totalImpulse);
+                            System.Diagnostics.Debug.WriteLine(element.ToString());
                         }
+
                     }
                 );
 
@@ -53,18 +86,34 @@ namespace GraphicsSandbox {
                     }
                 );
 
+            
+            
+            
 
+                
+                
+                
 
+            
             _boundry = new Boundry(new Dimensions(525, 350), Elements);
                                    
             timeDependentActions = new List<TimeDependentAction>();
 
-            timeDependentActions.Add(new StatefullCollisionDetector(Elements));
-            //timeDependentActions.Add(new PairCollisionDetector(Elements));
-
-            timeDependentActions.Add(gravityAction);
-            timeDependentActions.Add(_boundry);
+            //Move the objects
             timeDependentActions.Add(velocityAction);
+            //Calculate the impulses
+            
+            timeDependentActions.Add(gravityAction);
+            //reclaculate the velocity
+            //enforce bAOUNDRY
+            timeDependentActions.Add(_boundry);
+
+
+
+
+
+
+
 
             _cancellationTokenSource = new CancellationTokenSource();
             time = new UniversalTime(timeDependentActions, _cancellationTokenSource.Token);
@@ -74,11 +123,11 @@ namespace GraphicsSandbox {
 
         private Square NewSquare()
         {
-            return new Square(4, new Dimensions(RandomX, RandomY));
+            return new Square(12, new Dimensions(RandomX, RandomY), new Velocity(new Dimensions(10, 20)));
         }
 
         private Ball NewBall() {
-            return new Ball( 8, new Dimensions(RandomX, RandomY));
+            return new Ball( 8, new Dimensions(RandomX, RandomY), new Velocity(new Dimensions(10, 20)));
         }
 
         Random random = new Random();

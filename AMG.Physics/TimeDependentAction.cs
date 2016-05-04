@@ -12,9 +12,9 @@ namespace AMG.Physics
             _action = action;
         }
 
-        public override void Act()
+        public override void Act(double interval)
         {
-            _action(ResetInterval());
+            _action(interval);
         }
     }
 
@@ -35,6 +35,6 @@ namespace AMG.Physics
         protected long _lastActedAt;
         protected long ticksPerSecond = TimeSpan.FromSeconds(1).Ticks;
         protected long Now { get { return DateTime.Now.Ticks; } }
-        public abstract void Act();
+        public abstract void Act(double interval);
     }
 }

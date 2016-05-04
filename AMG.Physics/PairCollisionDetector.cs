@@ -15,7 +15,7 @@ namespace AMG.Physics
             _elements = elements.ToArray();
         }
 
-        public override void Act()
+        public override void Act(double interval)
         {
             var pairs = Detect();
             foreach (var pair in pairs)

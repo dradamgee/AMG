@@ -22,8 +22,8 @@ namespace AMG.Physics
         Unit YUp = new Unit(0.0, d);
         Unit YDown = new Unit(0.0, -d);
 
-        public override void Act() {
-            ResetInterval();
+        public override void Act(double interval) {
+            //ResetInterval();
 
             foreach (var element in _elements) {
                 if (element.Location.X > Dimensions.X)

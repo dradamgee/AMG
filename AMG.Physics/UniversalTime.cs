@@ -9,7 +9,8 @@ namespace AMG.Physics
     public class UniversalTime {
         private readonly IEnumerable<TimeDependentAction> _actions;
         private readonly CancellationToken _cancelToken;
-        private int _interval = 25;
+        private const int _interval = 25;
+        private const double _intervalInSecounds = 0.025d;
 
         public UniversalTime(IEnumerable<TimeDependentAction> actions, CancellationToken cancelToken)
         {
@@ -30,7 +31,7 @@ namespace AMG.Physics
                 var start = DateTime.Now;
                 //Debug.WriteLine("Time Tick - start - " + start);
                 foreach (TimeDependentAction timeDependentAction in _actions) {
-                    timeDependentAction.Act();
+                    timeDependentAction.Act(_intervalInSecounds);
                 }
                 var end = DateTime.Now;
                 //Debug.WriteLine("Time Tick - 2 - " + DateTime.Now);
