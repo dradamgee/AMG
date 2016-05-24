@@ -20,17 +20,12 @@ namespace GraphicsSandbox {
         List<TimeDependentAction> timeDependentActions;
         private int height;
 
-        public Universe(Dispatcher dispatcher) {
-            Dispatcher = dispatcher;
+        public Universe() {
             Elements = new ObservableCollection<IElement>();
-
-
+            
             var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
             var e2 = (Ball)"1 | 8 | 185.307610553024 | 214.62117119859 | 15.1709404889631 | -5.65428572085577";
-
-              
-
-
+            
             Elements.Add(e1);
             Elements.Add(e2);
 
@@ -57,7 +52,7 @@ namespace GraphicsSandbox {
                         var pendingCollisionImpulses = collisions.Act();
 
                         var allImpulses = pendingCollisionImpulses
-                        //.Concat(pendingGravityImpulses)
+                        .Concat(pendingGravityImpulses)
                         ;
                         
 
@@ -70,7 +65,7 @@ namespace GraphicsSandbox {
 
                             System.Diagnostics.Debug.WriteLine(string.Empty);
                             System.Diagnostics.Debug.WriteLine(element.ToString());
-                            element.Velocity = new Velocity(element.Velocity.Dimensions + totalImpulse);
+                            element.Velocity = new Velocity(element.Velocity.Vector + totalImpulse);
                             System.Diagnostics.Debug.WriteLine(element.ToString());
                         }
 
@@ -95,7 +90,7 @@ namespace GraphicsSandbox {
                 
 
             
-            _boundry = new Boundry(new Dimensions(525, 350), Elements);
+            _boundry = new Boundry(new Vector(525, 350), Elements);
                                    
             timeDependentActions = new List<TimeDependentAction>();
 
@@ -123,11 +118,11 @@ namespace GraphicsSandbox {
 
         private Square NewSquare()
         {
-            return new Square(12, new Dimensions(RandomX, RandomY), new Velocity(new Dimensions(10, 20)));
+            return new Square(12, new Vector(RandomX, RandomY), new Velocity(new Vector(10, 20)));
         }
 
         private Ball NewBall() {
-            return new Ball( 8, new Dimensions(RandomX, RandomY), new Velocity(new Dimensions(10, 20)));
+            return new Ball( 8, new Vector(RandomX, RandomY), new Velocity(new Vector(10, 20)));
         }
 
         Random random = new Random();
@@ -148,15 +143,15 @@ namespace GraphicsSandbox {
             set;
         }
 
-        public Dimensions Size
+        public Vector Size
         {
             get
             {
-                return _boundry.Dimensions;
+                return _boundry.Size;
             }
             set
             {
-                _boundry.Dimensions = value;
+                _boundry.Size = value;
             }
         }
 

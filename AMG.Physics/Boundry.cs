@@ -5,14 +5,14 @@ namespace AMG.Physics
 {
     public class Boundry : TimeDependentAction
     {
-        public Dimensions Dimensions;
+        public Vector Size;
         
         private readonly IEnumerable<IElement> _elements;
 
-        public Boundry(Dimensions dimensions, IEnumerable<IElement> elements)
+        public Boundry(Vector size, IEnumerable<IElement> elements)
         {
             _elements = elements;
-            Dimensions = dimensions;
+            Size = size;
         }
 
 
@@ -26,31 +26,31 @@ namespace AMG.Physics
             //ResetInterval();
 
             foreach (var element in _elements) {
-                if (element.Location.X > Dimensions.X)
+                if (element.Right > Size.X)
                 {
-                    if (element.Velocity.Dimensions.X > 0)
+                    if (element.Velocity.Vector.X > 0)
                     {
                         element.Velocity = new Velocity(element.Velocity.Bounce(XDown));
                     }
                 }
-                if (element.Location.X < 0) 
+                if (element.Left < 0) 
                 {
-                    if (element.Velocity.Dimensions.X < 0) 
+                    if (element.Velocity.Vector.X < 0) 
                     {
                         element.Velocity = new Velocity(element.Velocity.Bounce(XUp));
                     }
                 }
 
-                if (element.Location.Y > Dimensions.Y) 
+                if (element.Bottom > Size.Y) 
                 {
-                    if (element.Velocity.Dimensions.Y > 0) 
+                    if (element.Velocity.Vector.Y > 0) 
                     {
                         element.Velocity = new Velocity(element.Velocity.Bounce(YDown));
                     }
                 }
-                if (element.Location.Y < 0) 
+                if (element.Top < 0) 
                 {
-                    if (element.Velocity.Dimensions.Y < 0) 
+                    if (element.Velocity.Vector.Y < 0) 
                     {
                         element.Velocity = new Velocity(element.Velocity.Bounce(YUp));
                     }

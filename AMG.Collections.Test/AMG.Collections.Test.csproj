@@ -79,12 +79,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AMG.Collections\AMG.Collections.csproj">
-      <Project>{87C6086C-73EB-4021-B297-4E2820C9F334}</Project>
-      <Name>AMG.Collections</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

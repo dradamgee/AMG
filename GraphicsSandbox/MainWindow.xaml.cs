@@ -4,7 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Windows;
-
+using Vector = AMG.FySics.Vector;
 
 namespace GraphicsSandbox {
     /// <summary>
@@ -16,7 +16,7 @@ namespace GraphicsSandbox {
         public MainWindow() {
             InitializeComponent();
 
-            _universe = new Universe(Dispatcher);
+            _universe = new Universe();
             DataContext = _universe;
             
             Closing += OnClosing;
@@ -29,7 +29,7 @@ namespace GraphicsSandbox {
 
         private void ItemsControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _universe.Size = new Dimensions(e.NewSize.Width, e.NewSize.Height);
+            _universe.Size = new Vector(e.NewSize.Width, e.NewSize.Height);
         }
     }
 }

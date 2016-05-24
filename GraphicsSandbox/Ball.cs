@@ -1,4 +1,5 @@
-﻿using AMG.FySics;
+﻿using System.Globalization;
+using AMG.FySics;
 using AMG.Physics;
 
 namespace GraphicsSandbox
@@ -6,7 +7,7 @@ namespace GraphicsSandbox
     public class Ball : Element{
         private int m_radius;
 
-        public Ball(int diameter, Dimensions location, Velocity velocity) : base(location, velocity)
+        public Ball(int diameter, Vector location, Velocity velocity) : base(location, velocity)
         {
             m_radius = diameter;
         }
@@ -23,10 +24,10 @@ namespace GraphicsSandbox
         {
             var xx = s.Split('|');
             return new Ball(
-                int.Parse(xx[1]), 
-                new Dimensions(double.Parse(xx[2]), double.Parse(xx[3])), 
+                int.Parse(xx[1], CultureInfo.InvariantCulture),
+                new Vector(double.Parse(xx[2], CultureInfo.InvariantCulture), double.Parse(xx[3], CultureInfo.InvariantCulture)), 
                 new Velocity(
-                    new Dimensions(double.Parse(xx[4]), double.Parse(xx[5])
+                    new Vector(double.Parse(xx[4], CultureInfo.InvariantCulture), double.Parse(xx[5], CultureInfo.InvariantCulture)
                     )));
         }
     }

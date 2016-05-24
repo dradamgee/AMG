@@ -22,11 +22,11 @@ namespace AMG.Physics.Test
         {
             Mock<IElement> e1 = new Mock<IElement>();
             e1.SetupGet(e => e.Radius).Returns(10.0);
-            e1.SetupGet(e => e.Location).Returns(new Dimensions(100.0, 100.0));
+            e1.SetupGet(e => e.Location).Returns(new Vector(100.0, 100.0));
 
             Mock<IElement> e2 = new Mock<IElement>();
             e2.SetupGet(e => e.Radius).Returns(10.0);
-            e2.SetupGet(e => e.Location).Returns(new Dimensions(101.0, 101.0));
+            e2.SetupGet(e => e.Location).Returns(new Vector(101.0, 101.0));
 
             var elements = new IElement[] { e1.Object, e2.Object, };
             
@@ -44,11 +44,11 @@ namespace AMG.Physics.Test
         public void TwoObjectsVeryFar_NotDetected(Func<IEnumerable<IElement>, ICollisionDetector> collisionDetectorFactory) {
             Mock<IElement> e1 = new Mock<IElement>();
             e1.SetupGet(e => e.Radius).Returns(10.0);
-            e1.SetupGet(e => e.Location).Returns(new Dimensions(1000.0, 1000.0));
+            e1.SetupGet(e => e.Location).Returns(new Vector(1000.0, 1000.0));
 
             Mock<IElement> e2 = new Mock<IElement>();
             e2.SetupGet(e => e.Radius).Returns(10.0);
-            e2.SetupGet(e => e.Location).Returns(new Dimensions(101.0, 101.0));
+            e2.SetupGet(e => e.Location).Returns(new Vector(101.0, 101.0));
 
             var elements = new IElement[] { e1.Object, e2.Object, };
 

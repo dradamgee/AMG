@@ -18,7 +18,7 @@ namespace GraphicsSandbox
             }
         }
 
-        public Square(int sideLength, Dimensions location, Velocity velocity) : base(location, velocity)
+        public Square(int sideLength, Vector location, Velocity velocity) : base(location, velocity)
         {
             SideLength = sideLength;
         }

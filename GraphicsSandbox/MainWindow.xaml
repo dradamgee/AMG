@@ -2,7 +2,12 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:graphicsSandbox="clr-namespace:GraphicsSandbox"
-        Title="MainWindow" Height="386" Width="573">
+        Title="MainWindow" 
+        
+         WindowStyle="None"
+    WindowState="Maximized"
+    WindowStartupLocation="CenterScreen"
+        >
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

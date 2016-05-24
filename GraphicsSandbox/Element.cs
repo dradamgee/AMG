@@ -10,17 +10,17 @@ namespace GraphicsSandbox
     {
         public double Mass { get; set; }
 
-        public Element(Dimensions location, Velocity velocity)
+        public Element(Vector location, Velocity velocity)
         {
             Velocity = velocity;
             _location = location;
             Mass = 1.0d;
         }
         
-        private Dimensions _location;
+        private Vector _location;
         public Velocity Velocity {get;set;}
 
-        public Dimensions Location {
+        public Vector Location {
             get { return _location; }
             set {
                 _location = value;
@@ -31,13 +31,23 @@ namespace GraphicsSandbox
         }
         
         public double Top {
-            get { return Location.Y; }
+            get { return Location.Y - Radius; }
         }
 
         public double Left {
-            get { return Location.X; }
+            get { return Location.X - Radius; }
         }
-        
+
+        public double Bottom
+        {
+            get { return Location.Y + Radius; }
+        }
+
+        public double Right
+        {
+            get { return Location.X + Radius; }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
