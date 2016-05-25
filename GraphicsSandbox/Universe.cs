@@ -19,26 +19,26 @@ namespace GraphicsSandbox {
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
         private int height;
+        private int BallSize = 10;
+        private int NumberOfBalls = 25;
+        private double accelerationDueToGravity = 98;
 
         public Universe() {
             Elements = new ObservableCollection<IElement>();
             
-            var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
-            var e2 = (Ball)"1 | 8 | 185.307610553024 | 214.62117119859 | 15.1709404889631 | -5.65428572085577";
-            
-            Elements.Add(e1);
-            Elements.Add(e2);
+            //var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
+            //var e2 = (Ball)"1 | 8 | 185.307610553024 | 214.62117119859 | 15.1709404889631 | -5.65428572085577";
 
-
-            int i = 0;
+            //Elements.Add(e1);
+            //Elements.Add(e2);
+            //Elements.Add(NewSquare());
+            int i = NumberOfBalls;
             while (i-- > 0)
             {
-                //Elements.Add(NewSquare());
                 Elements.Add(NewBall());
-
             }
-            
-            Gravity gravity = new Gravity(100);
+
+            Gravity gravity = new Gravity(accelerationDueToGravity);
             var collisions = new StatefullCollisionDetector(Elements);
 
             TimeDependentActionable gravityAction = new TimeDependentActionable
@@ -63,10 +63,10 @@ namespace GraphicsSandbox {
                             IElement element = impulseGroup.Key;
                             var totalImpulse = impulseGroup.Aggregate((d1, d2) => d1 + d2);
 
-                            System.Diagnostics.Debug.WriteLine(string.Empty);
-                            System.Diagnostics.Debug.WriteLine(element.ToString());
+                            //System.Diagnostics.Debug.WriteLine(string.Empty);
+                            //System.Diagnostics.Debug.WriteLine(element.ToString());
                             element.Velocity = new Velocity(element.Velocity.Vector + totalImpulse);
-                            System.Diagnostics.Debug.WriteLine(element.ToString());
+                            //System.Diagnostics.Debug.WriteLine(element.ToString());
                         }
 
                     }
@@ -122,7 +122,7 @@ namespace GraphicsSandbox {
         }
 
         private Ball NewBall() {
-            return new Ball( 8, new Vector(RandomX, RandomY), new Velocity(new Vector(10, 20)));
+            return new Ball(BallSize, new Vector(RandomX, RandomY), new Velocity(new Vector(10, 20)));
         }
 
         Random random = new Random();
