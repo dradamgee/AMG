@@ -8,7 +8,7 @@ namespace AMG.Physics
 {
     public class StatefullCollisionDetector : ICollisionDetector
     {
-        private Collision collision = new Collision(0.75);
+        private Collision collision = new Collision(.9);
         private readonly IElement[] _elementsOrderedByX;
         private readonly IElement[] _elementsOrderedByY;
         private readonly int _count;
@@ -29,6 +29,10 @@ namespace AMG.Physics
                 var impulse = collision.Act(e1, e2);
                 if (impulse != null)
                 {
+                    //System.Diagnostics.Debug.WriteLine(e1.ToString());
+                    //System.Diagnostics.Debug.WriteLine(e2.ToString());
+                    //System.Diagnostics.Debug.WriteLine(impulse.Value);
+
                     yield return new PendingImpulse(e1, impulse.Value);
                     yield return new PendingImpulse(e2, -impulse.Value);                    
                 }

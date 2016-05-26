@@ -19,29 +19,30 @@ namespace GraphicsSandbox {
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
         private int height;
-        private int BallSize = 10;
-        private int NumberOfBalls = 25;
+        private int BallSize = 4;
+        private int NumberOfBalls = 1000;
         private double accelerationDueToGravity = 98;
 
         public Universe() {
             Elements = new ObservableCollection<IElement>();
-            
+
             //var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
             //var e2 = (Ball)"1 | 8 | 185.307610553024 | 214.62117119859 | 15.1709404889631 | -5.65428572085577";
 
             //Elements.Add(e1);
             //Elements.Add(e2);
-            //Elements.Add(NewSquare());
+            
             int i = NumberOfBalls;
             while (i-- > 0)
             {
                 Elements.Add(NewBall());
             }
 
-            Gravity gravity = new Gravity(accelerationDueToGravity);
+            var gravity = new Gravity(accelerationDueToGravity);
             var collisions = new StatefullCollisionDetector(Elements);
 
-            TimeDependentActionable gravityAction = new TimeDependentActionable
+            
+            var gravityAction = new TimeDependentActionable
                 (
                     interval =>
                     {

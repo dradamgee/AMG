@@ -50,8 +50,8 @@
         member this.Impulse = Impulse
 
     type Collision (Loss : float) =         
-        member this.Act(e1 : IElement, e2 : IElement) =        
-            if e1 = e2 then raise (System.Exception("Cant collide with self"))        
+        member this.Act(e1 : IElement, e2 : IElement) =
+            if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
             let distance = e1.Location - e2.Location
             if distance.Magnitude > sumOfRadii 
