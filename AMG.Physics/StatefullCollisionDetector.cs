@@ -8,7 +8,7 @@ namespace AMG.Physics
 {
     public class StatefullCollisionDetector : ICollisionDetector
     {
-        private Collision collision = new Collision(.9);
+        private Collision collision = new Collision(1.0);
         private readonly IElement[] _elementsOrderedByX;
         private readonly IElement[] _elementsOrderedByY;
         private readonly int _count;

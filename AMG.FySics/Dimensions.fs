@@ -54,14 +54,16 @@
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
             let distance = e1.Location - e2.Location
-            if distance.Magnitude > sumOfRadii 
+            let impact = (e1.Velocity.Vector * distance.Unit - e2.Velocity.Vector * distance.Unit) 
+            let areDiverging = impact >= 0.0
+            if distance.Magnitude > sumOfRadii or areDiverging
                 then None 
                 else                     
                     Some(
                         -2.0 *
                         Loss *
                         distance.Unit *
-                        (e1.Velocity.Vector * distance.Unit - e2.Velocity.Vector * distance.Unit) 
+                        impact
                         * (e1.Mass * e2.Mass) 
                         / (e1.Mass + e2.Mass)
                         ) 

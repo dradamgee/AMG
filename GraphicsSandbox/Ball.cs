@@ -7,7 +7,7 @@ namespace GraphicsSandbox
     public class Ball : Element{
         private int m_radius;
 
-        public Ball(int diameter, Vector location, Velocity velocity) : base(location, velocity)
+        public Ball(double mass, int diameter, Vector location, Velocity velocity) : base(mass, location, velocity)
         {
             m_radius = diameter;
         }
@@ -24,6 +24,7 @@ namespace GraphicsSandbox
         {
             var xx = s.Split('|');
             return new Ball(
+                double.Parse(xx[0], CultureInfo.InvariantCulture),
                 int.Parse(xx[1], CultureInfo.InvariantCulture),
                 new Vector(double.Parse(xx[2], CultureInfo.InvariantCulture), double.Parse(xx[3], CultureInfo.InvariantCulture)), 
                 new Velocity(

@@ -10,11 +10,11 @@ namespace GraphicsSandbox
     {
         public double Mass { get; set; }
 
-        public Element(Vector location, Velocity velocity)
+        public Element(double mass, Vector location, Velocity velocity)
         {
             Velocity = velocity;
             _location = location;
-            Mass = 1.0d;
+            Mass = mass;
         }
         
         private Vector _location;
