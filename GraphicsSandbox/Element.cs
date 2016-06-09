@@ -8,10 +8,13 @@ namespace GraphicsSandbox
 {
     public abstract class Element : INotifyPropertyChanged, IElement
     {
+        private static int nextId = 0;
+
         public double Mass { get; set; }
 
         public Element(double mass, Vector location, Velocity velocity)
         {
+            Id = nextId++;
             Velocity = velocity;
             _location = location;
             Mass = mass;
@@ -19,6 +22,8 @@ namespace GraphicsSandbox
         
         private Vector _location;
         public Velocity Velocity {get;set;}
+
+        public int Id { get; private set; }
 
         public Vector Location {
             get { return _location; }

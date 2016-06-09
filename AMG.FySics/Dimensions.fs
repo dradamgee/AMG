@@ -36,6 +36,7 @@
         override this.ToString() = this.Vector.ToString()
 
     type IElement = 
+        abstract member Id : int with get
         abstract member Location : Vector with get, set
         abstract member Velocity : Velocity with get, set
         abstract member Radius : float with get

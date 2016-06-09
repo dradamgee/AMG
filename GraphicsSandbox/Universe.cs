@@ -19,20 +19,25 @@ namespace GraphicsSandbox {
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
         private int height;
-        private int BallSize = 5;
+        private int BallSize = 20;
         private int NumberOfBalls = 50;
         private double accelerationDueToGravity = 98;
+        private double loss = 1;
 
         public Universe() {
             Elements = new ObservableCollection<IElement>();
+
+
+
+            _boundry = new Boundry(new Vector(525, 350), Elements);
 
             //var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
             //var e2 = (Ball)"1 | 8 | 185.307610553024 | 214.62117119859 | 15.1709404889631 | -5.65428572085577";
 
 
-            var e1 = (Ball)"100 | 20 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
+            var e1 = (Ball)"1 | 20 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
 
-            Elements.Add(e1);
+            //Elements.Add(e1);
             //Elements.Add(e2);
             
             int i = NumberOfBalls;
@@ -40,10 +45,11 @@ namespace GraphicsSandbox {
             {
                 Elements.Add(NewBall());
             }
-
+            
             var gravity = new Gravity(accelerationDueToGravity);
             var collisions = new StatefullCollisionDetector(Elements);
-
+            //var collisions = new QuadTreeCollisionDetector(Elements, _boundry);
+            CollisionReolution collisionReolution = new CollisionReolution(loss);
             
             var gravityAction = new TimeDependentActionable
                 (
@@ -53,7 +59,8 @@ namespace GraphicsSandbox {
                         from e in Elements
                         select gravity.Act(e, interval);
 
-                        var pendingCollisionImpulses = collisions.Act();
+                        var possibleCollisions = collisions.Detect();
+                        var pendingCollisionImpulses = collisionReolution.Act(possibleCollisions);
 
                         var allImpulses = pendingCollisionImpulses
                         .Concat(pendingGravityImpulses)
@@ -92,9 +99,6 @@ namespace GraphicsSandbox {
                 
                 
                 
-
-            
-            _boundry = new Boundry(new Vector(525, 350), Elements);
                                    
             timeDependentActions = new List<TimeDependentAction>();
 

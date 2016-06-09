@@ -14,6 +14,7 @@ namespace AMG.Physics.Test
         {
             yield return (e) => new StatefullCollisionDetector(e);
             yield return (e) => new PairCollisionDetector(e);
+            yield return (e) => new QuadTreeCollisionDetector(e, new Boundry(new Vector(2000, 2000), e));
         }
 
         [Test]
@@ -21,12 +22,22 @@ namespace AMG.Physics.Test
         public void TwoObjectsVeryClose_Detected(Func<IEnumerable<IElement>, ICollisionDetector> collisionDetectorFactory)
         {
             Mock<IElement> e1 = new Mock<IElement>();
+            e1.SetupGet(e => e.Id).Returns(1);
             e1.SetupGet(e => e.Radius).Returns(10.0);
             e1.SetupGet(e => e.Location).Returns(new Vector(100.0, 100.0));
+            e1.SetupGet(e => e.Top).Returns(90);
+            e1.SetupGet(e => e.Bottom).Returns(110);
+            e1.SetupGet(e => e.Left).Returns(90);
+            e1.SetupGet(e => e.Right).Returns(110);
 
             Mock<IElement> e2 = new Mock<IElement>();
+            e2.SetupGet(e => e.Id).Returns(2);
             e2.SetupGet(e => e.Radius).Returns(10.0);
             e2.SetupGet(e => e.Location).Returns(new Vector(101.0, 101.0));
+            e2.SetupGet(e => e.Top).Returns(91);
+            e2.SetupGet(e => e.Bottom).Returns(111);
+            e2.SetupGet(e => e.Left).Returns(91);
+            e2.SetupGet(e => e.Right).Returns(111);
 
             var elements = new IElement[] { e1.Object, e2.Object, };
             
@@ -43,12 +54,22 @@ namespace AMG.Physics.Test
         [TestCaseSource("TestCases")]
         public void TwoObjectsVeryFar_NotDetected(Func<IEnumerable<IElement>, ICollisionDetector> collisionDetectorFactory) {
             Mock<IElement> e1 = new Mock<IElement>();
+            e1.SetupGet(e => e.Id).Returns(1);
             e1.SetupGet(e => e.Radius).Returns(10.0);
-            e1.SetupGet(e => e.Location).Returns(new Vector(1000.0, 1000.0));
+            e1.SetupGet(e => e.Location).Returns(new Vector(950.0, 950.0));
+            e1.SetupGet(e => e.Top).Returns(940);
+            e1.SetupGet(e => e.Bottom).Returns(960);
+            e1.SetupGet(e => e.Left).Returns(940);
+            e1.SetupGet(e => e.Right).Returns(960);
 
             Mock<IElement> e2 = new Mock<IElement>();
+            e2.SetupGet(e => e.Id).Returns(2);
             e2.SetupGet(e => e.Radius).Returns(10.0);
             e2.SetupGet(e => e.Location).Returns(new Vector(101.0, 101.0));
+            e2.SetupGet(e => e.Top).Returns(91);
+            e2.SetupGet(e => e.Bottom).Returns(111);
+            e2.SetupGet(e => e.Left).Returns(91);
+            e2.SetupGet(e => e.Right).Returns(111);
 
             var elements = new IElement[] { e1.Object, e2.Object, };
 
