@@ -19,10 +19,10 @@ namespace GraphicsSandbox {
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
         private int height;
-        private int BallSize = 20;
-        private int NumberOfBalls = 50;
+        private int BallSize = 15;
+        private int NumberOfBalls = 200;
         private double accelerationDueToGravity = 98;
-        private double loss = 1;
+        private double loss = 0.9;
 
         public Universe() {
             Elements = new ObservableCollection<IElement>();

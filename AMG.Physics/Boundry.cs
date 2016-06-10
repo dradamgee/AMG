@@ -5,7 +5,6 @@ namespace AMG.Physics
 {
     public class Boundry : TimeDependentAction
     {
-
         public Vector Size;
         
         private readonly IEnumerable<IElement> _elements;
@@ -17,7 +16,7 @@ namespace AMG.Physics
         }
 
 
-        static double d = 0.9;
+        static double d = 0.7;
         Unit XUp = new Unit(d, 0.0);
         Unit XDown = new Unit(-d, 0.0);
         Unit YUp = new Unit(0.0, d);

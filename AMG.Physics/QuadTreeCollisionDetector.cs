@@ -66,10 +66,12 @@ namespace AMG.Physics {
         int Capacity;
         Rectangle Area;
         QuadTreeNode[] Subnodes;
+        QuadTreeNode ParentNode;
 
-        public QuadTreeNode(int capacity, Rectangle area) {
+        public QuadTreeNode(int capacity, Rectangle area, QuadTreeNode parentNode = null) {
             Capacity = capacity;
             Area = area;
+            ParentNode = parentNode;
         }
 
         private List<IElement> Elements = new List<IElement>();
@@ -84,8 +86,28 @@ namespace AMG.Physics {
             return Subnodes.Any(qtn => qtn.Add(element));
         }
 
+        public bool PushUp(IElement element) {
+            if (ParentNode == null) {
+                return false;
+            }
+            Elements.Remove(element);
+            ParentNode.PushUpTarget(element);
+        }
+
+        public bool PushUpTarget(IElement element) {
+            if (Add(element))
+            {
+                return true;
+            }
+            if (ParentNode == null) {
+                return false; // Perhaps throw an exception now.
+            }
+            return ParentNode.PushUpTarget(element);
+        }
+        
         private void Divide() {
-            if (!IsDivided) {
+            if (!IsDivided)
+            {
                 Subnodes = new QuadTreeNode[4]
                 {
                     new QuadTreeNode(Capacity, Area.Quadrant1), 
@@ -93,13 +115,18 @@ namespace AMG.Physics {
                     new QuadTreeNode(Capacity, Area.Quadrant3), 
                     new QuadTreeNode(Capacity, Area.Quadrant4), 
                 };
-                
-                var pushedDown = Elements.Where(PushDown).ToArray();
 
-                foreach (var element in pushedDown)
-                {
-                    Elements.Remove(element);
-                }
+                TryPushDownAll();
+            }
+        }
+
+        private void TryPushDownAll()
+        {
+            var pushedDown = Elements.Where(PushDown).ToArray();
+
+            foreach (var element in pushedDown)
+            {
+                Elements.Remove(element);
             }
         }
 
@@ -128,6 +155,25 @@ namespace AMG.Physics {
                 return true;
             }
             return false;
+        }
+
+        public void Recalculate()
+        {
+            if (IsDivided) 
+            {
+                foreach (var qtn in Subnodes)
+                {
+                    qtn.Recalculate();
+                }
+            }
+
+            var pushedUp = Elements.Where(e => !Encaptulates(e)).Where(PushUp).ToArray();
+
+            foreach (var element in pushedUp) {
+                Elements.Remove(element);
+            }
+
+            TryPushDownAll();
         }
 
         public IEnumerable<IElement> SubTreeElements
