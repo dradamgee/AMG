@@ -91,7 +91,7 @@ namespace AMG.Physics {
                 return false;
             }
             Elements.Remove(element);
-            ParentNode.PushUpTarget(element);
+            return ParentNode.PushUpTarget(element);
         }
 
         public bool PushUpTarget(IElement element) {
