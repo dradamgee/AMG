@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:graphicsSandbox="clr-namespace:GraphicsSandbox">
     <DataTemplate DataType="{x:Type graphicsSandbox:Ball}">
-        <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="Aqua" Stroke="Black"></Ellipse>
+        <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="Transparent" Stroke="Transparent"></Ellipse>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type graphicsSandbox:Square}">

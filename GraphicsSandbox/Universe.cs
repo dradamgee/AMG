@@ -10,6 +10,25 @@ using System.Threading;
 using System.Windows.Threading;
 
 namespace GraphicsSandbox {
+    //TODO move this to FySics
+    public class Dynamics
+    {
+        public static void ProcessImpulses(IEnumerable<PendingImpulse> allImpulses) {
+            var impulseGroups = allImpulses.GroupBy(pe => pe.Element, pe => pe.Impulse);
+
+            foreach (var impulseGroup in impulseGroups) {
+                IElement element = impulseGroup.Key;
+                var totalImpulse = impulseGroup.Aggregate((d1, d2) => d1 + d2);
+
+                //System.Diagnostics.Debug.WriteLine(string.Empty);
+                //System.Diagnostics.Debug.WriteLine(element.ToString());
+                element.Velocity = new Velocity(element.Velocity.Vector + totalImpulse / element.Mass);
+                //System.Diagnostics.Debug.WriteLine(element.ToString());
+            }
+        }
+    }
+
+
     public class Universe : INotifyPropertyChanged, IDisposable
     {
         public static Dispatcher Dispatcher;
@@ -24,15 +43,17 @@ namespace GraphicsSandbox {
         {
             Elements.Add(element);
         }
-
+        
         
         public Universe(double accelerationDueToGravity, double loss) {
             Elements = new ObservableCollection<IElement>();
+            
             _boundry = new Boundry(new Vector(525, 350), Elements);
             var gravity = new Gravity(accelerationDueToGravity);
             var collisions = new PairCollisionDetector(Elements);
             CollisionResolution collisionResolution = new CollisionResolution(loss);
-            var gravityAction = new TimeDependentActionable
+
+            var impulseAction = new TimeDependentActionable
                 (
                     interval =>
                     {
@@ -46,21 +67,7 @@ namespace GraphicsSandbox {
                         var allImpulses = pendingCollisionImpulses
                         .Concat(pendingGravityImpulses)
                         ;
-                        
-
-                        var impulseGroups = allImpulses.GroupBy(pe => pe.Element, pe => pe.Impulse);
-                        
-                        foreach (var impulseGroup in impulseGroups)
-                        {
-                            IElement element = impulseGroup.Key;
-                            var totalImpulse = impulseGroup.Aggregate((d1, d2) => d1 + d2);
-
-                            //System.Diagnostics.Debug.WriteLine(string.Empty);
-                            //System.Diagnostics.Debug.WriteLine(element.ToString());
-                            element.Velocity = new Velocity(element.Velocity.Vector + totalImpulse / element.Mass);
-                            //System.Diagnostics.Debug.WriteLine(element.ToString());
-                        }
-
+                        Dynamics.ProcessImpulses(allImpulses);
                     }
                 );
 
@@ -79,9 +86,9 @@ namespace GraphicsSandbox {
             timeDependentActions.Add(velocityAction);
             //Calculate the impulses
             
-            timeDependentActions.Add(gravityAction);
+            timeDependentActions.Add(impulseAction);
             //reclaculate the velocity
-            //enforce bAOUNDRY
+            //enforce boundry
             timeDependentActions.Add(_boundry);
             
             _cancellationTokenSource = new CancellationTokenSource();
@@ -89,6 +96,8 @@ namespace GraphicsSandbox {
 
             time.Start();
         }
+
+
 
         public ObservableCollection<IElement> Elements { get; }
 
