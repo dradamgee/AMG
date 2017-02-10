@@ -5,32 +5,21 @@ using System.Linq;
 
 namespace AMG.Physics
 {
-    public class PairCollisionDetector : TimeDependentAction, ICollisionDetector
+    public class PairCollisionDetector : ICollisionDetector
     {
-        private Collision collision = new Collision(0.9);
-        private readonly IElement[] _elements;
-
+        private readonly IEnumerable<IElement> _elements;
         public PairCollisionDetector(IEnumerable<IElement> elements)
         {
-            _elements = elements.ToArray();
+            _elements = elements;
         }
-
-        public override void Act(double interval)
-        {
-            var pairs = Detect();
-            foreach (var pair in pairs)
-            {
-                collision.Act(pair.Item1, pair.Item2);
-            }
-        }
-
-
         public IEnumerable<Tuple<IElement, IElement>> Detect() {
 
-            for (int i = 0; i < _elements.Length; i++) {
-                for (int j = i + 1; j < _elements.Length; j++) {
-                    var e1 = _elements[i];
-                    var e2 = _elements[j];
+            var elements = _elements.ToArray();
+
+            for (int i = 0; i < elements.Length; i++) {
+                for (int j = i + 1; j < elements.Length; j++) {
+                    var e1 = elements[i];
+                    var e2 = elements[j];
 
                     if (Math.Abs(e1.Location.X - e2.Location.X) > e1.Radius + e1.Radius)
                         continue;

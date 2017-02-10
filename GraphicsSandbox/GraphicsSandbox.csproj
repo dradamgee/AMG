@@ -59,6 +59,7 @@
     </ApplicationDefinition>
     <Compile Include="Ball.cs" />
     <Compile Include="Element.cs" />
+    <Compile Include="God.cs" />
     <Compile Include="Square.cs" />
     <Compile Include="Universe.cs" />
     <Page Include="MainWindow.xaml">

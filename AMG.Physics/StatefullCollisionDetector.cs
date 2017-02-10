@@ -1,14 +1,17 @@
 ﻿using AMG.FySics;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Windows.Data;
 using Microsoft.FSharp.Core;
 
 namespace AMG.Physics
 {
-    public class CollisionReolution
+    public class CollisionResolution
     {
-        public CollisionReolution(double loss)
+        public CollisionResolution(double loss)
         {
             collision = new Collision(loss);
         }
@@ -42,6 +45,8 @@ namespace AMG.Physics
 
         public StatefullCollisionDetector(IEnumerable<IElement> elements)
         {
+            //TODO react to changes in the ObservableCollection
+
             _elementsOrderedByX = elements.ToArray();
             _elementsOrderedByY = elements.ToArray();
             _count = _elementsOrderedByX.Length;

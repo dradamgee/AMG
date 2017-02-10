@@ -1,7 +1,4 @@
-﻿using AMG.Physics;
-using AMG.FySics;
-using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using Vector = AMG.FySics.Vector;
@@ -15,8 +12,8 @@ namespace GraphicsSandbox {
 
         public MainWindow() {
             InitializeComponent();
-
-            _universe = new Universe();
+            
+            _universe = God.CreateUniverse();
             DataContext = _universe;
             
             Closing += OnClosing;

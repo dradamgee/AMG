@@ -11,17 +11,26 @@ namespace AMG.Physics
         private readonly CancellationToken _cancelToken;
         private const int _interval = 25;
         private const double _intervalInSecounds = 0.025d;
+        private Task time;
 
         public UniversalTime(IEnumerable<TimeDependentAction> actions, CancellationToken cancelToken)
         {
             _actions = actions;
             _cancelToken = cancelToken;
+            time = new Task(Work);
+        }
 
-            Task time = new Task(Start);
+        public void Start()
+        {
             time.Start();
         }
 
-        private void Start()
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Work()
         {
             while (true)
             {
