@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4D30DF85-5F0D-407A-AC4B-6EA934A20F7F}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,6 +17,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMG.Physics.Test", "AMG.Physics.Test\AMG.Physics.Test.csproj", "{E6463AB2-C3C9-45E6-86FB-0BF1D29A0A31}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AMG.FySics", "AMG.FySics\AMG.FySics.fsproj", "{03115AE7-850C-461F-8977-A81893B48B63}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AMG.FySics.Test", "AMG.FySics.Test\AMG.FySics.Test.fsproj", "{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AMG.Mafs", "AMG.Mafs\AMG.Mafs.fsproj", "{E81BA54A-0D45-4670-9EAE-A239D45C6B34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +74,30 @@ Global
 		{03115AE7-850C-461F-8977-A81893B48B63}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{03115AE7-850C-461F-8977-A81893B48B63}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{03115AE7-850C-461F-8977-A81893B48B63}.Release|x86.ActiveCfg = Release|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Debug|x86.Build.0 = Debug|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Release|x86.ActiveCfg = Release|Any CPU
+		{9C85D7CE-AAC4-4DCD-94C6-E11EA4677B50}.Release|x86.Build.0 = Release|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Debug|x86.Build.0 = Debug|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Release|x86.ActiveCfg = Release|Any CPU
+		{E81BA54A-0D45-4670-9EAE-A239D45C6B34}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
