@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using AppleBruteForce;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,7 +12,9 @@ namespace TestAppleBruteForce
         public void TestExecute()
         {
             Engine sut = new Engine();
-            var asd = sut.Execute();
+            var driver = sut.CreateDriver();
+            sut.SetupDriver(driver);
+            sut.TryThis(driver, "07979797979");
         }
     }
 }

