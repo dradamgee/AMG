@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Threading;
 using System.Windows;
+using System.Windows.Input;
+using AMG.FySics;
 using Vector = AMG.FySics.Vector;
 
 namespace GraphicsSandbox {
@@ -27,6 +29,14 @@ namespace GraphicsSandbox {
         private void ItemsControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             _universe.Size = new Vector(e.NewSize.Width, e.NewSize.Height);
+        }
+
+        private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var position = e.GetPosition(this);
+            var positionVector = new Vector(position.X, position.Y);
+            var ball = new Ball(5, 20, positionVector, new Velocity(new Vector(100, 100)));
+            _universe.Add(ball);
         }
     }
 }

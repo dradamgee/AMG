@@ -3,12 +3,12 @@ using AMG.FySics;
 
 namespace GraphicsSandbox
 {
-    public static class God // not sure if God should be static, or maybe immutable.
+    public class God // not sure if God should be static, or maybe immutable.
     {
         private static double accelerationDueToGravity = 98;
-        private static int NumberOfBalls = 10;
-        private static int BallSize = 15;
-        private static double loss = 0.0;
+        private static int NumberOfBalls = 300;
+        private static int BallSize = 5;
+        private static double loss = 0.9;
 
         public static Universe CreateUniverse() {
             var universe = new Universe(accelerationDueToGravity, loss);
@@ -21,6 +21,8 @@ namespace GraphicsSandbox
             return universe;
         }
 
+
+
         public static  Universe CreateUniverseToFixRotationError() {
             var universe = new Universe(accelerationDueToGravity, loss);
             var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
@@ -30,7 +32,38 @@ namespace GraphicsSandbox
             return universe;
         }
 
-        
+        public static Universe CreateUniverseWithTwoBalls()
+        {
+            var universe = new Universe(0.0, 1.0);
+            var e1 = (Ball)"1 | 20 | 0.0 | 400.0 | 250.0 | 0.0";
+            var e2 = (Ball)"1 | 20 | 400.0 | 400.0 | 0.0 | 0.0";
+            var e3 = (Ball)"1 | 20 | 440.0 | 400.0 | 0.0 | 0.0";
+            var e4 = (Ball)"1 | 20 | 480.0 | 400.0 | 0.0 | 0.0";
+            var e5 = (Ball)"1 | 20 | 520.0 | 400.0 | 0.0 | 0.0";
+            universe.Add(e1);
+            universe.Add(e2);
+            universe.Add(e3);
+            universe.Add(e4);
+            universe.Add(e5);
+            return universe;
+        }
+
+        public static Universe CreateUniverseBallCollidesWithTwoBalls()
+        {
+            var universe = new Universe(0.0, 1.0);
+            var e1 = (Ball)"1 | 20 | 0.0 | 400.0 | 250.0 | 0.0";
+            var e2 = (Ball)"1 | 20 | 400.0 | 380.0 | 0.0 | 0.0";
+            var e3 = (Ball)"1 | 20 | 400.0 | 420.0 | 0.0 | 0.0";
+            var e4 = (Ball)"1 | 20 | 480.0 | 400.0 | 0.0 | 0.0";
+            var e5 = (Ball)"1 | 20 | 520.0 | 400.0 | 0.0 | 0.0";
+            universe.Add(e1);
+            universe.Add(e2);
+            universe.Add(e3);
+            //universe.Add(e4);
+            //universe.Add(e5);
+            return universe;
+        }
+
         private static Square NewSquare() {
             return new Square(1.0d, 12, new Vector(RandomX, RandomY), new Velocity(new Vector(10, 20)));
         }
@@ -49,5 +82,6 @@ namespace GraphicsSandbox
         {
             get { return random.Next(350); }
         }
+        
     }
 }

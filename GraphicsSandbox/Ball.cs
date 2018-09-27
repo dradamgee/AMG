@@ -7,9 +7,9 @@ namespace GraphicsSandbox
     public class Ball : Element{
         private int m_radius;
 
-        public Ball(double mass, int diameter, Vector location, Velocity velocity) : base(mass, location, velocity)
+        public Ball(double mass, int radius, Vector location, Velocity velocity) : base(mass, location, velocity)
         {
-            m_radius = diameter;
+            m_radius = radius;
         }
 
         public int Diameter {

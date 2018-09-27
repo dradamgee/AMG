@@ -15,7 +15,7 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <ItemsControl ItemsSource="{Binding Elements}" SizeChanged="ItemsControl_SizeChanged" Background="Gray">
+    <ItemsControl ItemsSource="{Binding Elements}" SizeChanged="ItemsControl_SizeChanged" Background="Gray" MouseDown="UIElement_OnMouseDown">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <Canvas />

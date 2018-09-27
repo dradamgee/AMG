@@ -30,35 +30,53 @@ namespace GraphicsSandbox {
 
 
     public class Universe : INotifyPropertyChanged, IDisposable
-    {
-        public static Dispatcher Dispatcher;
-        
+    {   
         UniversalTime time;
         CancellationTokenSource _cancellationTokenSource;
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
         private int height;
+        Queue<IElement> pendingAdds = new Queue<IElement>();
        
         public void Add(IElement element)
         {
-            Elements.Add(element);
+            pendingAdds.Enqueue(element);
         }
         
         
         public Universe(double accelerationDueToGravity, double loss) {
+            Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
             Elements = new ObservableCollection<IElement>();
+            internalElements = new List<IElement>();
             
-            _boundry = new Boundry(new Vector(525, 350), Elements);
+            _boundry = new Boundry(new Vector(525, 350), internalElements);
             var gravity = new Gravity(accelerationDueToGravity);
-            var collisions = new PairCollisionDetector(Elements);
+            //ICollisionDetector collisions = new PairCollisionDetector(internalElements);
+            ICollisionDetector collisions = new QuadTreeCollisionDetector(internalElements, _boundry);
+            //ICollisionDetector collisions = new StatefullCollisionDetector(internalElements);
             CollisionResolution collisionResolution = new CollisionResolution(loss);
+
+            var addAction = new TimeDependentActionable
+                (
+                    interval =>
+                    {
+                        
+                        while (pendingAdds.Any())
+                        {
+                            var element = pendingAdds.Dequeue();
+                            internalElements.Add(element);
+                            dispatcher.BeginInvoke(new Action(() => Elements.Add(element)));
+                        }
+                    }
+                );
+            
 
             var impulseAction = new TimeDependentActionable
                 (
                     interval =>
                     {
                         var pendingGravityImpulses =
-                        from e in Elements
+                        from e in internalElements
                         select gravity.Act(e, interval);
 
                         var possibleCollisions = collisions.Detect();
@@ -74,13 +92,15 @@ namespace GraphicsSandbox {
             TimeDependentActionable velocityAction = new TimeDependentActionable
                 (
                     interval => {
-                        foreach (var element in Elements) {
+                        foreach (var element in internalElements) {
                             element.Location = element.Velocity.Act(element.Location, interval);
                         }
                     }
                 );
 
             timeDependentActions = new List<TimeDependentAction>();
+
+            timeDependentActions.Add(addAction);
 
             //Move the objects
             timeDependentActions.Add(velocityAction);
@@ -100,6 +120,8 @@ namespace GraphicsSandbox {
 
 
         public ObservableCollection<IElement> Elements { get; }
+        private List<IElement> internalElements { get; }
+
 
         public Vector Size
         {

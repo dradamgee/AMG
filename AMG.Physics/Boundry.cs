@@ -16,7 +16,7 @@ namespace AMG.Physics
         }
 
 
-        static double d = 0.7;
+        static double d = 1.0; // TODO here we appear to be able to create a unit without a magnitude of 1
         Unit XUp = new Unit(d, 0.0);
         Unit XDown = new Unit(-d, 0.0);
         Unit YUp = new Unit(0.0, d);
