@@ -1,9 +1,15 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Input;
 using AMG.FySics;
 using AMG.Physics;
 
 namespace GraphicsSandbox
 {
+
+
     public class Ball : Element{
         private int m_radius;
 
@@ -14,6 +20,14 @@ namespace GraphicsSandbox
 
         public int Diameter {
             get { return m_radius * 2; }
+        }
+
+        public override IEnumerable<Element> Split()
+        {
+            var halfmass = Mass / 2;
+            var halfsize = Math.Sqrt(m_radius * m_radius / 2);
+            yield return new Ball(halfmass, Convert.ToInt32(halfsize), Location * 1.01, Velocity);
+            yield return new Ball(halfmass, Convert.ToInt32(halfsize), Location * 0.99, Velocity);
         }
 
         public override double Radius {

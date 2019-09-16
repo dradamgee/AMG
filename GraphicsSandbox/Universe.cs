@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace GraphicsSandbox {
@@ -28,7 +29,6 @@ namespace GraphicsSandbox {
         }
     }
 
-
     public class Universe : INotifyPropertyChanged, IDisposable
     {   
         UniversalTime time;
@@ -37,13 +37,36 @@ namespace GraphicsSandbox {
         List<TimeDependentAction> timeDependentActions;
         private int height;
         Queue<IElement> pendingAdds = new Queue<IElement>();
-       
-        public void Add(IElement element)
+        Queue<IElement> pendingRemoves = new Queue<IElement>();
+        
+        public void Add(Element element)
         {
+            element.ElementCommand = new MyElementCommand(element, this.split);
             pendingAdds.Enqueue(element);
         }
-        
-        
+
+        private void split(Element element)
+        {
+            update(new []{element}, element.Split());
+        }
+
+        public void Remove(IElement element)
+        {
+            pendingRemoves.Enqueue(element);
+        }
+
+        public void update(IEnumerable<IElement> elementToRemove, IEnumerable<IElement> elementToAdd)
+        {
+            foreach (Element element in elementToRemove)
+            {
+                Remove(element);
+            }
+            foreach (Element element in elementToAdd)
+            {
+                Add(element);
+            }
+        }
+
         public Universe(double accelerationDueToGravity, double loss) {
             Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
             Elements = new ObservableCollection<IElement>();
@@ -69,7 +92,21 @@ namespace GraphicsSandbox {
                         }
                     }
                 );
-            
+
+            var removeAction = new TimeDependentActionable
+            (
+                interval =>
+                {
+
+                    while (pendingRemoves.Any())
+                    {
+                        var element = pendingRemoves.Dequeue();
+                        internalElements.Remove(element);
+                        dispatcher.BeginInvoke(new Action(() => Elements.Remove(element)));
+                    }
+                }
+            );
+
 
             var impulseAction = new TimeDependentActionable
                 (
@@ -101,6 +138,7 @@ namespace GraphicsSandbox {
             timeDependentActions = new List<TimeDependentAction>();
 
             timeDependentActions.Add(addAction);
+            timeDependentActions.Add(removeAction);
 
             //Move the objects
             timeDependentActions.Add(velocityAction);

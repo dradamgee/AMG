@@ -5,9 +5,9 @@ namespace GraphicsSandbox
 {
     public class God // not sure if God should be static, or maybe immutable.
     {
-        private static double accelerationDueToGravity = 98;
-        private static int NumberOfBalls = 300;
-        private static int BallSize = 5;
+        private static double accelerationDueToGravity = 9.8;
+        private static int NumberOfBalls = 2;
+        private static int BallSize = 20;
         private static double loss = 0.9;
 
         public static Universe CreateUniverse() {
@@ -20,8 +20,6 @@ namespace GraphicsSandbox
 
             return universe;
         }
-
-
 
         public static  Universe CreateUniverseToFixRotationError() {
             var universe = new Universe(accelerationDueToGravity, loss);
