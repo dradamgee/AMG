@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using AMG.FySics;
 
 namespace GraphicsSandbox
@@ -9,6 +11,26 @@ namespace GraphicsSandbox
         private static int NumberOfBalls = 2;
         private static int BallSize = 20;
         private static double loss = 0.9;
+
+        public static Universe CreateUniverseFromFile(string path)
+        {
+            var lines = System.IO.File.ReadLines(path);
+            return UniverseFromPaths(lines);
+        }
+
+        public static Universe UniverseFromPaths(IEnumerable<string> lines)
+        {
+            var universe = new Universe(accelerationDueToGravity, loss);
+            var rootNode = new TreeNode<string>("Root");
+            foreach (var line in lines)
+            {
+                rootNode.AddNode(line.Split('/'));
+            }
+
+            var ball = TreeNodeBall.CreateBall(rootNode, new Vector(100, 100), new Velocity(new Vector(0, 0)));
+            universe.Add(ball);
+            return universe;
+        }
 
         public static Universe CreateUniverse() {
             var universe = new Universe(accelerationDueToGravity, loss);

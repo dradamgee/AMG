@@ -8,17 +8,76 @@ using AMG.Physics;
 
 namespace GraphicsSandbox
 {
+    public class TreeNode<T>
+    {
+        public int Count { get; private set; }
+        public T Key { get; }
+        public Dictionary<T, TreeNode<T>> subNodes { get; }
+
+        public TreeNode(T key)
+        {
+            Key = key;
+            subNodes = new Dictionary<T, TreeNode<T>>();
+        }
+
+        public void AddNode(IEnumerable<T> node)
+        {
+            Count++;
+            if (node.Any())
+            {
+                var key = node.First();
+                var values = node.Skip(1);
+                if (!subNodes.ContainsKey(key))
+                {
+                    subNodes.Add(key, new TreeNode<T>(key));
+                }
+                subNodes[key].AddNode(values);
+            }
+        }
+    }
+
+
+
+    public class TreeNodeBall : Ball
+    {
+        private readonly TreeNode<string> _node;
+        
+        public string _nodeName
+        {
+            get { return _node.Key; }
+        }
+
+        public static TreeNodeBall CreateBall(TreeNode<string> node, Vector location, Velocity velocity)
+        {
+            double mass = node.Count;
+            var radius = Math.Sqrt(mass) * 5;
+            return new TreeNodeBall(node, mass, radius, location, velocity);
+        }
+
+        public TreeNodeBall(TreeNode<string> node, double mass, double radius, Vector location, Velocity velocity) : base(mass, radius, location, velocity)
+        {
+            _node = node;
+        }
+        
+
+        public override IEnumerable<Element> Split()
+        {
+            Random rand = new Random();
+
+            return _node.subNodes.Select(subNode => CreateBall(subNode.Value, Location, new Velocity(new Vector(Velocity.Vector.X + rand.Next(10), Velocity.Vector.Y + rand.Next(10)))));
+        }
+    }
 
 
     public class Ball : Element{
-        private int m_radius;
+        private double m_radius;
 
-        public Ball(double mass, int radius, Vector location, Velocity velocity) : base(mass, location, velocity)
+        public Ball(double mass, double radius, Vector location, Velocity velocity) : base(mass, location, velocity)
         {
             m_radius = radius;
         }
 
-        public int Diameter {
+        public double Diameter {
             get { return m_radius * 2; }
         }
 
@@ -26,8 +85,8 @@ namespace GraphicsSandbox
         {
             var halfmass = Mass / 2;
             var halfsize = Math.Sqrt(m_radius * m_radius / 2);
-            yield return new Ball(halfmass, Convert.ToInt32(halfsize), Location * 1.01, Velocity);
-            yield return new Ball(halfmass, Convert.ToInt32(halfsize), Location * 0.99, Velocity);
+            yield return new Ball(halfmass, halfsize, Location * 1.01, Velocity);
+            yield return new Ball(halfmass, halfsize, Location * 0.99, Velocity);
         }
 
         public override double Radius {
