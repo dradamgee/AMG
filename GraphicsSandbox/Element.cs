@@ -1,7 +1,9 @@
-﻿using AMG.Physics;
+﻿using System.Collections.Generic;
+using AMG.Physics;
 using AMG.FySics;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 
 namespace GraphicsSandbox
@@ -9,8 +11,21 @@ namespace GraphicsSandbox
     public abstract class Element : INotifyPropertyChanged, IElement
     {
         private static int nextId = 0;
+        private ICommand elementCommand;
 
         public double Mass { get; set; }
+
+        public abstract IEnumerable<Element> Split();
+
+        public ICommand ElementCommand
+        {
+            get { return elementCommand; }
+            set
+            {
+                elementCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Element(double mass, Vector location, Velocity velocity)
         {
@@ -32,6 +47,8 @@ namespace GraphicsSandbox
                 OnPropertyChanged();
                 OnPropertyChanged("Top");
                 OnPropertyChanged("Left");
+                OnPropertyChanged("Bottom");
+                OnPropertyChanged("Right");
             }
         }
         

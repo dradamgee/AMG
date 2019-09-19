@@ -1,4 +1,5 @@
-﻿using AMG.FySics;
+﻿using System.Collections.Generic;
+using AMG.FySics;
 using AMG.Physics;
 
 namespace GraphicsSandbox
@@ -21,6 +22,11 @@ namespace GraphicsSandbox
         public Square(double mass, int sideLength, Vector location, Velocity velocity) : base(mass, location, velocity)
         {
             SideLength = sideLength;
+        }
+
+        public override IEnumerable<Element> Split()
+        {
+            throw new System.NotImplementedException();
         }
 
         public override double Radius

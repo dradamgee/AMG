@@ -14,8 +14,13 @@ namespace GraphicsSandbox {
 
         public MainWindow() {
             InitializeComponent();
-            
-            _universe = God.CreateUniverse();
+
+            //_universe = God.CreateUniverse();
+
+
+
+            _universe = God.CreateUniverseFromFile(@"C:\_asd\log.txt");
+
             DataContext = _universe;
             
             Closing += OnClosing;
@@ -31,12 +36,12 @@ namespace GraphicsSandbox {
             _universe.Size = new Vector(e.NewSize.Width, e.NewSize.Height);
         }
 
-        private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var position = e.GetPosition(this);
-            var positionVector = new Vector(position.X, position.Y);
-            var ball = new Ball(5, 20, positionVector, new Velocity(new Vector(100, 100)));
-            _universe.Add(ball);
-        }
+        //private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    var position = e.GetPosition(this);
+        //    var positionVector = new Vector(position.X, position.Y);
+        //    var ball = new Ball(5, 20, positionVector, new Velocity(new Vector(100, 100)));
+        //    _universe.Add(ball);
+        //}
     }
 }
