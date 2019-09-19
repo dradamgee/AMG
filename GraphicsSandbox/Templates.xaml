@@ -11,6 +11,21 @@
         
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type graphicsSandbox:TreeNodeBall}">
+        <Grid>
+            <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="Aquamarine" Stroke="Black" >
+                <Ellipse.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding ElementCommand}"/>
+                </Ellipse.InputBindings>
+
+            </Ellipse>
+            <TextBlock HorizontalAlignment="Center" Text="{Binding _nodeName}" TextAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+
+        
+
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type graphicsSandbox:Square}">
         <Rectangle Height="{Binding SideLength}" Width="{Binding SideLength}" Fill="Red"></Rectangle>
     </DataTemplate>

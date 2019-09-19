@@ -1,4 +1,4 @@
-﻿namespace AMG.Mafs.AssemblyInfo
+﻿namespace AMG.FySics.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices
@@ -7,11 +7,11 @@ open System.Runtime.InteropServices
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("AMG.Mafs")>]
+[<assembly: AssemblyTitle("AMG.FySics")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
-[<assembly: AssemblyProduct("AMG.Mafs")>]
+[<assembly: AssemblyProduct("AMG.FySics")>]
 [<assembly: AssemblyCopyright("Copyright ©  2019")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]
@@ -22,7 +22,7 @@ open System.Runtime.InteropServices
 [<assembly: ComVisible(false)>]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[<assembly: Guid("be55fbea-f20f-4ee8-8896-f6b79b539ce1")>]
+[<assembly: Guid("32a00b51-b520-4696-bcb7-508e0c839521")>]
 
 // Version information for an assembly consists of the following four values:
 //

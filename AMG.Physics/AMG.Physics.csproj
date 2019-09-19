@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AMG.Physics</RootNamespace>
     <AssemblyName>AMG.Physics</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,7 +36,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Core, Version=4.4.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -66,6 +67,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -78,13 +80,17 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AMG.FySics\AMG.FySics.fsproj">
-      <Project>{03115ae7-850c-461f-8977-a81893b48b63}</Project>
-      <Name>AMG.FySics</Name>
-    </ProjectReference>
+    <Content Include="Dimensions.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Dimensions.fs" />
+    <ProjectReference Include="..\AMG.FySics\AMG.FySics.fsproj">
+      <Project>{32a00b51-b520-4696-bcb7-508e0c839521}</Project>
+      <Name>AMG.FySics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AMG.Mafs\AMG.Mafs.fsproj">
+      <Project>{be55fbea-f20f-4ee8-8896-f6b79b539ce1}</Project>
+      <Name>AMG.Mafs</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
