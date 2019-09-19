@@ -2,6 +2,7 @@
 using System.Linq;
 using AMG.FySics;
 using GraphicsSandbox;
+using Microsoft.FSharp.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GraphicsSandboxTests
@@ -9,6 +10,22 @@ namespace GraphicsSandboxTests
     [TestClass]
     public class TestCodeChangeBall
     {
+
+        //[TestMethod]
+        //public void WhenOneItem_MassIsOne_fs()
+        //{
+        //    var paths = new[]
+        //    {
+        //        @"OM/Client/Caching/DataSources.cs"
+        //    };
+            
+        //    var fslist = ListModule.OfSeq(paths.Select(path => ListModule.OfSeq(path.Split('/'))));
+
+        //    var asd = new Tree.TreeNode("Root", "Root", fslist);
+
+        //    Assert.AreEqual(1, asd.Count);
+        //}
+
         [TestMethod]
         public void WhenOneItem_MassIsOne()
         {
@@ -17,7 +34,7 @@ namespace GraphicsSandboxTests
                     @"OM/Client/Caching/DataSources.cs"
                 };
             
-            TreeNode<string> tn = new TreeNode<string>("Root");
+            TreeNode tn = new TreeNode("Root", "Root");
             foreach (var path in paths)
             {
                 tn.AddNode(path.Split('/'));
@@ -26,7 +43,7 @@ namespace GraphicsSandboxTests
             Vector location = new Vector(1.0, 1.0);
             Velocity velocity = new Velocity(new Vector(1.0, 1.0));
             
-            TreeNodeBall ccb = TreeNodeBall.CreateBall(tn, location, velocity);
+            TreeNodeBall ccb = new TreeNodeBall(tn, location, velocity);
             
             Assert.AreEqual(1, ccb.Mass);
         }
@@ -42,7 +59,7 @@ namespace GraphicsSandboxTests
                 @"DataSources.cs"
             };
 
-            TreeNode<string> tn = new TreeNode<string>("Root");
+            TreeNode tn = new TreeNode("Root", "Root");
 
             foreach (var path in paths)
             {
@@ -54,7 +71,7 @@ namespace GraphicsSandboxTests
             Velocity velocity = new Velocity(new Vector(1.0, 1.0));
             
 
-            TreeNodeBall ccb = TreeNodeBall.CreateBall(tn, location, velocity);
+            TreeNodeBall ccb = new TreeNodeBall(tn, location, velocity);
 
             Assert.AreEqual(4, ccb.Mass);
         }
@@ -73,7 +90,7 @@ namespace GraphicsSandboxTests
                 @"Services/Orders/Common/Test/Helpers/SubOrderBuilder.cs",
             };
 
-            TreeNode<string> tn = new TreeNode<string>("Root");
+            TreeNode tn = new TreeNode("Root", "Root");
             foreach (var path in paths)
             {
                 tn.AddNode(path.Split('/'));
@@ -82,7 +99,7 @@ namespace GraphicsSandboxTests
             Vector location = new Vector(1.0, 1.0);
             Velocity velocity = new Velocity(new Vector(1.0, 1.0));
             
-            TreeNodeBall ccb = TreeNodeBall.CreateBall(tn, location, velocity);
+            TreeNodeBall ccb = new TreeNodeBall(tn, location, velocity);
 
             var count = ccb.Split().Count();
 

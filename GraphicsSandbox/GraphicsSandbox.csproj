@@ -62,6 +62,7 @@
     <Compile Include="God.cs" />
     <Compile Include="MyElementCommand.cs" />
     <Compile Include="Square.cs" />
+    <Compile Include="TreeNodeBall.cs" />
     <Compile Include="Universe.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

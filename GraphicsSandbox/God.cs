@@ -7,10 +7,10 @@ namespace GraphicsSandbox
 {
     public class God // not sure if God should be static, or maybe immutable.
     {
-        private static double accelerationDueToGravity = 9.8;
+        private static double accelerationDueToGravity = 98;
         private static int NumberOfBalls = 2;
         private static int BallSize = 20;
-        private static double loss = 0.9;
+        private static double loss = 0.8;
 
         public static Universe CreateUniverseFromFile(string path)
         {
@@ -21,13 +21,13 @@ namespace GraphicsSandbox
         public static Universe UniverseFromPaths(IEnumerable<string> lines)
         {
             var universe = new Universe(accelerationDueToGravity, loss);
-            var rootNode = new TreeNode<string>("Root");
+            var rootNode = new TreeNode("Root", "Root");
             foreach (var line in lines)
             {
                 rootNode.AddNode(line.Split('/'));
             }
 
-            var ball = TreeNodeBall.CreateBall(rootNode, new Vector(100, 100), new Velocity(new Vector(0, 0)));
+            var ball = new TreeNodeBall(rootNode, new Vector(400, 400), new Velocity(new Vector(0, 0)));
             universe.Add(ball);
             return universe;
         }
