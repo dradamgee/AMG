@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:graphicsSandbox="clr-namespace:GraphicsSandbox">
-    <!--<DataTemplate DataType="{x:Type graphicsSandbox:TreeNodeBall}">
+    <DataTemplate DataType="{x:Type graphicsSandbox:TreeNodeBall}">
         <Grid>
             <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="SaddleBrown" Stroke="Black" >
                 <Ellipse.InputBindings>
@@ -10,7 +10,7 @@
             </Ellipse>
             <TextBlock HorizontalAlignment="Center" Text="{Binding NodeName}" TextAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
-    </DataTemplate>-->
+    </DataTemplate>
 
     <DataTemplate DataType="{x:Type graphicsSandbox:Ball}">
 
@@ -22,20 +22,6 @@
 
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type graphicsSandbox:TreeNodeBall}">
-        <Grid>
-            <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="Aquamarine" Stroke="Black" >
-                <Ellipse.InputBindings>
-                    <MouseBinding Gesture="LeftClick" Command="{Binding ElementCommand}"/>
-                </Ellipse.InputBindings>
-
-            </Ellipse>
-            <TextBlock HorizontalAlignment="Center" Text="{Binding _nodeName}" TextAlignment="Center" VerticalAlignment="Center"/>
-        </Grid>
-
-        
-
-    </DataTemplate>
 
     <DataTemplate DataType="{x:Type graphicsSandbox:Square}">
         <Rectangle Height="{Binding SideLength}" Width="{Binding SideLength}" Fill="Red"></Rectangle>
