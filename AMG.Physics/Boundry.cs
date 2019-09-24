@@ -8,10 +8,12 @@ namespace AMG.Physics
         public Vector Size;
         
         private readonly IEnumerable<IElement> _elements;
+        private readonly double _loss;
 
-        public Boundry(Vector size, IEnumerable<IElement> elements)
+        public Boundry(Vector size, IEnumerable<IElement> elements, double loss)
         {
             _elements = elements;
+            _loss = loss;
             Size = size;
         }
 
@@ -30,14 +32,14 @@ namespace AMG.Physics
                 {
                     if (element.Velocity.Vector.X > 0)
                     {
-                        element.Velocity = new Velocity(element.Velocity.Bounce(XDown));
+                        element.Velocity = new Velocity(element.Velocity.Bounce(XDown, _loss));
                     }
                 }
                 if (element.Left < 0) 
                 {
                     if (element.Velocity.Vector.X < 0) 
                     {
-                        element.Velocity = new Velocity(element.Velocity.Bounce(XUp));
+                        element.Velocity = new Velocity(element.Velocity.Bounce(XUp, _loss));
                     }
                 }
 
@@ -45,14 +47,14 @@ namespace AMG.Physics
                 {
                     if (element.Velocity.Vector.Y > 0) 
                     {
-                        element.Velocity = new Velocity(element.Velocity.Bounce(YDown));
+                        element.Velocity = new Velocity(element.Velocity.Bounce(YDown, _loss));
                     }
                 }
                 if (element.Top < 0) 
                 {
                     if (element.Velocity.Vector.Y < 0) 
                     {
-                        element.Velocity = new Velocity(element.Velocity.Bounce(YUp));
+                        element.Velocity = new Velocity(element.Velocity.Bounce(YUp, _loss));
                     }
                 }
 

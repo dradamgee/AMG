@@ -14,7 +14,7 @@
 
     <DataTemplate DataType="{x:Type graphicsSandbox:Ball}">
 
-        <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="SaddleBrown" Stroke="Black" >
+        <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="Turquoise" Stroke="Black" >
             <Ellipse.InputBindings>
                 <MouseBinding Gesture="LeftClick" Command="{Binding ElementCommand}"/>
             </Ellipse.InputBindings>

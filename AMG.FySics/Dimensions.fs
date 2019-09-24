@@ -29,10 +29,12 @@
         member this.Vector = Vector
         member this.Act(location : Vector, interval: float) = 
             location + (Vector * interval)
-        member this.Bounce(direction : Unit) = 
+        member this.Bounce(direction : Unit, loss: double) = 
             let impulse = (-Vector.X * direction.X - Vector.Y * direction.Y)
-            let impulseVector = direction * impulse;
-            if impulse > 0.0 then Vector + (impulseVector * 2.0) else Vector        
+            let impulseVector = direction * impulse ;
+            if impulse > 0.0 then (Vector + (impulseVector * 2.0))* loss else Vector
+        member this.Bounce(direction : Unit) = this.Bounce (direction, 1.0)
+            
         override this.ToString() = this.Vector.ToString()
 
     type IElement = 
@@ -51,23 +53,24 @@
         member this.Impulse = Impulse
     
 
-    type CollisionNew (Loss : float) =   
+    type Collision (loss : float) =   
         member this.Act(e1 : IElement, e2 : IElement) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
             let distance = e1.Location - e2.Location
             let impact = (e1.Velocity.Vector * distance.Unit - e2.Velocity.Vector * distance.Unit) 
             let areDiverging = impact >= 0.0
+            let hysterisys = if areDiverging then 100.0 else 100.0
             if distance.Magnitude > sumOfRadii
                 then None 
                 else
                     let compression = (sumOfRadii - distance.Magnitude) / sumOfRadii
                     Some(
-                        distance.Unit * compression * -Loss
+                        distance.Unit * compression * (e1.Mass + e2.Mass) * hysterisys
                     )
 
 
-    type Collision (Loss : float) =         
+    type CollisionOld (Loss : float) =         
         member this.Act(e1 : IElement, e2 : IElement) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius

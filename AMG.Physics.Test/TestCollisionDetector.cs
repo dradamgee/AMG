@@ -14,7 +14,7 @@ namespace AMG.Physics.Test
         {
             yield return (e) => new StatefullCollisionDetector(e);
             yield return (e) => new PairCollisionDetector(e);
-            yield return (e) => new QuadTreeCollisionDetector(e, new Boundry(new Vector(2000, 2000), e));
+            yield return (e) => new QuadTreeCollisionDetector(e, new Boundry(new Vector(2000, 2000), e, 1.0));
         }
 
         [Test]
