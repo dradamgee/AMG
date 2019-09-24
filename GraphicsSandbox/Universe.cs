@@ -74,8 +74,8 @@ namespace GraphicsSandbox {
             
             _boundry = new Boundry(new Vector(525, 350), internalElements);
             var gravity = new Gravity(accelerationDueToGravity);
-            ICollisionDetector collisions = new PairCollisionDetector(internalElements);
-            //ICollisionDetector collisions = new QuadTreeCollisionDetector(internalElements, _boundry);
+            //ICollisionDetector collisions = new PairCollisionDetector(internalElements);
+            ICollisionDetector collisions = new QuadTreeCollisionDetector(internalElements, _boundry);
             //ICollisionDetector collisions = new StatefullCollisionDetector(internalElements);
             CollisionResolution collisionResolution = new CollisionResolution(loss);
 

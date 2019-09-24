@@ -10,7 +10,7 @@ namespace GraphicsSandbox
         private static double accelerationDueToGravity = 98;
         private static int NumberOfBalls = 2;
         private static int BallSize = 20;
-        private static double loss = 0.8;
+        private static double loss = 0.7;
 
         public static Universe CreateUniverseFromFile(string path)
         {

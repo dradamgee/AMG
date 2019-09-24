@@ -49,6 +49,23 @@
     type PendingImpulse(Element:IElement, Impulse:Vector) = 
         member this.Element = Element
         member this.Impulse = Impulse
+    
+
+    type CollisionNew (Loss : float) =   
+        member this.Act(e1 : IElement, e2 : IElement) =
+            if e1 = e2 then failwith "Cant collide with self"
+            let sumOfRadii = e1.Radius + e2.Radius
+            let distance = e1.Location - e2.Location
+            let impact = (e1.Velocity.Vector * distance.Unit - e2.Velocity.Vector * distance.Unit) 
+            let areDiverging = impact >= 0.0
+            if distance.Magnitude > sumOfRadii
+                then None 
+                else
+                    let compression = (sumOfRadii - distance.Magnitude) / sumOfRadii
+                    Some(
+                        distance.Unit * compression * -Loss
+                    )
+
 
     type Collision (Loss : float) =         
         member this.Act(e1 : IElement, e2 : IElement) =
