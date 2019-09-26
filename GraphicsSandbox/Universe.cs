@@ -36,23 +36,34 @@ namespace GraphicsSandbox {
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
         private int height;
-        Queue<IElement> pendingAdds = new Queue<IElement>();
-        Queue<IElement> pendingRemoves = new Queue<IElement>();
-        
+        Queue<IElement> _pendingElementAdds = new Queue<IElement>();
+        Queue<IElement> _pendingElementRemoves = new Queue<IElement>();
+        Queue<Bond> _pendingBondAdds = new Queue<Bond>();
+
         public void Add(Element element)
         {
             element.ElementCommand = new MyElementCommand(element, this.split);
-            pendingAdds.Enqueue(element);
+            _pendingElementAdds.Enqueue(element);
+        }
+
+        public void Add(Element element, Element subnode)
+        {
+            _pendingBondAdds.Enqueue(new Bond(element, subnode, 100.0, 100.0));
         }
 
         private void split(Element element)
         {
-            update(new []{element}, element.Split());
+            var subNodes = element.Split();
+            foreach (Element subnode in subNodes)
+            {
+                Add(element, subnode);
+                Add(subnode);
+            }
         }
 
         public void Remove(IElement element)
         {
-            pendingRemoves.Enqueue(element);
+            _pendingElementRemoves.Enqueue(element);
         }
 
         public void update(IEnumerable<IElement> elementToRemove, IEnumerable<IElement> elementToAdd)
@@ -70,8 +81,10 @@ namespace GraphicsSandbox {
         public Universe(double accelerationDueToGravity, double loss) {
             Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
             Elements = new ObservableCollection<IElement>();
+            Bonds = new ObservableCollection<Bond>();
             internalElements = new List<IElement>();
-            
+            internalBonds = new List<Bond>();
+
             _boundry = new Boundry(new Vector(525, 350), internalElements, loss);
             var gravity = new Gravity(accelerationDueToGravity);
             //ICollisionDetector collisions = new PairCollisionDetector(internalElements);
@@ -84,11 +97,18 @@ namespace GraphicsSandbox {
                     interval =>
                     {
                         
-                        while (pendingAdds.Any())
+                        while (_pendingElementAdds.Any())
                         {
-                            var element = pendingAdds.Dequeue();
+                            var element = _pendingElementAdds.Dequeue();
                             internalElements.Add(element);
                             dispatcher.BeginInvoke(new Action(() => Elements.Add(element)));
+                        }
+
+                        while (_pendingBondAdds.Any())
+                        {
+                            var bond = _pendingBondAdds.Dequeue();
+                            internalBonds.Add(bond);
+                            dispatcher.BeginInvoke(new Action(() => Bonds.Add(bond)));
                         }
                     }
                 );
@@ -98,14 +118,15 @@ namespace GraphicsSandbox {
                 interval =>
                 {
 
-                    while (pendingRemoves.Any())
+                    while (_pendingElementRemoves.Any())
                     {
-                        var element = pendingRemoves.Dequeue();
+                        var element = _pendingElementRemoves.Dequeue();
                         internalElements.Remove(element);
                         dispatcher.BeginInvoke(new Action(() => Elements.Remove(element)));
                     }
                 }
             );
+
 
 
             var impulseAction = new TimeDependentActionable
@@ -116,12 +137,15 @@ namespace GraphicsSandbox {
                         from e in internalElements
                         select gravity.Act(e, interval);
 
-                        var possibleCollisions = collisions.Detect();
-                        var pendingCollisionImpulses = collisionResolution.Act(possibleCollisions);
+                        var pendingBondImpulses = internalBonds.SelectMany(b => b.Act(interval));
 
-                        var allImpulses = pendingCollisionImpulses
-                        .Concat(pendingGravityImpulses)
-                        ;
+                        //var possibleCollisions = collisions.Detect();
+                        //var pendingCollisionImpulses = collisionResolution.Act(possibleCollisions);
+                        
+                        var allImpulses = pendingGravityImpulses
+                        //.Concat(pendingCollisionImpulses)
+                        .Concat(pendingBondImpulses);
+
                         Dynamics.ProcessImpulses(allImpulses);
                     }
                 );
@@ -158,7 +182,9 @@ namespace GraphicsSandbox {
 
 
         public ObservableCollection<IElement> Elements { get; }
+        public ObservableCollection<Bond> Bonds { get; }
         private List<IElement> internalElements { get; }
+        private List<Bond> internalBonds{ get; }
 
 
         public Vector Size

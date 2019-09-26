@@ -36,7 +36,7 @@
         member this.Bounce(direction : Unit) = this.Bounce (direction, 1.0)
             
         override this.ToString() = this.Vector.ToString()
-
+    
     type IElement = 
         abstract member Id : int with get
         abstract member Location : Vector with get, set
@@ -46,7 +46,7 @@
         abstract member Top : float with get        
         abstract member Left : float with get        
         abstract member Bottom : float with get        
-        abstract member Right : float with get        
+        abstract member Right : float with get              
 
     type PendingImpulse(Element:IElement, Impulse:Vector) = 
         member this.Element = Element
@@ -60,7 +60,7 @@
             let distance = e1.Location - e2.Location
             let impact = (e1.Velocity.Vector * distance.Unit - e2.Velocity.Vector * distance.Unit) 
             let areDiverging = impact >= 0.0
-            let hysterisys = if areDiverging then 100.0 else 100.0
+            let hysterisys = if areDiverging then 150.0 * loss else 150.0
             if distance.Magnitude > sumOfRadii
                 then None 
                 else
@@ -94,3 +94,16 @@
         member this.Act(e : IElement, interval: float) =
             PendingImpulse(e, Direction * e.Mass * Acceleration * interval)
 
+    type Bond (e1 : IElement, e2 : IElement, length : float, modulus : float) =        
+        member this.Act(interval: float) =
+            if e1 = e2 then failwith "Cant bond with self"            
+            let distance = e1.Location - e2.Location
+            let compression = (length - distance.Magnitude)  
+            if compression = 0.0
+                then []
+                else 
+                    let impulse = distance.Unit * compression * modulus * interval
+                    [PendingImpulse(e1, impulse); PendingImpulse(e2, -impulse)]
+                    
+
+                    
