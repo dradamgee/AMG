@@ -95,6 +95,8 @@
             PendingImpulse(e, Direction * e.Mass * Acceleration * interval)
 
     type Bond (e1 : IElement, e2 : IElement, length : float, modulus : float) =        
+        member this.E1 = e1
+        member this.E2 = e2
         member this.Act(interval: float) =
             if e1 = e2 then failwith "Cant bond with self"            
             let distance = e1.Location - e2.Location

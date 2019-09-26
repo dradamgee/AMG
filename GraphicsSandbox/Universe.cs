@@ -80,8 +80,7 @@ namespace GraphicsSandbox {
 
         public Universe(double accelerationDueToGravity, double loss) {
             Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
-            Elements = new ObservableCollection<IElement>();
-            Bonds = new ObservableCollection<Bond>();
+            Elements = new ObservableCollection<object>();
             internalElements = new List<IElement>();
             internalBonds = new List<Bond>();
 
@@ -108,7 +107,8 @@ namespace GraphicsSandbox {
                         {
                             var bond = _pendingBondAdds.Dequeue();
                             internalBonds.Add(bond);
-                            dispatcher.BeginInvoke(new Action(() => Bonds.Add(bond)));
+                            var vm = new BondViewModel(bond);
+                            dispatcher.BeginInvoke(new Action(() => Elements.Add(vm)));
                         }
                     }
                 );
@@ -139,11 +139,11 @@ namespace GraphicsSandbox {
 
                         var pendingBondImpulses = internalBonds.SelectMany(b => b.Act(interval));
 
-                        //var possibleCollisions = collisions.Detect();
-                        //var pendingCollisionImpulses = collisionResolution.Act(possibleCollisions);
+                        var possibleCollisions = collisions.Detect();
+                        var pendingCollisionImpulses = collisionResolution.Act(possibleCollisions);
                         
                         var allImpulses = pendingGravityImpulses
-                        //.Concat(pendingCollisionImpulses)
+                        .Concat(pendingCollisionImpulses)
                         .Concat(pendingBondImpulses);
 
                         Dynamics.ProcessImpulses(allImpulses);
@@ -181,8 +181,7 @@ namespace GraphicsSandbox {
 
 
 
-        public ObservableCollection<IElement> Elements { get; }
-        public ObservableCollection<Bond> Bonds { get; }
+        public ObservableCollection<Object> Elements { get; }
         private List<IElement> internalElements { get; }
         private List<Bond> internalBonds{ get; }
 

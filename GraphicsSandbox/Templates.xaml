@@ -26,4 +26,10 @@
     <DataTemplate DataType="{x:Type graphicsSandbox:Square}">
         <Rectangle Height="{Binding SideLength}" Width="{Binding SideLength}" Fill="Red"></Rectangle>
     </DataTemplate>
+
+    <DataTemplate DataType="{x:Type graphicsSandbox:BondViewModel}">
+        <Line X1="{Binding X1}" Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}" Stroke="Red" StrokeThickness="4" ></Line>
+    </DataTemplate>
+
+
 </ResourceDictionary>
