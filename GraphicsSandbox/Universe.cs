@@ -30,7 +30,8 @@ namespace GraphicsSandbox {
     }
 
     public class Universe : INotifyPropertyChanged, IDisposable
-    {   
+    {
+        private readonly double _loss;
         UniversalTime time;
         CancellationTokenSource _cancellationTokenSource;
         private Boundry _boundry;
@@ -48,7 +49,7 @@ namespace GraphicsSandbox {
 
         public void Add(Element element, Element subnode)
         {
-            var bond = new Bond(element, subnode, 100.0, 100.0);
+            var bond = new Bond(element, subnode, element.Radius * 2.0, 10000.0, _loss);
             var BondVM = new ForceViewModel(bond);
             _pendingBondAdds.Enqueue(BondVM);
         }
@@ -91,6 +92,7 @@ namespace GraphicsSandbox {
         }
 
         public Universe(double accelerationDueToGravity, double loss) {
+            _loss = loss;
             Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
             VisualElements = new ObservableCollection<object>();
             elementModels = new List<IElement>();
