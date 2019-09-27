@@ -28,9 +28,7 @@ namespace GraphicsSandbox
             }
 
             var nodeBall = new TreeNodeBall(rootNode, new Vector(400, 400), new Velocity(new Vector(0, 0)));
-
-            var hook = new Hook(new Vector(400, 100));
-
+            
             foreach (var element in nodeBall.Split())
             {
                 var leash = new Leash(new Vector(500.0, 10.0), element, 100.0, 1000.0);

@@ -38,7 +38,7 @@ namespace GraphicsSandbox {
         private int height;
         Queue<Element> _pendingElementAdds = new Queue<Element>();
         Queue<Element> _pendingElementRemoves = new Queue<Element>();
-        Queue<BondViewModel> _pendingBondAdds = new Queue<BondViewModel>();
+        Queue<ForceViewModel> _pendingBondAdds = new Queue<ForceViewModel>();
 
         public void Add(Element element)
         {
@@ -49,18 +49,18 @@ namespace GraphicsSandbox {
         public void Add(Element element, Element subnode)
         {
             var bond = new Bond(element, subnode, 100.0, 100.0);
-            var BondVM = new BondViewModel(bond);
+            var BondVM = new ForceViewModel(bond);
             _pendingBondAdds.Enqueue(BondVM);
         }
 
         public void Add(Bond bond)
         {
-            _pendingBondAdds.Enqueue(new BondViewModel(bond));
+            _pendingBondAdds.Enqueue(new ForceViewModel(bond));
         }
 
         public void Add(Leash leash)
         {
-            _pendingBondAdds.Enqueue(new BondViewModel(leash));
+            _pendingBondAdds.Enqueue(new ForceViewModel(leash));
         }
 
         private void split(Element element)

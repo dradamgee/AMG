@@ -58,7 +58,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Ball.cs" />
-    <Compile Include="BondViewModel.cs" />
+    <Compile Include="ForceViewModel.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="God.cs" />
     <Compile Include="MyElementCommand.cs" />

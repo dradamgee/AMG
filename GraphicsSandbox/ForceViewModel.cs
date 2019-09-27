@@ -5,7 +5,7 @@ using AMG.FySics;
 
 namespace GraphicsSandbox
 {
-    public class BondViewModel : INotifyPropertyChanged
+    public class ForceViewModel : INotifyPropertyChanged
     {
         public IForce Force { get; }
 
@@ -61,7 +61,7 @@ namespace GraphicsSandbox
             }
         }
 
-        public BondViewModel(Leash leash)
+        public ForceViewModel(Leash leash)
         {
             X2 = leash.Pin.X;
             Y2 = leash.Pin.Y;
@@ -81,7 +81,7 @@ namespace GraphicsSandbox
             };
         }
 
-        public BondViewModel(Bond bond)
+        public ForceViewModel(Bond bond)
         {
             Force = bond;
             var e1 = bond.E1 as Element;
