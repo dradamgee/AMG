@@ -11,6 +11,7 @@ namespace GraphicsSandbox
         private static int NumberOfBalls = 200;
         private static int BallSize = 20;
         private static double loss = 0.6;
+        private static double viscosity = 0.9;
 
         public static Universe CreateUniverseFromFile(string path)
         {
@@ -20,7 +21,7 @@ namespace GraphicsSandbox
 
         public static Universe UniverseFromPaths(IEnumerable<string> lines)
         {
-            var universe = new Universe(accelerationDueToGravity, loss);
+            var universe = new Universe(accelerationDueToGravity, loss, viscosity);
             var rootNode = new TreeNode("Root", "Root");
             foreach (var line in lines)
             {
@@ -31,7 +32,7 @@ namespace GraphicsSandbox
             
             foreach (var element in nodeBall.Split())
             {
-                var leash = new Leash(new Vector(500.0, 10.0), element, nodeBall.Diameter * 1.1, 10000.0, loss);
+                var leash = new Leash(new Vector(500.0, 10.0), element, nodeBall.Diameter * 1.1, 10000.0);
                 universe.Add(element);
                 universe.Add(leash);
             }
@@ -41,7 +42,7 @@ namespace GraphicsSandbox
         }
 
         public static Universe CreateUniverse() {
-            var universe = new Universe(accelerationDueToGravity, loss);
+            var universe = new Universe(accelerationDueToGravity, loss, viscosity);
             
             int i = NumberOfBalls;
             while (i-- > 0) {
@@ -52,7 +53,7 @@ namespace GraphicsSandbox
         }
 
         public static  Universe CreateUniverseToFixRotationError() {
-            var universe = new Universe(accelerationDueToGravity, loss);
+            var universe = new Universe(accelerationDueToGravity, loss, viscosity);
             var e1 = (Ball)"1 | 8 | 196.5716629592 | 225.237471658389 | 4.96841730694 | 5.77965926300911";
             var e2 = (Ball)"1 | 8 | 185.307610553024 | 214.62117119859 | 15.1709404889631 | -5.65428572085577";
             universe.Add(e1);
@@ -62,7 +63,7 @@ namespace GraphicsSandbox
 
         public static Universe CreateUniverseWithTwoBalls()
         {
-            var universe = new Universe(0.0, 1.0);
+            var universe = new Universe(0.0, 1.0, 0.0);
             var e1 = (Ball)"1 | 20 | 0.0 | 400.0 | 250.0 | 0.0";
             var e2 = (Ball)"1 | 20 | 400.0 | 400.0 | 0.0 | 0.0";
             var e3 = (Ball)"1 | 20 | 440.0 | 400.0 | 0.0 | 0.0";
@@ -78,7 +79,7 @@ namespace GraphicsSandbox
 
         public static Universe CreateUniverseBallCollidesWithTwoBalls()
         {
-            var universe = new Universe(0.0, 1.0);
+            var universe = new Universe(0.0, 1.0, 0.0);
             var e1 = (Ball)"1 | 20 | 0.0 | 400.0 | 250.0 | 0.0";
             var e2 = (Ball)"1 | 20 | 400.0 | 380.0 | 0.0 | 0.0";
             var e3 = (Ball)"1 | 20 | 400.0 | 420.0 | 0.0 | 0.0";

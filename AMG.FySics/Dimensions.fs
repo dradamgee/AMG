@@ -53,7 +53,7 @@
         member this.Impulse = Impulse
     
 
-    type Collision (loss : float) =   
+    type CollisionNew (loss : float) =   
         member this.Act(e1 : IElement, e2 : IElement) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
@@ -70,7 +70,7 @@
                     )
 
 
-    type CollisionOld (Loss : float) =         
+    type Collision (Loss : float) =         
         member this.Act(e1 : IElement, e2 : IElement) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
@@ -93,41 +93,41 @@
         let Direction = new Vector(0.0, 1.0)     
         member this.Act(e : IElement, interval: float) =
             PendingImpulse(e, Direction * e.Mass * Acceleration * interval)
-        
+    
+    type Drag(viscosity : float) = 
+        member this.Act(e : IElement, interval: float) =
+            let force = -e.Velocity.Vector * viscosity * e.Mass * interval
+            PendingImpulse(e,  force)
+ 
     type IForce =
         abstract member Act: float -> PendingImpulse list
 
-    type Leash (pin : Vector, e1 : IElement, length : float, modulus : float, loss : float) =        
+    type Leash (pin : Vector, e1 : IElement, length : float, modulus : float) =        
         member this.Pin = pin
         member this.E1 = e1
         interface IForce with 
             member this.Act(interval: float) =
                 let distance = e1.Location - pin
                 let impact = (e1.Velocity.Vector * distance.Unit) 
-                let areDiverging = impact >= 0.0
-                let hysterisys = if areDiverging then modulus else modulus * loss 
                 let compression = (length - distance.Magnitude)  
                 if compression = 0.0
                     then []
                     else 
-                        let impulse = distance.Unit * compression * hysterisys * interval
+                        let impulse = distance.Unit * compression * modulus * interval
                         [(PendingImpulse(e1, impulse))]
 
-    type Bond (e1 : IElement, e2 : IElement, length : float, modulus : float, loss : float) =        
+    type Bond (e1 : IElement, e2 : IElement, length : float, modulus : float) =        
         member this.E1 = e1
         member this.E2 = e2
         interface IForce with 
             member this.Act(interval: float) =
                 if e1 = e2 then failwith "Cant bond with self"            
                 let distance = e1.Location - e2.Location
-                let impact = (e1.Velocity.Vector * distance.Unit) 
-                let areDiverging = impact >= 0.0
-                let hysterisys = if areDiverging then modulus else modulus * loss 
                 let compression = (length - distance.Magnitude)  
                 if compression = 0.0
                     then []
                     else 
-                        let impulse = distance.Unit * compression * hysterisys * interval
+                        let impulse = distance.Unit * compression * modulus * interval
                         [PendingImpulse(e1, impulse); PendingImpulse(e2, -impulse)]
                     
 

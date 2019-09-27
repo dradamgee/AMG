@@ -49,7 +49,7 @@ namespace GraphicsSandbox {
 
         public void Add(Element element, Element subnode)
         {
-            var bond = new Bond(element, subnode, element.Radius * 2.0, 10000.0, _loss);
+            var bond = new Bond(element, subnode, element.Radius * 2.0, 10000.0);
             var BondVM = new ForceViewModel(bond);
             _pendingBondAdds.Enqueue(BondVM);
         }
@@ -91,7 +91,7 @@ namespace GraphicsSandbox {
             }
         }
 
-        public Universe(double accelerationDueToGravity, double loss) {
+        public Universe(double accelerationDueToGravity, double loss, double viscosity) {
             _loss = loss;
             Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
             VisualElements = new ObservableCollection<object>();
@@ -100,6 +100,8 @@ namespace GraphicsSandbox {
 
             _boundry = new Boundry(new Vector(525, 350), elementModels, loss);
             var gravity = new Gravity(accelerationDueToGravity);
+            var drag = new Drag(viscosity);
+            
             //ICollisionDetector collisions = new PairCollisionDetector(elementModels);
             ICollisionDetector collisions = new QuadTreeCollisionDetector(elementModels, _boundry);
             //ICollisionDetector collisions = new StatefullCollisionDetector(elementModels);
@@ -150,6 +152,11 @@ namespace GraphicsSandbox {
                         from e in elementModels
                         select gravity.Act(e, interval);
 
+                        var pendingDragImpulses =
+                            from e in elementModels
+                            select drag.Act(e, interval);
+
+
                         var pendingBondImpulses = bondModels.SelectMany(b => b.Act(interval));
 
                         var possibleCollisions = collisions.Detect();
@@ -157,7 +164,9 @@ namespace GraphicsSandbox {
                         
                         var allImpulses = pendingGravityImpulses
                         .Concat(pendingCollisionImpulses)
-                        .Concat(pendingBondImpulses);
+                        .Concat(pendingBondImpulses)
+                        .Concat(pendingDragImpulses)
+                            ;
 
                         Dynamics.ProcessImpulses(allImpulses);
                     }
