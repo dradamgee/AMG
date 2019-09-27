@@ -87,15 +87,15 @@ namespace GraphicsSandbox {
 
         public Universe(double accelerationDueToGravity, double loss) {
             Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
-            Elements = new ObservableCollection<object>();
-            internalElements = new List<IElement>();
-            internalBonds = new List<Bond>();
+            VisualElements = new ObservableCollection<object>();
+            elementModels = new List<IElement>();
+            bondModels = new List<IForce>();
 
-            _boundry = new Boundry(new Vector(525, 350), internalElements, loss);
+            _boundry = new Boundry(new Vector(525, 350), elementModels, loss);
             var gravity = new Gravity(accelerationDueToGravity);
-            //ICollisionDetector collisions = new PairCollisionDetector(internalElements);
-            ICollisionDetector collisions = new QuadTreeCollisionDetector(internalElements, _boundry);
-            //ICollisionDetector collisions = new StatefullCollisionDetector(internalElements);
+            //ICollisionDetector collisions = new PairCollisionDetector(elementModels);
+            ICollisionDetector collisions = new QuadTreeCollisionDetector(elementModels, _boundry);
+            //ICollisionDetector collisions = new StatefullCollisionDetector(elementModels);
             CollisionResolution collisionResolution = new CollisionResolution(loss);
 
             var addAction = new TimeDependentActionable
@@ -106,15 +106,15 @@ namespace GraphicsSandbox {
                         while (_pendingElementAdds.Any())
                         {
                             var element = _pendingElementAdds.Dequeue();
-                            internalElements.Add(element);
-                            dispatcher.BeginInvoke(new Action(() => Elements.Add(element)));
+                            elementModels.Add(element);
+                            dispatcher.BeginInvoke(new Action(() => VisualElements.Add(element)));
                         }
 
                         while (_pendingBondAdds.Any())
                         {
                             var bondVM = _pendingBondAdds.Dequeue();
-                            internalBonds.Add(bondVM.Bond);
-                            dispatcher.BeginInvoke(new Action(() => Elements.Add(bondVM)));
+                            bondModels.Add(bondVM.Force);
+                            dispatcher.BeginInvoke(new Action(() => VisualElements.Add(bondVM)));
                         }
                     }
                 );
@@ -127,8 +127,8 @@ namespace GraphicsSandbox {
                     while (_pendingElementRemoves.Any())
                     {
                         var element = _pendingElementRemoves.Dequeue();
-                        internalElements.Remove(element);
-                        dispatcher.BeginInvoke(new Action(() => Elements.Remove(element)));
+                        elementModels.Remove(element);
+                        dispatcher.BeginInvoke(new Action(() => VisualElements.Remove(element)));
                     }
                 }
             );
@@ -140,10 +140,10 @@ namespace GraphicsSandbox {
                     interval =>
                     {
                         var pendingGravityImpulses =
-                        from e in internalElements
+                        from e in elementModels
                         select gravity.Act(e, interval);
 
-                        var pendingBondImpulses = internalBonds.SelectMany(b => b.Act(interval));
+                        var pendingBondImpulses = bondModels.SelectMany(b => b.Act(interval));
 
                         var possibleCollisions = collisions.Detect();
                         var pendingCollisionImpulses = collisionResolution.Act(possibleCollisions);
@@ -159,7 +159,7 @@ namespace GraphicsSandbox {
             TimeDependentActionable velocityAction = new TimeDependentActionable
                 (
                     interval => {
-                        foreach (var element in internalElements) {
+                        foreach (var element in elementModels) {
                             element.Location = element.Velocity.Act(element.Location, interval);
                         }
                     }
@@ -185,11 +185,9 @@ namespace GraphicsSandbox {
             time.Start();
         }
 
-
-
-        public ObservableCollection<Object> Elements { get; }
-        private List<IElement> internalElements { get; }
-        private List<Bond> internalBonds{ get; }
+        public ObservableCollection<Object> VisualElements { get; }
+        private List<IElement> elementModels { get; }
+        private List<IForce> bondModels{ get; }
 
 
         public Vector Size

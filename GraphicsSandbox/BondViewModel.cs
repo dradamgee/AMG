@@ -7,7 +7,7 @@ namespace GraphicsSandbox
 {
     public class BondViewModel : INotifyPropertyChanged
     {
-        public Bond Bond { get; }
+        public IForce Force { get; }
 
         public double Top
         {
@@ -17,9 +17,6 @@ namespace GraphicsSandbox
         {
             get { return 0; }
         }
-
-        private Element e1;
-        private Element e2;
 
         private double _x1; private double _y1;
         private double _x2; private double _y2;
@@ -64,11 +61,28 @@ namespace GraphicsSandbox
             }
         }
 
+        public BondViewModel(Leash leash)
+        {
+            Force = leash;
+            var e1 = leash.E1 as Element;
+            
+            e1.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == "Location")
+                {
+                    X1 = e1.Location.X;
+                    Y1 = e1.Location.Y;
+                }
+                OnPropertyChanged("Top");
+                OnPropertyChanged("Left");
+            };
+        }
+
         public BondViewModel(Bond bond)
         {
-            Bond = bond;
-            e1 = bond.E1 as Element;
-            e2 = bond.E2 as Element;
+            Force = bond;
+            var e1 = bond.E1 as Element;
+            var e2 = bond.E2 as Element;
 
             e1.PropertyChanged += (sender, args) =>
             {

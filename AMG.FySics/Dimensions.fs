@@ -93,19 +93,35 @@
         let Direction = new Vector(0.0, 1.0)     
         member this.Act(e : IElement, interval: float) =
             PendingImpulse(e, Direction * e.Mass * Acceleration * interval)
+        
+    type IForce =
+        abstract member Act: float -> PendingImpulse list
+
+    type Leash (pin : Vector, e1 : IElement, length : float, modulus : float) =        
+        member this.E1 = e1
+        interface IForce with 
+            member this.Act(interval: float) =
+                let distance = e1.Location - pin
+                let compression = (length - distance.Magnitude)  
+                if compression = 0.0
+                    then []
+                    else 
+                        let impulse = distance.Unit * compression * modulus * interval
+                        [(PendingImpulse(e1, impulse))]
 
     type Bond (e1 : IElement, e2 : IElement, length : float, modulus : float) =        
         member this.E1 = e1
         member this.E2 = e2
-        member this.Act(interval: float) =
-            if e1 = e2 then failwith "Cant bond with self"            
-            let distance = e1.Location - e2.Location
-            let compression = (length - distance.Magnitude)  
-            if compression = 0.0
-                then []
-                else 
-                    let impulse = distance.Unit * compression * modulus * interval
-                    [PendingImpulse(e1, impulse); PendingImpulse(e2, -impulse)]
+        interface IForce with 
+            member this.Act(interval: float) =
+                if e1 = e2 then failwith "Cant bond with self"            
+                let distance = e1.Location - e2.Location
+                let compression = (length - distance.Magnitude)  
+                if compression = 0.0
+                    then []
+                    else 
+                        let impulse = distance.Unit * compression * modulus * interval
+                        [PendingImpulse(e1, impulse); PendingImpulse(e2, -impulse)]
                     
 
                     
