@@ -62,7 +62,6 @@
     <Compile Include="Element.cs" />
     <Compile Include="God.cs" />
     <Compile Include="MyElementCommand.cs" />
-    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Square.cs" />
     <Compile Include="TreeNodeBall.cs" />
     <Compile Include="Universe.cs" />
