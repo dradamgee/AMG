@@ -63,6 +63,9 @@ namespace GraphicsSandbox
 
         public BondViewModel(Leash leash)
         {
+            X2 = leash.Pin.X;
+            Y2 = leash.Pin.Y;
+
             Force = leash;
             var e1 = leash.E1 as Element;
             

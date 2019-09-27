@@ -58,6 +58,11 @@ namespace GraphicsSandbox {
             _pendingBondAdds.Enqueue(new BondViewModel(bond));
         }
 
+        public void Add(Leash leash)
+        {
+            _pendingBondAdds.Enqueue(new BondViewModel(leash));
+        }
+
         private void split(Element element)
         {
             var subNodes = element.Split();

@@ -98,6 +98,7 @@
         abstract member Act: float -> PendingImpulse list
 
     type Leash (pin : Vector, e1 : IElement, length : float, modulus : float) =        
+        member this.Pin = pin
         member this.E1 = e1
         interface IForce with 
             member this.Act(interval: float) =

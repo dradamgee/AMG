@@ -33,12 +33,12 @@ namespace GraphicsSandbox
 
             foreach (var element in nodeBall.Split())
             {
-                //var bond = new Bond(hook, element, 100.0, 100.0);
+                var leash = new Leash(new Vector(500.0, 10.0), element, 100.0, 1000.0);
                 universe.Add(element);
-                //universe.Add(bond);
+                universe.Add(leash);
             }
 
-            
+
             return universe;
         }
 
