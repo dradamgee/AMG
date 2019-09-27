@@ -36,9 +36,9 @@ namespace GraphicsSandbox {
         private Boundry _boundry;
         List<TimeDependentAction> timeDependentActions;
         private int height;
-        Queue<IElement> _pendingElementAdds = new Queue<IElement>();
-        Queue<IElement> _pendingElementRemoves = new Queue<IElement>();
-        Queue<Bond> _pendingBondAdds = new Queue<Bond>();
+        Queue<Element> _pendingElementAdds = new Queue<Element>();
+        Queue<Element> _pendingElementRemoves = new Queue<Element>();
+        Queue<BondViewModel> _pendingBondAdds = new Queue<BondViewModel>();
 
         public void Add(Element element)
         {
@@ -48,7 +48,14 @@ namespace GraphicsSandbox {
 
         public void Add(Element element, Element subnode)
         {
-            _pendingBondAdds.Enqueue(new Bond(element, subnode, 100.0, 100.0));
+            var bond = new Bond(element, subnode, 100.0, 100.0);
+            var BondVM = new BondViewModel(bond);
+            _pendingBondAdds.Enqueue(BondVM);
+        }
+
+        public void Add(Bond bond)
+        {
+            _pendingBondAdds.Enqueue(new BondViewModel(bond));
         }
 
         private void split(Element element)
@@ -61,7 +68,7 @@ namespace GraphicsSandbox {
             }
         }
 
-        public void Remove(IElement element)
+        public void Remove(Element element)
         {
             _pendingElementRemoves.Enqueue(element);
         }
@@ -105,10 +112,9 @@ namespace GraphicsSandbox {
 
                         while (_pendingBondAdds.Any())
                         {
-                            var bond = _pendingBondAdds.Dequeue();
-                            internalBonds.Add(bond);
-                            var vm = new BondViewModel(bond);
-                            dispatcher.BeginInvoke(new Action(() => Elements.Add(vm)));
+                            var bondVM = _pendingBondAdds.Dequeue();
+                            internalBonds.Add(bondVM.Bond);
+                            dispatcher.BeginInvoke(new Action(() => Elements.Add(bondVM)));
                         }
                     }
                 );

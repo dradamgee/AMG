@@ -27,8 +27,18 @@ namespace GraphicsSandbox
                 rootNode.AddNode(line.Split('/'));
             }
 
-            var ball = new TreeNodeBall(rootNode, new Vector(400, 400), new Velocity(new Vector(0, 0)));
-            universe.Add(ball);
+            var nodeBall = new TreeNodeBall(rootNode, new Vector(400, 400), new Velocity(new Vector(0, 0)));
+
+            var hook = new Hook(new Vector(400, 100));
+
+            foreach (var element in nodeBall.Split())
+            {
+                //var bond = new Bond(hook, element, 100.0, 100.0);
+                universe.Add(element);
+                //universe.Add(bond);
+            }
+
+            
             return universe;
         }
 

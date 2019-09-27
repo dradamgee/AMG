@@ -2,13 +2,12 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using AMG.FySics;
-using GraphicsSandbox.Annotations;
 
 namespace GraphicsSandbox
 {
     public class BondViewModel : INotifyPropertyChanged
     {
-
+        public Bond Bond { get; }
 
         public double Top
         {
@@ -67,6 +66,7 @@ namespace GraphicsSandbox
 
         public BondViewModel(Bond bond)
         {
+            Bond = bond;
             e1 = bond.E1 as Element;
             e2 = bond.E2 as Element;
 
@@ -94,7 +94,6 @@ namespace GraphicsSandbox
         
         public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
