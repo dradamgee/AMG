@@ -60,7 +60,7 @@
             let distance = e1.Location - e2.Location
             let impact = (e1.Velocity.Vector * distance.Unit - e2.Velocity.Vector * distance.Unit) 
             let areDiverging = impact >= 0.0
-            let hysterisys = if areDiverging then 150.0 else 150.0 * loss
+            let hysterisys = if areDiverging then 1000.0 else 1000.0 * loss
             if distance.Magnitude > sumOfRadii
                 then None 
                 else
