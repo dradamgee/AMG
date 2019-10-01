@@ -53,7 +53,7 @@
         member this.Impulse = Impulse
     
 
-    type CollisionNew (loss : float) =   
+    type Collision (loss : float) =   
         member this.Act(e1 : IElement, e2 : IElement) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
@@ -70,7 +70,7 @@
                     )
 
 
-    type Collision (Loss : float) =         
+    type CollisionOld (Loss : float) =         
         member this.Act(e1 : IElement, e2 : IElement) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
@@ -96,8 +96,10 @@
     
     type Drag(viscosity : float) = 
         member this.Act(e : IElement, interval: float) =
-            let force = -e.Velocity.Vector * viscosity * e.Mass * interval
-            PendingImpulse(e,  force)
+            let impulse = -e.Velocity.Vector * viscosity * e.Radius * interval
+            if impulse.Magnitude > e.Velocity.Vector.Magnitude * e.Mass 
+                then PendingImpulse(e, -e.Velocity.Vector * e.Mass)
+                else PendingImpulse(e, impulse)
  
     type IForce =
         abstract member Act: float -> PendingImpulse list

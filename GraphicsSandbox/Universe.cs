@@ -49,7 +49,7 @@ namespace GraphicsSandbox {
 
         public void Add(Element element, Element subnode)
         {
-            var bond = new Bond(element, subnode, element.Radius * 2.0, 10000.0);
+            var bond = new Bond(element, subnode, element.Radius * 2.0, subnode.Mass * 10.0);
             var BondVM = new ForceViewModel(bond);
             _pendingBondAdds.Enqueue(BondVM);
         }

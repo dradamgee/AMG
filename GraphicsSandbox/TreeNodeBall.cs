@@ -46,7 +46,7 @@ namespace GraphicsSandbox
         }
 
         public TreeNodeBall (TreeNode node, Vector location, Velocity velocity) 
-            : this(node, node.Count, Math.Sqrt(node.Count) * 5, location, velocity)
+            : this(node, node.Count, Math.Sqrt(node.Count) * 4.0, location, velocity)
         {
             
         }
