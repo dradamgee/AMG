@@ -1,42 +1,46 @@
 ﻿module Tree
-
-    type TreeNodeNEw =
-        | Node of string * string * List<TreeNodeNEw>
-        | Leaf of string * string
     
-        member this.build(handle:string, fullPath:string, subPaths: List<List<string>> ) = 
-            let subnodes = subPaths |> 
-                List.groupBy (fun path -> path.Head) |> 
-                List.map (
-                    fun subpathGroup -> match subpathGroup with 
-                    | (x, []) -> TreeNodeNEw.Leaf(x, fullPath + "/" + x) 
-                    | (x,y) -> this.build (x, fullPath + "/" + x, y.Tail))
-            
-            match subnodes with
-                | [] -> TreeNodeNEw.Leaf(handle, fullPath)
-                | subnodes -> TreeNodeNEw.Node (handle, fullPath, subnodes)
-
-        //member this.Count = 
-        //    match this with 
-        //        | Node(_, _, x) -> List.fold (fun node -> node.Count) 0 x 
-   
-
-    
-    type TreeNode(handle: string, fullPath:string, subPaths: List<List<string>>) = 
-        let SubNodes = 
-            subPaths |> 
-            List.groupBy (fun path -> path.Head) |> 
-            List.map (fun zz -> match zz with | (x,y) -> TreeNode (x, fullPath + "/" + x, y.Tail))
-
-        ////http://www.fssnip.net/tb/title/Tree-folding
-        //let rec fold (f : 'b -> TreeNode -> 'b) (m : 'b) (t : TreeNode) : 'b = 
-        //    let m' = f m t
-         
-         
-        member this.Handle = handle
-        member this.FullPath = fullPath
-        member this.Count() = SubNodes.Length
         
+type TreeNode =
+    | Node of string * string * List<TreeNode> * int
+    | Leaf of string * string * int
+    member this.Count() = 
+        match this with 
+            | Node(_, _, _, n) -> n
+            | Leaf(_, _, n) -> n
 
+let addCount(handle : string, paths : string list list) =
+    (handle, paths, paths.Length)
 
-        
+let tailsSimple(paths : string list list) = 
+    paths |> 
+    List.map (fun path -> path.Tail)
+
+let tails(handle : string, paths : string list list, count : int) =     
+    (handle, tailsSimple paths, count)
+
+let removeEmptySimple(paths : string list list) = 
+    paths |> 
+    List.filter (fun a -> not a.IsEmpty)
+
+let removeEmpty(handle : string, paths : string list list, count : int) =     
+    (handle, removeEmptySimple paths, count)
+
+let groupAndCount(files : string list list) = 
+    files |>     
+    List.groupBy (fun path -> path.Head) |>            
+    List.map addCount |>
+    List.map tails |>
+    List.map removeEmpty
+
+let rec buildTree(handle : string, fullPath : string, paths : string list list, count : int) =     
+    let subPaths = groupAndCount paths
+    match (handle, subPaths, count) with 
+        | (handle, [], count) -> TreeNode.Leaf(handle, fullPath, count)
+        | (handle, subPaths, count) ->             
+            let foo = subPaths |> List.map (fun (handle, subPaths, count) -> buildTree(handle, fullPath + "/" + handle, subPaths, count))
+            TreeNode.Node(handle, fullPath, foo, count)
+
+let buildRoot (paths : string list list) = 
+    buildTree("", "", paths, paths.Length)
+
