@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace AMG.Physics
 {
     public class UniversalTime {
-        private readonly IEnumerable<TimeDependentAction> _actions;
+        private readonly IEnumerable<ITimeDependentAction> _actions;
         private readonly CancellationToken _cancelToken;
         private const int _interval = 25;
         private const double _intervalInSecounds = 0.025d;
         private Task time;
 
-        public UniversalTime(IEnumerable<TimeDependentAction> actions, CancellationToken cancelToken)
+        public UniversalTime(IEnumerable<ITimeDependentAction> actions, CancellationToken cancelToken)
         {
             _actions = actions;
             _cancelToken = cancelToken;
@@ -39,7 +39,7 @@ namespace AMG.Physics
                 }
                 var start = DateTime.Now;
                 //Debug.WriteLine("Time Tick - start - " + start);
-                foreach (TimeDependentAction timeDependentAction in _actions) {
+                foreach (ITimeDependentAction timeDependentAction in _actions) {
                     timeDependentAction.Act(_intervalInSecounds);
                 }
                 var end = DateTime.Now;

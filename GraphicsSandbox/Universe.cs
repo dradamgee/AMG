@@ -35,7 +35,7 @@ namespace GraphicsSandbox {
         UniversalTime time;
         CancellationTokenSource _cancellationTokenSource;
         private Boundry _boundry;
-        List<TimeDependentAction> timeDependentActions;
+        List<ITimeDependentAction> timeDependentActions;
         private int height;
         Queue<Element> _pendingElementAdds = new Queue<Element>();
         Queue<Element> _pendingElementRemoves = new Queue<Element>();
@@ -217,7 +217,7 @@ namespace GraphicsSandbox {
                     }
                 );
 
-            timeDependentActions = new List<TimeDependentAction>();
+            timeDependentActions = new List<ITimeDependentAction>();
 
             timeDependentActions.Add(clearAction);
             timeDependentActions.Add(addAction);

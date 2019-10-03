@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AMG.Physics
 {
-    public class Boundry : TimeDependentAction
+    public class Boundry : ITimeDependentAction
     {
         public Vector Size;
         
@@ -24,7 +24,7 @@ namespace AMG.Physics
         Unit YUp = new Unit(0.0, d);
         Unit YDown = new Unit(0.0, -d);
 
-        public override void Act(double interval) {
+        public void Act(double interval) {
             //ResetInterval();
 
             foreach (var element in _elements) {
