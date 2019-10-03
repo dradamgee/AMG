@@ -1,7 +1,7 @@
 ﻿module TestTree
 
 open NUnit.Framework
-open Tree
+open TreeModule
 
 [<TestFixture>]
 type TestTree() =
@@ -21,32 +21,32 @@ type TestTree() =
     [<Test>]
     member TestTree.EmptyNode_CountIs0() =
         let rootNode = buildRoot([])
-        Assert.AreEqual(0, rootNode.Count()) 
+        Assert.AreEqual(0, rootNode.Count) 
 
     [<Test>]
     member TestTree.TestSingleNodeRoot() =
         let rootNode = buildRoot([file1])
-        Assert.AreEqual(1, rootNode.Count())        
+        Assert.AreEqual(1, rootNode.Count)        
 
     [<Test>]
     member TestTree.FourUniqueNodes_CountIs4() =
         let rootNode = buildRoot([file1; file2; file3; file4;])
-        Assert.AreEqual(4, rootNode.Count())
+        Assert.AreEqual(4, rootNode.Count)
 
     [<Test>]
     member TestTree.TwoIdenticleNodes_CountIs2() =
         let rootNode = buildRoot([file1; file1;])
-        Assert.AreEqual(2, rootNode.Count())
+        Assert.AreEqual(2, rootNode.Count)
         
     [<Test>]
     member TestTree.TwoSubNodes() =
         let rootNode = buildRoot([file5; file6;])
-        Assert.AreEqual(2, rootNode.Count())
+        Assert.AreEqual(2, rootNode.Count)
 
     [<Test>]
     member TestTree.TwoDeepNodes() =
         let rootNode = buildRoot([file7; file8;])
-        Assert.AreEqual(2, rootNode.Count())
+        Assert.AreEqual(2, rootNode.Count)
 
 
     [<Test>]

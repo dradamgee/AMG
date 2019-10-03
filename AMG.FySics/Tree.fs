@@ -1,13 +1,23 @@
-﻿module Tree
+﻿module TreeModule
     
         
 type TreeNode =
     | Node of string * string * List<TreeNode> * int
     | Leaf of string * string * int
-    member this.Count() = 
+    member this.Count = 
         match this with 
             | Node(_, _, _, n) -> n
             | Leaf(_, _, n) -> n
+    member this.Handle =
+        match this with 
+            | Node(x, _, _, _) -> x
+            | Leaf(x, _, _) -> x
+    member this.subNodes =
+        match this with 
+            | Node(_, _, x, _) -> x
+            | Leaf(_, _, _) -> []
+
+
 
 let addCount(handle : string, paths : string list list) =
     (handle, paths, paths.Length)
@@ -43,4 +53,7 @@ let rec buildTree(handle : string, fullPath : string, paths : string list list, 
 
 let buildRoot (paths : string list list) = 
     buildTree("", "", paths, paths.Length)
+
+
+
 

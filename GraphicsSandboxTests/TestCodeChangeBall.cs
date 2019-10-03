@@ -33,17 +33,18 @@ namespace GraphicsSandboxTests
                 {
                     @"OM/Client/Caching/DataSources.cs"
                 };
-            
-            TreeNode tn = new TreeNode("Root", "Root");
-            foreach (var path in paths)
-            {
-                tn.AddNode(path.Split('/'));
-            }
+
+            var asd = ListModule.OfSeq((paths.Select(
+                line => ListModule.OfSeq(line.Split('/')
+                ))));
+
+            var rootNode = TreeModule.buildRoot(asd);
+
 
             Vector location = new Vector(1.0, 1.0);
             Velocity velocity = new Velocity(new Vector(1.0, 1.0));
             
-            TreeNodeBall ccb = new TreeNodeBall(tn, location, velocity);
+            TreeNodeBall ccb = new TreeNodeBall(rootNode, location, velocity);
             
             Assert.AreEqual(1, ccb.Mass);
         }
@@ -59,19 +60,18 @@ namespace GraphicsSandboxTests
                 @"DataSources.cs"
             };
 
-            TreeNode tn = new TreeNode("Root", "Root");
+            var asd = ListModule.OfSeq((paths.Select(
+                line => ListModule.OfSeq(line.Split('/')
+                ))));
 
-            foreach (var path in paths)
-            {
-                tn.AddNode(path.Split('/'));
-            }
-            
+            var rootNode = TreeModule.buildRoot(asd);
+
 
             Vector location = new Vector(1.0, 1.0);
             Velocity velocity = new Velocity(new Vector(1.0, 1.0));
             
 
-            TreeNodeBall ccb = new TreeNodeBall(tn, location, velocity);
+            TreeNodeBall ccb = new TreeNodeBall(rootNode, location, velocity);
 
             Assert.AreEqual(4, ccb.Mass);
         }
@@ -90,16 +90,16 @@ namespace GraphicsSandboxTests
                 @"Services/Orders/Common/Test/Helpers/SubOrderBuilder.cs",
             };
 
-            TreeNode tn = new TreeNode("Root", "Root");
-            foreach (var path in paths)
-            {
-                tn.AddNode(path.Split('/'));
-            }
+            var asd = ListModule.OfSeq((paths.Select(
+                line => ListModule.OfSeq(line.Split('/')
+                ))));
+
+            var rootNode = TreeModule.buildRoot(asd);
 
             Vector location = new Vector(1.0, 1.0);
             Velocity velocity = new Velocity(new Vector(1.0, 1.0));
             
-            TreeNodeBall ccb = new TreeNodeBall(tn, location, velocity);
+            TreeNodeBall ccb = new TreeNodeBall(rootNode, location, velocity);
 
             var count = ccb.Split().Count();
 

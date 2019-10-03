@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AMG.FySics;
+using Microsoft.FSharp.Collections;
 
 namespace GraphicsSandbox
 {
@@ -22,12 +24,13 @@ namespace GraphicsSandbox
         public static Universe UniverseFromPaths(IEnumerable<string> lines)
         {
             var universe = new Universe(accelerationDueToGravity, loss, viscosity);
-            var rootNode = new TreeNode("Root", "Root");
-            foreach (var line in lines)
-            {
-                rootNode.AddNode(line.Split('/'));
-            }
+            
+            var asd = ListModule.OfSeq((lines.Select(
+                        line => ListModule.OfSeq(line.Split('/')
+                    ))));
 
+            var rootNode = TreeModule.buildRoot(asd);
+            
             var nodeBall = new TreeNodeBall(rootNode, new Vector(400, 400), new Velocity(new Vector(0, 0)));
             
             foreach (var element in nodeBall.Split())
