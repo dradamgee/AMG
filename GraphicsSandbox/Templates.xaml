@@ -5,7 +5,8 @@
         <Grid>
             <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="SaddleBrown" Stroke="Black" >
                 <Ellipse.InputBindings>
-                    <MouseBinding Gesture="LeftClick" Command="{Binding ElementCommand}"/>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding ExpandCommand}"/>
+                    <MouseBinding Gesture="RightClick" Command="{Binding CollapseCommand}"/>
                 </Ellipse.InputBindings>
             </Ellipse>
             <TextBlock HorizontalAlignment="Center" Text="{Binding NodeName}" TextAlignment="Center" VerticalAlignment="Center"/>
@@ -16,7 +17,7 @@
 
         <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}" Fill="Turquoise" Stroke="Black" >
             <Ellipse.InputBindings>
-                <MouseBinding Gesture="LeftClick" Command="{Binding ElementCommand}"/>
+                <MouseBinding Gesture="LeftClick" Command="{Binding ExpandCommand}"/>
             </Ellipse.InputBindings>
         </Ellipse>
 

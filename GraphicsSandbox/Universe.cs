@@ -39,11 +39,13 @@ namespace GraphicsSandbox {
         private int height;
         Queue<Element> _pendingElementAdds = new Queue<Element>();
         Queue<Element> _pendingElementRemoves = new Queue<Element>();
+        Queue<Tuple<Element, ForceViewModel>> _pendingClear = new Queue<Tuple<Element, ForceViewModel>>();
         Queue<ForceViewModel> _pendingBondAdds = new Queue<ForceViewModel>();
 
         public void Add(Element element)
         {
-            element.ElementCommand = new MyElementCommand(element, this.split);
+            element.ExpandCommand = new MyElementCommand(element, this.split);
+            element.CollapseCommand = new MyElementCommand(element, this.makeRoot);
             _pendingElementAdds.Enqueue(element);
         }
 
@@ -72,6 +74,14 @@ namespace GraphicsSandbox {
                 Add(element, subnode);
                 Add(subnode);
             }
+        }
+
+        private void makeRoot(Element element)
+        {
+            var leash = new Leash(new Vector(500.0, 10.0), element, element.Radius * 1.1, 10000.0);
+            var lvm = new ForceViewModel(leash);
+            _pendingClear.Enqueue(Tuple.Create<Element, ForceViewModel>(element, lvm));
+
         }
 
         public void Remove(Element element)
@@ -106,6 +116,32 @@ namespace GraphicsSandbox {
             ICollisionDetector collisions = new QuadTreeCollisionDetector(elementModels, _boundry);
             //ICollisionDetector collisions = new StatefullCollisionDetector(elementModels);
             CollisionResolution collisionResolution = new CollisionResolution(loss);
+
+            var clearAction = new TimeDependentActionable(
+
+                interval =>
+                {
+                    while (_pendingClear.Any())
+                    {
+                        _pendingElementAdds.Clear();
+                        _pendingElementRemoves.Clear();
+                        _pendingBondAdds.Clear();
+                        elementModels.Clear();
+                        bondModels.Clear();
+                        dispatcher.BeginInvoke(new Action(() => VisualElements.Clear()));
+
+                        var item = _pendingClear.Dequeue();
+                        var element = item.Item1;
+                        var bondVM = item.Item2;
+
+                        elementModels.Add(element);
+                        dispatcher.BeginInvoke(new Action(() => VisualElements.Add(element)));
+                        bondModels.Add(bondVM.Force);
+                        dispatcher.BeginInvoke(new Action(() => VisualElements.Add(bondVM)));
+                    }
+                }
+                
+                );
 
             var addAction = new TimeDependentActionable
                 (
@@ -183,6 +219,7 @@ namespace GraphicsSandbox {
 
             timeDependentActions = new List<TimeDependentAction>();
 
+            timeDependentActions.Add(clearAction);
             timeDependentActions.Add(addAction);
             timeDependentActions.Add(removeAction);
 

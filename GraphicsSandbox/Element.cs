@@ -11,18 +11,29 @@ namespace GraphicsSandbox
     public abstract class Element : INotifyPropertyChanged, IElement
     {
         private static int nextId = 0;
-        private ICommand elementCommand;
+        private ICommand _expandCommand;
+        private ICommand _collapseCommand;
 
         public double Mass { get; set; }
 
         public abstract IEnumerable<Element> Split();
 
-        public ICommand ElementCommand
+        public ICommand ExpandCommand
         {
-            get { return elementCommand; }
+            get { return _expandCommand; }
             set
             {
-                elementCommand = value;
+                _expandCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand CollapseCommand
+        {
+            get { return _collapseCommand; }
+            set
+            {
+                _collapseCommand = value;
                 OnPropertyChanged();
             }
         }
