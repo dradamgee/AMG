@@ -80,9 +80,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Dimensions.fs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\AMG.FySics\AMG.FySics.fsproj">
       <Project>{32a00b51-b520-4696-bcb7-508e0c839521}</Project>
       <Name>AMG.FySics</Name>
