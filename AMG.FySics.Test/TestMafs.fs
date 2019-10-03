@@ -12,8 +12,8 @@ type TestStuff() =
     let piMaker = new LifeOf()   
     let thd(_, _, third) = third
      
-    //[<Test>]
-    member this.Test3() =                
+    [<Test>]
+    member this.Test_bisect_PiMaker() =                
         let myResults = 
           Seq.unfold
             ( fun state -> 
@@ -22,13 +22,15 @@ type TestStuff() =
               else None 
             ) (2.0, 2.0)
         
-        for result in myResults do printf "%A \n" result        
-        Assert.AreEqual(3.1415924535897932, Seq.last myResults)
+
+        let pi = Seq.last myResults
+        let error = 3.1415924535897932 - pi
+        Assert.IsTrue(abs error < 0.00001)
 
     
 
-    //[<Test>]
-    member this.Test_GregoryLeibniz() =                
+    [<Test>]
+    member this.Test_GregoryLeibniz_PiMaker() =                
         let myResults = 
           Seq.unfold
             ( fun state -> 
@@ -37,11 +39,14 @@ type TestStuff() =
                 else Some( piMaker.GregoryLeibniz state )
             ) (0.0, true, 1.0)
                 
-        Assert.AreEqual(3.1415924535897932, Seq.last myResults)
+
+        let pi = Seq.last myResults
+        let error = 3.1415924535897932 - pi
+        Assert.IsTrue(abs error < 0.00001)
 
 
     [<Test>]
-    member this.Test_Nilakantha() =                
+    member this.Test_Nilakantha_PiMaker() =                
         let myResults = 
           Seq.unfold
             ( fun state -> 
@@ -51,7 +56,11 @@ type TestStuff() =
                 else Some( piMaker.Nilakantha state )
             ) (3.0, true, 2.0)
           
-        Assert.AreEqual(3.1415924535897932, Seq.last myResults)
+
+        let pi = Seq.last myResults
+        let error = 3.1415924535897932 - pi
+        Assert.IsTrue(abs error < 0.00001)
+
 
 
 

@@ -10,22 +10,6 @@ namespace GraphicsSandboxTests
     [TestClass]
     public class TestCodeChangeBall
     {
-
-        //[TestMethod]
-        //public void WhenOneItem_MassIsOne_fs()
-        //{
-        //    var paths = new[]
-        //    {
-        //        @"OM/Client/Caching/DataSources.cs"
-        //    };
-            
-        //    var fslist = ListModule.OfSeq(paths.Select(path => ListModule.OfSeq(path.Split('/'))));
-
-        //    var asd = new Tree.TreeNode("Root", "Root", fslist);
-
-        //    Assert.AreEqual(1, asd.Count);
-        //}
-
         [TestMethod]
         public void WhenOneItem_MassIsOne()
         {

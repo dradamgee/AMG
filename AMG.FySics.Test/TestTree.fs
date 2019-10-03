@@ -53,7 +53,7 @@ type TestTree() =
     member TestTree.SingleFileInRoot_OneSubnode() =
         let rootNode = buildRoot([file1;])
         let count = match rootNode with
-            | Node(_, _, sn, _) -> sn.Length 
+            | Root(sn, _)-> sn.Length 
             
         Assert.AreEqual(1, count)
 
@@ -62,7 +62,7 @@ type TestTree() =
     member TestTree.SingleFileInRoot_FullPathIsCorrect() =
         let rootNode = buildRoot([file1;])
         let fileNode = match rootNode with
-            | Node(_, _, sn, _) -> sn.Head
+            | Root(sn, _) -> sn.Head
         let fullPath = match fileNode with 
             | Leaf(_, fullPath, _) -> fullPath
             
@@ -72,7 +72,7 @@ type TestTree() =
     member TestTree.SingleFileInRoot_LableIsCorrect() =
         let rootNode = buildRoot([file1;])
         let fileNode = match rootNode with
-            | Node(_, _, sn, _) -> sn.Head
+            | Root(sn, _) -> sn.Head
         let lable = match fileNode with 
             | Leaf(lable, _, _) -> lable
             
@@ -82,7 +82,7 @@ type TestTree() =
     member TestTree.SingleFileInDeep_LableIsCorrect() =
         let rootNode = buildRoot([file7;]) //let file7 = ["OM"; "Client"; "Common"; "7.fs";]
         let level1 = match rootNode with     //root
-            | Node(_, _, sn, _) -> sn.Head  //om
+            | Root(sn, _) -> sn.Head  //om
         let level2 = match level1 with       
             | Node(_, _, sn, _) -> sn.Head  //client
         let level3 = match level2 with       
@@ -100,7 +100,7 @@ type TestTree() =
     member TestTree.SingleFileInDeep_FullPathIsCorrect() =
         let rootNode = buildRoot([file7;]) //let file7 = ["OM"; "Client"; "Common"; "7.fs";]
         let level1 = match rootNode with     //root
-            | Node(_, _, sn, _) -> sn.Head  //om
+            | Root(sn, _) -> sn.Head  //om
         let level2 = match level1 with       
             | Node(_, _, sn, _) -> sn.Head  //client
         let level3 = match level2 with       
