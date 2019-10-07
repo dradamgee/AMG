@@ -1,0 +1,23 @@
+﻿namespace AMG.FySics
+    type Vector(X: float, Y: float) =             
+        member this.X = X
+        member this.Y = Y
+        member this.Magnitude = (X**2.0 + Y**2.0)**0.5
+        member this.Unit = Unit(X / this.Magnitude, Y / this.Magnitude) 
+        member this.Inverse = Vector(Y, X)
+        static member (*) (n : float, d: Vector) = Vector (d.X * n, d.Y * n)
+        static member (*) (d: Vector, n : float) = n * d
+        static member (*) (d1: Vector, d2: Vector) = d1.X*d2.X + d1.Y*d2.Y
+        static member (*) (d1: Vector, d2: Unit) = d1.X*d2.X + d1.Y*d2.Y
+        static member (*) (d1: Unit, d2: Vector) = d1.X*d2.X + d1.Y*d2.Y
+        static member (/) (d: Vector, n : float) = Vector (d.X / n, d.Y / n)
+        static member (+) (d1 : Vector, d2: Vector) = Vector (d1.X + d2.X, d1.Y + d2.Y)
+        static member (-) (d1 : Vector, d2: Vector) = Vector (d1.X - d2.X, d1.Y - d2.Y)
+        static member (~-) (d : Vector) = d * -1.0
+        override this.ToString() = this.X.ToString() + "|" + this.Y.ToString()
+    and Unit(X: float, Y: float) =
+        member this.X = X
+        member this.Y = Y
+        member this.Magnitude = 1
+        static member (*) (n : float, u: Unit) = Vector (u.X * n, u.Y * n)
+        static member (*) (d: Unit, n : float) = n * d

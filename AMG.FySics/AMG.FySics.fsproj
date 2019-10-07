@@ -44,7 +44,10 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
-    <Compile Include="Dimensions.fs" />
+    <Compile Include="Vector.fs" />
+    <Compile Include="Velocity.fs" />
+    <Compile Include="IElement.fs" />
+    <Compile Include="Dynamics.fs" />
     <Compile Include="Tree.fs" />
   </ItemGroup>
   <ItemGroup>
