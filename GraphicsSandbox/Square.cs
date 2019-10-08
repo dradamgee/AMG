@@ -4,7 +4,7 @@ using AMG.Physics;
 
 namespace GraphicsSandbox
 {
-    public class Square : Element{
+    public class Square : ElementViewModel{
         private int _sideLength;
         private int _radius;
 
@@ -24,7 +24,7 @@ namespace GraphicsSandbox
             SideLength = sideLength;
         }
 
-        public override IEnumerable<Element> Split()
+        public override IEnumerable<ElementViewModel> Split()
         {
             throw new System.NotImplementedException();
         }

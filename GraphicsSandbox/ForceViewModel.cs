@@ -67,7 +67,7 @@ namespace GraphicsSandbox
             Y2 = leash.Pin.Y;
 
             Force = leash;
-            var e1 = leash.E1 as Element;
+            var e1 = leash.E1 as ElementViewModel;
             
             e1.PropertyChanged += (sender, args) =>
             {
@@ -84,8 +84,8 @@ namespace GraphicsSandbox
         public ForceViewModel(Bond bond)
         {
             Force = bond;
-            var e1 = bond.E1 as Element;
-            var e2 = bond.E2 as Element;
+            var e1 = bond.E1 as ElementViewModel;
+            var e2 = bond.E2 as ElementViewModel;
 
             e1.PropertyChanged += (sender, args) =>
             {

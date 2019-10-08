@@ -5,12 +5,12 @@ namespace GraphicsSandbox
 {
     public class MyElementCommand : ICommand
     {
-        private readonly Element _element;
-        private readonly Action<Element> _command;
+        private readonly ElementViewModel _elementViewModel;
+        private readonly Action<ElementViewModel> _command;
 
-        public MyElementCommand(Element element, Action<Element> command)
+        public MyElementCommand(ElementViewModel elementViewModel, Action<ElementViewModel> command)
         {
-            _element = element;
+            _elementViewModel = elementViewModel;
             _command = command;
         }
 
@@ -21,7 +21,7 @@ namespace GraphicsSandbox
 
         public void Execute(object parameter)
         {
-            _command(_element);
+            _command(_elementViewModel);
         }
 
         public event EventHandler CanExecuteChanged;

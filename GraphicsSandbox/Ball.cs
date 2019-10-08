@@ -8,7 +8,7 @@ using AMG.Physics;
 
 namespace GraphicsSandbox
 {
-    public class Ball : Element{
+    public class Ball : ElementViewModel{
 
 
         public Ball(double mass, double radius, Vector location, Velocity velocity) : base(mass, location, velocity)
@@ -20,7 +20,7 @@ namespace GraphicsSandbox
             get { return Radius * 2; }
         }
 
-        public override IEnumerable<Element> Split()
+        public override IEnumerable<ElementViewModel> Split()
         {
             var halfmass = Mass / 2;
             var halfsize = Math.Sqrt(Radius * Radius / 2);

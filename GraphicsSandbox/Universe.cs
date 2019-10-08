@@ -22,9 +22,9 @@ namespace GraphicsSandbox {
                 var totalImpulse = impulseGroup.Aggregate((d1, d2) => d1 + d2);
 
                 //System.Diagnostics.Debug.WriteLine(string.Empty);
-                //System.Diagnostics.Debug.WriteLine(element.ToString());
+                //System.Diagnostics.Debug.WriteLine(elementViewModel.ToString());
                 element.Velocity = new Velocity(element.Velocity.Vector + totalImpulse / element.Mass);
-                //System.Diagnostics.Debug.WriteLine(element.ToString());
+                //System.Diagnostics.Debug.WriteLine(elementViewModel.ToString());
             }
         }
     }
@@ -37,21 +37,21 @@ namespace GraphicsSandbox {
         private Boundry _boundry;
         List<ITimeDependentAction> timeDependentActions;
         private int height;
-        Queue<Element> _pendingElementAdds = new Queue<Element>();
-        Queue<Element> _pendingElementRemoves = new Queue<Element>();
-        Queue<Tuple<Element, ForceViewModel>> _pendingClear = new Queue<Tuple<Element, ForceViewModel>>();
+        Queue<ElementViewModel> _pendingElementAdds = new Queue<ElementViewModel>();
+        Queue<ElementViewModel> _pendingElementRemoves = new Queue<ElementViewModel>();
+        Queue<Tuple<ElementViewModel, ForceViewModel>> _pendingClear = new Queue<Tuple<ElementViewModel, ForceViewModel>>();
         Queue<ForceViewModel> _pendingBondAdds = new Queue<ForceViewModel>();
 
-        public void Add(Element element)
+        public void Add(ElementViewModel elementViewModel)
         {
-            element.ExpandCommand = new MyElementCommand(element, this.split);
-            element.CollapseCommand = new MyElementCommand(element, this.makeRoot);
-            _pendingElementAdds.Enqueue(element);
+            elementViewModel.ExpandCommand = new MyElementCommand(elementViewModel, this.split);
+            elementViewModel.CollapseCommand = new MyElementCommand(elementViewModel, this.makeRoot);
+            _pendingElementAdds.Enqueue(elementViewModel);
         }
 
-        public void Add(Element element, Element subnode)
+        public void Add(ElementViewModel elementViewModel, ElementViewModel subnode)
         {
-            var bond = new Bond(element, subnode, element.Radius * 2.0, subnode.Mass * 10.0);
+            var bond = new Bond(elementViewModel, subnode, elementViewModel.Radius * 2.0, subnode.Mass * 10.0);
             var BondVM = new ForceViewModel(bond);
             _pendingBondAdds.Enqueue(BondVM);
         }
@@ -66,36 +66,36 @@ namespace GraphicsSandbox {
             _pendingBondAdds.Enqueue(new ForceViewModel(leash));
         }
 
-        private void split(Element element)
+        private void split(ElementViewModel elementViewModel)
         {
-            var subNodes = element.Split();
-            foreach (Element subnode in subNodes)
+            var subNodes = elementViewModel.Split();
+            foreach (ElementViewModel subnode in subNodes)
             {
-                Add(element, subnode);
+                Add(elementViewModel, subnode);
                 Add(subnode);
             }
         }
 
-        private void makeRoot(Element element)
+        private void makeRoot(ElementViewModel elementViewModel)
         {
-            var leash = new Leash(new Vector(500.0, 10.0), element, element.Radius * 1.1, 10000.0);
+            var leash = new Leash(new Vector(500.0, 10.0), elementViewModel, elementViewModel.Radius * 1.1, 10000.0);
             var lvm = new ForceViewModel(leash);
-            _pendingClear.Enqueue(Tuple.Create<Element, ForceViewModel>(element, lvm));
+            _pendingClear.Enqueue(Tuple.Create<ElementViewModel, ForceViewModel>(elementViewModel, lvm));
 
         }
 
-        public void Remove(Element element)
+        public void Remove(ElementViewModel elementViewModel)
         {
-            _pendingElementRemoves.Enqueue(element);
+            _pendingElementRemoves.Enqueue(elementViewModel);
         }
 
         public void update(IEnumerable<IElement> elementToRemove, IEnumerable<IElement> elementToAdd)
         {
-            foreach (Element element in elementToRemove)
+            foreach (ElementViewModel element in elementToRemove)
             {
                 Remove(element);
             }
-            foreach (Element element in elementToAdd)
+            foreach (ElementViewModel element in elementToAdd)
             {
                 Add(element);
             }

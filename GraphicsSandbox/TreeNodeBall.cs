@@ -26,7 +26,7 @@ namespace GraphicsSandbox
         }
         
 
-        public override IEnumerable<Element> Split()
+        public override IEnumerable<ElementViewModel> Split()
         {
             Random rand = new Random();
 

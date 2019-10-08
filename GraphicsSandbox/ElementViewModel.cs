@@ -8,7 +8,7 @@ using System.Windows.Input;
 
 namespace GraphicsSandbox
 {
-    public abstract class Element : INotifyPropertyChanged, IElement
+    public abstract class ElementViewModel : INotifyPropertyChanged, IElement
     {
         private static int nextId = 0;
         private ICommand _expandCommand;
@@ -16,7 +16,7 @@ namespace GraphicsSandbox
 
         public double Mass { get; set; }
 
-        public abstract IEnumerable<Element> Split();
+        public abstract IEnumerable<ElementViewModel> Split();
 
         public ICommand ExpandCommand
         {
@@ -38,7 +38,7 @@ namespace GraphicsSandbox
             }
         }
 
-        public Element(double mass, Vector location, Velocity velocity)
+        public ElementViewModel(double mass, Vector location, Velocity velocity)
         {
             Id = nextId++;
             Velocity = velocity;
