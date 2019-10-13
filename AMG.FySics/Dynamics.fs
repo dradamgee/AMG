@@ -39,7 +39,7 @@
             then this.bounce(element, XUp)
             else if ElementModule.top element > size.Y && element.Velocity.Vector.Y > 0.0
             then this.bounce(element, YDown)
-            else if ElementModule.top element < 0.0 && element.Velocity.Vector.Y < 0.0
+            else if ElementModule.bottom element < 0.0 && element.Velocity.Vector.Y < 0.0
             then this.bounce(element, YUp)
             else None
         

@@ -51,6 +51,7 @@
     <Compile Include="TestMafs.fs" />
     <Compile Include="TestTree.fs" />
     <Compile Include="TestDrag.fs" />
+    <Compile Include="TestBoundry.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">
