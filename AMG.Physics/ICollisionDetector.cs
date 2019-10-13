@@ -6,6 +6,6 @@ namespace AMG.Physics
 {
     public interface ICollisionDetector
     {
-        IEnumerable<Tuple<IElement, IElement>> Detect();
+        IEnumerable<Tuple<Element, Element>> Detect(IEnumerable<Element> elements);
     }
 }

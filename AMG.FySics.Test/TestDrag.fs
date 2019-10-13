@@ -10,25 +10,12 @@ type TestDrag() =
     [<Test>]
     member TestDrag.WhenObjectIsSlow_DragIsLIinear_FunOf_Viscosity_Speed_Time() =
         let sut = Drag(0.07)
-        let mutable location = Vector(0.0, 0.0)
-        let mutable velocity = Velocity(Vector(0.13, 0.0))
+        let location = Vector(0.0, 0.0)
+        let velocity = Velocity(Vector(0.13, 0.0))
 
-        let element = {
-                new IElement with                    
-                    member this.Id = 1
-                    member this.Location with get() = location
-                                         and set(value) = location <- value
-                    member this.Velocity with get() = velocity
-                                         and set(value) = velocity <- value
-                    member this.Radius = 1.0
-                    member this.Mass = 1.0
-                    member this.Top = 1.0
-                    member this.Left = 1.0
-                    member this.Bottom = 1.0
-                    member this.Right = 1.0
-            }
-
-        let pendingImpulse = sut.Act(element, 0.03)
+        let element = [Element(0, location, velocity, 1.0, 1.0);]
+        
+        let pendingImpulse = Seq.head ((sut :> ITimeDependentAction).Act 0.03 element)
 
         Assert.AreEqual(0.000273, pendingImpulse.Impulse.Magnitude) 
 
@@ -38,23 +25,9 @@ type TestDrag() =
         let mutable location = Vector(0.0, 0.0)
         let mutable velocity = Velocity(Vector(0.13, 0.0))
 
-        let element = {
-                new IElement with                    
-                    member this.Id = 1
-                    member this.Location with get() = location
-                                         and set(value) = location <- value
-                    member this.Velocity with get() = velocity
-                                         and set(value) = velocity <- value
-                    member this.Radius = 0.5
-                    member this.Mass = 1.0
-                    member this.Top = 1.0
-                    member this.Left = 1.0
-                    member this.Bottom = 1.0
-                    member this.Right = 1.0
+        let element = [Element(0, location, velocity, 1.0, 0.5);]
 
-            }
-
-        let pendingImpulse = sut.Act(element, 0.03)
+        let pendingImpulse = Seq.head ((sut :> ITimeDependentAction).Act 0.03 element)
 
         Assert.AreEqual(0.0001365, pendingImpulse.Impulse.Magnitude) 
 
@@ -65,22 +38,8 @@ type TestDrag() =
         let mutable location = Vector(0.0, 0.0)
         let mutable velocity = Velocity(Vector(1.0, 0.0))
 
-        let element = {
-                new IElement with                    
-                    member this.Id = 1
-                    member this.Location with get() = location
-                                         and set(value) = location <- value
-                    member this.Velocity with get() = velocity
-                                         and set(value) = velocity <- value
-                    member this.Radius = 1.0
-                    member this.Mass = 1.0
-                    member this.Top = 1.0
-                    member this.Left = 1.0
-                    member this.Bottom = 1.0
-                    member this.Right = 1.0
+        let element = [Element(0, location, velocity, 1.0, 1.0);]
 
-            }
-
-        let pendingImpulse = sut.Act(element, 1.0)
+        let pendingImpulse = Seq.head ((sut :> ITimeDependentAction).Act 0.03 element)
 
         Assert.AreEqual(1.0, pendingImpulse.Impulse.Magnitude)

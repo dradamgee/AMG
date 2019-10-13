@@ -9,12 +9,7 @@ using AMG.Physics;
 namespace GraphicsSandbox
 {
     public class Ball : ElementViewModel{
-
-
-        public Ball(double mass, double radius, Vector location, Velocity velocity) : base(mass, location, velocity)
-        {
-            Radius = radius;
-        }
+        public Ball(double mass, double radius, Vector location, Velocity velocity) : base(mass, location, velocity, radius) {}
 
         public double Diameter {
             get { return Radius * 2; }
@@ -27,8 +22,7 @@ namespace GraphicsSandbox
             yield return new Ball(halfmass, halfsize, Location * 1.01, Velocity);
             yield return new Ball(halfmass, halfsize, Location * 0.99, Velocity);
         }
-
-        public override double Radius { get; }
+       
 
         public static implicit operator Ball(string s)
         {

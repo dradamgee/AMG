@@ -47,7 +47,9 @@
     <Compile Include="Vector.fs" />
     <Compile Include="Velocity.fs" />
     <Compile Include="IElement.fs" />
+    <Compile Include="ElementModule.fs" />
     <Compile Include="Dynamics.fs" />
+    <Compile Include="Time.fs" />
     <Compile Include="Tree.fs" />
   </ItemGroup>
   <ItemGroup>

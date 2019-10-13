@@ -18,7 +18,7 @@ namespace AMG.Physics
 
         private Collision collision;
 
-        public IEnumerable<PendingImpulse> Act(IEnumerable<Tuple<IElement, IElement>> _pairs) {
+        public IEnumerable<PendingImpulse> Act(IEnumerable<Tuple<Element, Element>> _pairs) {
             var pairs = _pairs.ToArray();
             foreach (var pair in pairs) {
                 var e1 = pair.Item1;
@@ -36,54 +36,54 @@ namespace AMG.Physics
         }
     }
 
-    public class StatefullCollisionDetector : ICollisionDetector
-    {
+    //public class StatefullCollisionDetector : ICollisionDetector
+    //{
         
-        private readonly IElement[] _elementsOrderedByX;
-        private readonly IElement[] _elementsOrderedByY;
-        private readonly int _count;
+    //    private readonly Element[] _elementsOrderedByX;
+    //    private readonly Element[] _elementsOrderedByY;
+    //    private readonly int _count;
 
-        public StatefullCollisionDetector(IEnumerable<IElement> elements)
-        {
-            //TODO react to changes in the ObservableCollection
+    //    public StatefullCollisionDetector(IEnumerable<Element> elements)
+    //    {
+    //        //TODO react to changes in the ObservableCollection
 
-            _elementsOrderedByX = elements.ToArray();
-            _elementsOrderedByY = elements.ToArray();
-            _count = _elementsOrderedByX.Length;
-        }
+    //        _elementsOrderedByX = elements.ToArray();
+    //        _elementsOrderedByY = elements.ToArray();
+    //        _count = _elementsOrderedByX.Length;
+    //    }
 
         
 
-        public IEnumerable<Tuple<IElement, IElement>> Detect() {
-            Array.Sort(_elementsOrderedByX, (e1, e2) => {
-                                                            return e1.Location.X.CompareTo(e2.Location.X);
-            });
-            Array.Sort(_elementsOrderedByY, (e1, e2) => {
-                                                            return e1.Location.Y.CompareTo(e2.Location.Y);
-            });
+    //    public IEnumerable<Tuple<Element, Element>> Detect() {
+    //        Array.Sort(_elementsOrderedByX, (e1, e2) => {
+    //                                                        return e1.Location.X.CompareTo(e2.Location.X);
+    //        });
+    //        Array.Sort(_elementsOrderedByY, (e1, e2) => {
+    //                                                        return e1.Location.Y.CompareTo(e2.Location.Y);
+    //        });
 
-            int x1 = 0;
-            while (x1 < _count)
-            {
-                int x2 = x1 + 1;
-                while (x2 < _count) 
-                {
-                    var e1 = _elementsOrderedByX[x1];
-                    var e2 = _elementsOrderedByX[x2];
-                    if  (Math.Abs(e1.Location.X - e2.Location.X) <= e1.Radius + e1.Radius) 
-                    {
-                        if (Math.Abs(e1.Location.Y - e2.Location.Y) <= e1.Radius + e1.Radius)
-                            yield return new Tuple<IElement, IElement>(e1, e2);
-                    } 
-                    else
-                    {
-                        break;
-                    }
-                    x2++;
-                }
+    //        int x1 = 0;
+    //        while (x1 < _count)
+    //        {
+    //            int x2 = x1 + 1;
+    //            while (x2 < _count) 
+    //            {
+    //                var e1 = _elementsOrderedByX[x1];
+    //                var e2 = _elementsOrderedByX[x2];
+    //                if  (Math.Abs(e1.Location.X - e2.Location.X) <= e1.Radius + e1.Radius) 
+    //                {
+    //                    if (Math.Abs(e1.Location.Y - e2.Location.Y) <= e1.Radius + e1.Radius)
+    //                        yield return new Tuple<Element, Element>(e1, e2);
+    //                } 
+    //                else
+    //                {
+    //                    break;
+    //                }
+    //                x2++;
+    //            }
 
-                x1++;
-            }
-        }
-    }
+    //            x1++;
+    //        }
+    //    }
+    //}
 }

@@ -7,12 +7,7 @@ namespace AMG.Physics
 {
     public class PairCollisionDetector : ICollisionDetector
     {
-        private readonly IEnumerable<IElement> _elements;
-        public PairCollisionDetector(IEnumerable<IElement> elements)
-        {
-            _elements = elements;
-        }
-        public IEnumerable<Tuple<IElement, IElement>> Detect() {
+        public IEnumerable<Tuple<Element, Element>> Detect(IEnumerable<Element> _elements) {
 
             var elements = _elements.ToArray();
 
@@ -26,7 +21,7 @@ namespace AMG.Physics
                     if (Math.Abs(e1.Location.Y - e2.Location.Y) > e1.Radius + e1.Radius)
                         continue;
                     
-                    yield return new Tuple<IElement, IElement>(e1, e2);
+                    yield return new Tuple<Element, Element>(e1, e2);
                 }
             }
         }

@@ -1,15 +1,54 @@
 ﻿namespace AMG.FySics
 
     
-    type PendingImpulse(Element:IElement, Impulse:Vector) = 
+    type PendingImpulse(Element:Element, Impulse:Vector) = 
         member this.Element = Element
         member this.Impulse = Impulse
     
-    //type ITimeDependentAction =
-    //    abstract member Act: float -> PendingImpulse list
+    type ITimeDependentAction =
+        abstract member Act: float -> Element seq -> PendingImpulse seq
+
+    type ITimeIndependentAction =
+        abstract member Act: subjects : Element seq -> PendingImpulse seq
+
+           
+    type Boundry (size : Vector, loss : double) = 
+        
+        let d = 1.0
+        let XUp = new Unit(d, 0.0);
+        let XDown = new Unit(-d, 0.0);
+        let YUp = new Unit(0.0, d);
+        let YDown = new Unit(0.0, -d);
+
+        member this.Size = size
+
+        member this.bounce(element: Element, direction : Unit) = 
+            let velocity = element.Velocity.Vector
+            let impulse = (-velocity.X * direction.X - velocity.Y * direction.Y) 
+                            * element.Mass 
+                            * 2.0
+                            * loss
+            let impulseVector = direction * impulse ;
+            if impulse > 0.0 then Some(PendingImpulse(element, impulseVector)) else None
+
+
+        member this.Bounce(element: Element) = 
+            if ElementModule.right element > size.X && element.Velocity.Vector.X > 0.0
+            then this.bounce(element, XDown) 
+            else if ElementModule.left element < 0.0 && element.Velocity.Vector.X < 0.0
+            then this.bounce(element, XUp)
+            else if ElementModule.top element > size.Y && element.Velocity.Vector.Y > 0.0
+            then this.bounce(element, YDown)
+            else if ElementModule.top element < 0.0 && element.Velocity.Vector.Y < 0.0
+            then this.bounce(element, YUp)
+            else None
+        
+        interface ITimeDependentAction with 
+            member this.Act interval elements = 
+                elements |> Seq.choose this.Bounce
    
     type Collision (loss : float) =   
-        member this.Act(e1 : IElement, e2 : IElement) =
+        member this.Act(e1 : Element, e2 : Element) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
             let distance = e1.Location - e2.Location
@@ -23,10 +62,9 @@
                     Some(
                         distance.Unit * compression * (e1.Mass + e2.Mass) * hysterisys
                     )
-
-
+                    
     type CollisionOld (Loss : float) =         
-        member this.Act(e1 : IElement, e2 : IElement) =
+        member this.Act(e1 : Element, e2 : Element) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
             let distance = e1.Location - e2.Location
@@ -46,24 +84,25 @@
 
     type Gravity(Acceleration : float) = 
         let Direction = new Vector(0.0, 1.0)     
-        member this.Act(e : IElement, interval: float) =
+        member this.act(interval: float, e : Element) =
             PendingImpulse(e, Direction * e.Mass * Acceleration * interval)
-    
+        interface ITimeDependentAction with 
+            member this.Act interval elements = 
+                elements |> Seq.map(fun e -> this.act(interval, e))
+
     type Drag(viscosity : float) = 
-        member this.Act(e : IElement, interval: float) =
+        member this.act(interval: float, e : Element) =
             let impulse = -e.Velocity.Vector * viscosity * e.Radius * interval
             if impulse.Magnitude > e.Velocity.Vector.Magnitude * e.Mass 
                 then PendingImpulse(e, -e.Velocity.Vector * e.Mass)
                 else PendingImpulse(e, impulse)
- 
-    type IForce =
-        abstract member Act: float -> PendingImpulse list
+        interface ITimeDependentAction with 
+            member this.Act interval elements = 
+                elements |> Seq.map(fun e -> this.act(interval, e))
 
-    type Leash (pin : Vector, e1 : IElement, length : float, modulus : float) =        
-        member this.Pin = pin
-        member this.E1 = e1
-        interface IForce with 
-            member this.Act(interval: float) =
+     type Leash (pin : Vector, length : float, modulus : float) =        
+        member this.Pin = pin        
+            member this.Act(interval: float, e1 : Element) =                
                 let distance = e1.Location - pin
                 let impact = (e1.Velocity.Vector * distance.Unit) 
                 let compression = (length - distance.Magnitude)  
@@ -73,11 +112,10 @@
                         let impulse = distance.Unit * compression * modulus * interval
                         [(PendingImpulse(e1, impulse))]
 
-    type Bond (e1 : IElement, e2 : IElement, length : float, modulus : float) =        
-        member this.E1 = e1
-        member this.E2 = e2
-        interface IForce with 
-            member this.Act(interval: float) =
+
+    type Bond (length : float, modulus : float) =        
+        //interface IForce with 
+            member this.Act(interval: float, e1 : Element, e2 : Element) =
                 if e1 = e2 then failwith "Cant bond with self"            
                 let distance = e1.Location - e2.Location
                 let compression = (length - distance.Magnitude)  

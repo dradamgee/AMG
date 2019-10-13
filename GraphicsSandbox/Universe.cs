@@ -14,18 +14,29 @@ namespace GraphicsSandbox {
     //TODO move this to FySics
     public class Dynamics
     {
-        public static void ProcessImpulses(IEnumerable<PendingImpulse> allImpulses) {
+        public static IEnumerable<PendingImpulse> ProcessImpulses(IEnumerable<PendingImpulse> allImpulses) {
             var impulseGroups = allImpulses.GroupBy(pe => pe.Element, pe => pe.Impulse);
 
+
+
             foreach (var impulseGroup in impulseGroups) {
-                IElement element = impulseGroup.Key;
+                Element element = impulseGroup.Key;
                 var totalImpulse = impulseGroup.Aggregate((d1, d2) => d1 + d2);
+
+                yield return new PendingImpulse(element, totalImpulse);
 
                 //System.Diagnostics.Debug.WriteLine(string.Empty);
                 //System.Diagnostics.Debug.WriteLine(elementViewModel.ToString());
-                element.Velocity = new Velocity(element.Velocity.Vector + totalImpulse / element.Mass);
+
+
+                //element.Velocity = new Velocity(element.Velocity.Vector + totalImpulse / element.Mass);
+
+                //TODO Tick elements
+
                 //System.Diagnostics.Debug.WriteLine(elementViewModel.ToString());
             }
+
+
         }
     }
 
@@ -35,7 +46,7 @@ namespace GraphicsSandbox {
         UniversalTime time;
         CancellationTokenSource _cancellationTokenSource;
         private Boundry _boundry;
-        List<ITimeDependentAction> timeDependentActions;
+        List<TimeDependentActionable> timeDependentActions;
         private int height;
         Queue<ElementViewModel> _pendingElementAdds = new Queue<ElementViewModel>();
         Queue<ElementViewModel> _pendingElementRemoves = new Queue<ElementViewModel>();
@@ -51,19 +62,19 @@ namespace GraphicsSandbox {
 
         public void Add(ElementViewModel elementViewModel, ElementViewModel subnode)
         {
-            var bond = new Bond(elementViewModel, subnode, elementViewModel.Radius * 2.0, subnode.Mass * 10.0);
-            var BondVM = new ForceViewModel(bond);
+            var bond = new Bond(elementViewModel.Radius * 2.0, subnode.Mass * 10.0);
+            var BondVM = new BondViewModel(bond, elementViewModel, subnode);
             _pendingBondAdds.Enqueue(BondVM);
         }
 
-        public void Add(Bond bond)
+        public void Add(BondViewModel bondVM)
         {
-            _pendingBondAdds.Enqueue(new ForceViewModel(bond));
+            _pendingBondAdds.Enqueue(bondVM);
         }
 
-        public void Add(Leash leash)
+        public void Add(LeashViewModel leashVM)
         {
-            _pendingBondAdds.Enqueue(new ForceViewModel(leash));
+            _pendingBondAdds.Enqueue(leashVM);
         }
 
         private void split(ElementViewModel elementViewModel)
@@ -78,10 +89,9 @@ namespace GraphicsSandbox {
 
         private void makeRoot(ElementViewModel elementViewModel)
         {
-            var leash = new Leash(new Vector(500.0, 10.0), elementViewModel, elementViewModel.Radius * 1.1, 10000.0);
-            var lvm = new ForceViewModel(leash);
+            var leash = new Leash(new Vector(500.0, 10.0), elementViewModel.Radius * 1.1, 10000.0);
+            var lvm = new LeashViewModel(leash, elementViewModel);
             _pendingClear.Enqueue(Tuple.Create<ElementViewModel, ForceViewModel>(elementViewModel, lvm));
-
         }
 
         public void Remove(ElementViewModel elementViewModel)
@@ -89,7 +99,7 @@ namespace GraphicsSandbox {
             _pendingElementRemoves.Enqueue(elementViewModel);
         }
 
-        public void update(IEnumerable<IElement> elementToRemove, IEnumerable<IElement> elementToAdd)
+        public void update(IEnumerable<ElementViewModel> elementToRemove, IEnumerable<ElementViewModel> elementToAdd)
         {
             foreach (ElementViewModel element in elementToRemove)
             {
@@ -105,16 +115,16 @@ namespace GraphicsSandbox {
             _loss = loss;
             Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
             VisualElements = new ObservableCollection<object>();
-            elementModels = new List<IElement>();
-            bondModels = new List<IForce>();
+            elementViewModels = new Dictionary<int, ElementViewModel>();
+            bondViewModels = new List<ForceViewModel>();
 
-            _boundry = new Boundry(new Vector(525, 350), elementModels, loss);
+            _boundry = new Boundry(new Vector(525, 350), loss);
             var gravity = new Gravity(accelerationDueToGravity);
             var drag = new Drag(viscosity);
             
-            //ICollisionDetector collisions = new PairCollisionDetector(elementModels);
-            ICollisionDetector collisions = new QuadTreeCollisionDetector(elementModels, _boundry);
-            //ICollisionDetector collisions = new StatefullCollisionDetector(elementModels);
+            ICollisionDetector collisions = new PairCollisionDetector();
+            //ICollisionDetector collisions = new QuadTreeCollisionDetector(elementViewModels, _boundry);
+            //ICollisionDetector collisions = new StatefullCollisionDetector(elementViewModels);
             CollisionResolution collisionResolution = new CollisionResolution(loss);
 
             var clearAction = new TimeDependentActionable(
@@ -126,39 +136,38 @@ namespace GraphicsSandbox {
                         _pendingElementAdds.Clear();
                         _pendingElementRemoves.Clear();
                         _pendingBondAdds.Clear();
-                        elementModels.Clear();
-                        bondModels.Clear();
+                        elementViewModels.Clear();
+                        bondViewModels.Clear();
                         dispatcher.BeginInvoke(new Action(() => VisualElements.Clear()));
 
                         var item = _pendingClear.Dequeue();
                         var element = item.Item1;
                         var bondVM = item.Item2;
 
-                        elementModels.Add(element);
+                        elementViewModels.Add(element.Id, element);
                         dispatcher.BeginInvoke(new Action(() => VisualElements.Add(element)));
-                        bondModels.Add(bondVM.Force);
+                        bondViewModels.Add(bondVM);
                         dispatcher.BeginInvoke(new Action(() => VisualElements.Add(bondVM)));
                     }
                 }
                 
                 );
 
-            var addAction = new TimeDependentActionable
-                (
+            var addAction = new TimeDependentActionable(
                     interval =>
                     {
                         
                         while (_pendingElementAdds.Any())
                         {
                             var element = _pendingElementAdds.Dequeue();
-                            elementModels.Add(element);
+                            elementViewModels.Add(element.Id, element);
                             dispatcher.BeginInvoke(new Action(() => VisualElements.Add(element)));
                         }
 
                         while (_pendingBondAdds.Any())
                         {
                             var bondVM = _pendingBondAdds.Dequeue();
-                            bondModels.Add(bondVM.Force);
+                            bondViewModels.Add(bondVM);
                             dispatcher.BeginInvoke(new Action(() => VisualElements.Add(bondVM)));
                         }
                     }
@@ -172,7 +181,7 @@ namespace GraphicsSandbox {
                     while (_pendingElementRemoves.Any())
                     {
                         var element = _pendingElementRemoves.Dequeue();
-                        elementModels.Remove(element);
+                        elementViewModels.Remove(element.Id);
                         dispatcher.BeginInvoke(new Action(() => VisualElements.Remove(element)));
                     }
                 }
@@ -184,53 +193,41 @@ namespace GraphicsSandbox {
                 (
                     interval =>
                     {
-                        var pendingGravityImpulses =
-                        from e in elementModels
-                        select gravity.Act(e, interval);
+                        var elements = elementViewModels.Values.Select(vm => vm.Element).ToList();
 
-                        var pendingDragImpulses =
-                            from e in elementModels
-                            select drag.Act(e, interval);
+                        var pendingGravityImpulses = ((ITimeDependentAction)gravity).Act(interval, elements);
+                        var pendingBoundryImpulses = ((ITimeDependentAction)_boundry).Act(loss, elements);
+                        var pendingDragImpulses = ((ITimeDependentAction)drag).Act(interval, elements);
 
+                        var pendingBondImpulses = bondViewModels.SelectMany(b => b.Act(interval));
 
-                        var pendingBondImpulses = bondModels.SelectMany(b => b.Act(interval));
-
-                        var possibleCollisions = collisions.Detect();
+                        var possibleCollisions = collisions.Detect(elementViewModels.Values.Select(vm => vm.Element));
                         var pendingCollisionImpulses = collisionResolution.Act(possibleCollisions);
                         
                         var allImpulses = pendingGravityImpulses
+                        .Concat(pendingBoundryImpulses)
                         .Concat(pendingCollisionImpulses)
                         .Concat(pendingBondImpulses)
                         .Concat(pendingDragImpulses)
                             ;
 
-                        Dynamics.ProcessImpulses(allImpulses);
-                    }
-                );
+                        var pendingImpulses = Dynamics.ProcessImpulses(allImpulses);
 
-            TimeDependentActionable velocityAction = new TimeDependentActionable
-                (
-                    interval => {
-                        foreach (var element in elementModels) {
-                            element.Location = element.Velocity.Act(element.Location, interval);
+                        foreach (var pendingImpulse in pendingImpulses)
+                        {
+                            var element = pendingImpulse.Element;
+                            this.elementViewModels[element.Id].Element = Time.Tick(interval, element, pendingImpulse);
                         }
                     }
                 );
 
-            timeDependentActions = new List<ITimeDependentAction>();
+            timeDependentActions = new List<TimeDependentActionable>();
 
             timeDependentActions.Add(clearAction);
             timeDependentActions.Add(addAction);
             timeDependentActions.Add(removeAction);
 
-            //Move the objects
-            timeDependentActions.Add(velocityAction);
-            //Calculate the impulses
-            
             timeDependentActions.Add(impulseAction);
-            //reclaculate the velocity
-            //enforce boundry
-            timeDependentActions.Add(_boundry);
             
             _cancellationTokenSource = new CancellationTokenSource();
             time = new UniversalTime(timeDependentActions, _cancellationTokenSource.Token);
@@ -239,8 +236,8 @@ namespace GraphicsSandbox {
         }
 
         public ObservableCollection<Object> VisualElements { get; }
-        private List<IElement> elementModels { get; }
-        private List<IForce> bondModels{ get; }
+        private Dictionary<int, ElementViewModel> elementViewModels { get; }
+        private List<ForceViewModel> bondViewModels{ get; }
 
 
         public Vector Size
@@ -251,7 +248,7 @@ namespace GraphicsSandbox {
             }
             set
             {
-                _boundry.Size = value;
+                _boundry = new Boundry(value, _loss);
             }
         }
 

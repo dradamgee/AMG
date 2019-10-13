@@ -2,13 +2,81 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using AMG.FySics;
+using Microsoft.FSharp.Collections;
 
 namespace GraphicsSandbox
 {
-    public class ForceViewModel : INotifyPropertyChanged
+    public class LeashViewModel : ForceViewModel
     {
-        public IForce Force { get; }
+        private readonly Leash _leash;
+        private readonly ElementViewModel _e1;
 
+        public LeashViewModel(Leash leash, ElementViewModel e1)
+        {
+            _leash = leash;
+            _e1 = e1;
+            X2 = leash.Pin.X;
+            Y2 = leash.Pin.Y;
+
+            e1.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == "Location")
+                {
+                    X1 = e1.Location.X;
+                    Y1 = e1.Location.Y;
+                }
+                OnPropertyChanged("Top");
+                OnPropertyChanged("Left");
+            };
+        }
+
+        public override FSharpList<AMG.FySics.PendingImpulse>  Act(double interval)
+        {
+            return _leash.Act(interval, _e1.Element);
+        }
+    }
+
+    public class BondViewModel : ForceViewModel
+    {
+        private readonly Bond _bond;
+        private readonly ElementViewModel _e1;
+        private readonly ElementViewModel _e2;
+
+        public BondViewModel(Bond bond, ElementViewModel e1, ElementViewModel e2)
+        {
+            _bond = bond;
+            _e1 = e1;
+            _e2 = e2;
+            e1.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == "Location")
+                {
+                    X1 = e1.Location.X;
+                    Y1 = e1.Location.Y;
+                }
+                OnPropertyChanged("Top");
+                OnPropertyChanged("Left");
+            };
+            e2.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == "Location")
+                {
+                    X2 = e2.Location.X;
+                    Y2 = e2.Location.Y;
+                    OnPropertyChanged("Top");
+                    OnPropertyChanged("Left");
+                }
+            };
+        }
+
+        public override FSharpList<PendingImpulse> Act(double interval)
+        {
+            return _bond.Act(interval, _e1.Element, _e2.Element);
+        }
+    }
+
+    public abstract class ForceViewModel : INotifyPropertyChanged
+    {
         public double Top
         {
             get { return 0; }
@@ -60,54 +128,6 @@ namespace GraphicsSandbox
                 OnPropertyChanged();
             }
         }
-
-        public ForceViewModel(Leash leash)
-        {
-            X2 = leash.Pin.X;
-            Y2 = leash.Pin.Y;
-
-            Force = leash;
-            var e1 = leash.E1 as ElementViewModel;
-            
-            e1.PropertyChanged += (sender, args) =>
-            {
-                if (args.PropertyName == "Location")
-                {
-                    X1 = e1.Location.X;
-                    Y1 = e1.Location.Y;
-                }
-                OnPropertyChanged("Top");
-                OnPropertyChanged("Left");
-            };
-        }
-
-        public ForceViewModel(Bond bond)
-        {
-            Force = bond;
-            var e1 = bond.E1 as ElementViewModel;
-            var e2 = bond.E2 as ElementViewModel;
-
-            e1.PropertyChanged += (sender, args) =>
-            {
-                if (args.PropertyName == "Location")
-                {
-                    X1 = e1.Location.X;
-                    Y1 = e1.Location.Y;
-                }
-                OnPropertyChanged("Top");
-                OnPropertyChanged("Left");
-            };
-            e2.PropertyChanged += (sender, args) =>
-            {
-                if (args.PropertyName == "Location")
-                {
-                    X2 = e2.Location.X;
-                    Y2 = e2.Location.Y;
-                    OnPropertyChanged("Top");
-                    OnPropertyChanged("Left");
-                }
-            };
-        }
         
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -115,5 +135,7 @@ namespace GraphicsSandbox
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public abstract FSharpList<PendingImpulse> Act(double interval);
     }
 }

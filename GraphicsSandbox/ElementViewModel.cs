@@ -8,13 +8,42 @@ using System.Windows.Input;
 
 namespace GraphicsSandbox
 {
-    public abstract class ElementViewModel : INotifyPropertyChanged, IElement
+    public abstract class ElementViewModel : INotifyPropertyChanged
     {
+        public Element Element
+        {
+            get => _element;
+            set
+            {
+                _element = value;
+                OnPropertyChanged("Location");
+                OnPropertyChanged("Top");
+                OnPropertyChanged("Left");
+                OnPropertyChanged("Bottom");
+                OnPropertyChanged("Right");
+            }
+        }
+
         private static int nextId = 0;
+
+        public ElementViewModel(double mass, Vector location, Velocity velocity, double radius)
+        {
+            Element = new Element(nextId++, location, velocity, mass, radius);
+        }
+        
+        public int Id=> Element.Id;
+        public double Mass => Element.Mass;
+        public Vector Location => Element.Location;
+        public double Radius => Element.Radius;
+
         private ICommand _expandCommand;
         private ICommand _collapseCommand;
 
-        public double Mass { get; set; }
+        public double Top => ElementModule.top(Element);
+        public double Left => ElementModule.left(Element);
+        public double Bottom => ElementModule.bottom(Element);
+        public double Right => ElementModule.right(Element);
+
 
         public abstract IEnumerable<ElementViewModel> Split();
 
@@ -38,49 +67,15 @@ namespace GraphicsSandbox
             }
         }
 
-        public ElementViewModel(double mass, Vector location, Velocity velocity)
-        {
-            Id = nextId++;
-            Velocity = velocity;
-            _location = location;
-            Mass = mass;
-        }
-        
         private Vector _location;
-        public Velocity Velocity {get;set;}
+        private Element _element;
 
-        public int Id { get; private set; }
-
-        public Vector Location {
-            get { return _location; }
-            set {
-                _location = value;
-                OnPropertyChanged();
-                OnPropertyChanged("Top");
-                OnPropertyChanged("Left");
-                OnPropertyChanged("Bottom");
-                OnPropertyChanged("Right");
-            }
-        }
-        
-        public double Top {
-            get { return Location.Y - Radius; }
-        }
-
-        public double Left {
-            get { return Location.X - Radius; }
-        }
-
-        public double Bottom
+        public Velocity Velocity
         {
-            get { return Location.Y + Radius; }
+            get { return Element.Velocity; }
         }
 
-        public double Right
-        {
-            get { return Location.X + Radius; }
-        }
-
+       
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -88,8 +83,6 @@ namespace GraphicsSandbox
             var handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public abstract double Radius { get; }
 
         public override string ToString()
         {

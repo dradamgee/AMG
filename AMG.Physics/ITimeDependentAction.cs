@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace AMG.Physics
 {
-    public class TimeDependentActionable : ITimeDependentAction
+    public class TimeDependentActionable
     {
         private readonly Action<double> _action;
 
@@ -16,9 +16,5 @@ namespace AMG.Physics
         {
             _action(interval);
         }
-    }
-
-    public interface ITimeDependentAction {
-        void Act(double interval);
     }
 }

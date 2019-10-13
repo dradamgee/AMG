@@ -4,6 +4,16 @@
 //#load "Library1.fs"
 //open AMG.FySics.Tree
 
+let foo = 1
+let bar = 3
+
+let asd = 
+    if foo > 1 
+    then foo 
+    else if bar > 1 then bar
+    else 0
+
+
 let file7 = ["OM"; "Client"; "Common"; "7.fs";]
 let file0 = ["OM";]
 let testfiles = [file7; file7; file0; ]

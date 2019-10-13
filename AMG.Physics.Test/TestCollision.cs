@@ -16,11 +16,11 @@ namespace AMG.Physics.Test
         public void HeadOnCollision() {
             var e1IsAt = new Vector(100, 0);
             var e1IsGoing = new Velocity(new Vector(-10, 0));
-            Mock<IElement> e1 = MockElement(e1IsAt, e1IsGoing);
+            Mock<Element> e1 = MockElement(e1IsAt, e1IsGoing);
 
             var e2IsAt = new Vector(90, 0);
             var e2IsGoing = new Velocity(new Vector(10, 0));
-            Mock<IElement> e2 = MockElement(e2IsAt, e2IsGoing);
+            Mock<Element> e2 = MockElement(e2IsAt, e2IsGoing);
 
             var result = Collision.Act(e1.Object, e2.Object);
 
@@ -31,11 +31,11 @@ namespace AMG.Physics.Test
         public void AfterHeadOnCollision() {
             var e1IsAt = new Vector(100, 0);
             var e1IsGoing = new Velocity(new Vector(10, 0));
-            Mock<IElement> e1 = MockElement(e1IsAt, e1IsGoing);
+            Mock<Element> e1 = MockElement(e1IsAt, e1IsGoing);
 
             var e2IsAt = new Vector(90, 0);
             var e2IsGoing = new Velocity(new Vector(-10, 0));
-            Mock<IElement> e2 = MockElement(e2IsAt, e2IsGoing);
+            Mock<Element> e2 = MockElement(e2IsAt, e2IsGoing);
 
             var result = Collision.Act(e1.Object, e2.Object);
 
@@ -43,10 +43,10 @@ namespace AMG.Physics.Test
         }
 
 
-        private static Mock<IElement> MockElement(Vector e1IsAt, Velocity e1IsGoing)
+        private static Mock<Element> MockElement(Vector e1IsAt, Velocity e1IsGoing)
         {
-            Mock<IElement> e1;
-            e1 = new Mock<IElement>();
+            Mock<Element> e1;
+            e1 = new Mock<Element>();
             e1.SetupGet(e => e.Radius).Returns(10.0);
             e1.SetupGet(e => e.Location).Returns(e1IsAt);
             e1.SetupGet(e => e.Velocity).Returns(e1IsGoing);

@@ -35,9 +35,10 @@ namespace GraphicsSandbox
             
             foreach (var element in nodeBall.Split())
             {
-                var leash = new Leash(new Vector(500.0, 10.0), element, nodeBall.Radius * 1.1, 10000.0);
+                var leash = new Leash(new Vector(500.0, 10.0), nodeBall.Radius * 1.1, 10000.0);
+                var leashVM = new LeashViewModel(leash, element);
                 universe.Add(element);
-                universe.Add(leash);
+                universe.Add(leashVM);
             }
 
 

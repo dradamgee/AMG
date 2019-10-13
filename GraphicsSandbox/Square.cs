@@ -19,7 +19,7 @@ namespace GraphicsSandbox
             }
         }
 
-        public Square(double mass, int sideLength, Vector location, Velocity velocity) : base(mass, location, velocity)
+        public Square(double mass, int sideLength, Vector location, Velocity velocity) : base(mass, location, velocity, sideLength / 2)
         {
             SideLength = sideLength;
         }
@@ -27,11 +27,6 @@ namespace GraphicsSandbox
         public override IEnumerable<ElementViewModel> Split()
         {
             throw new System.NotImplementedException();
-        }
-
-        public override double Radius
-        {
-            get { return _radius; }
         }
     }
 }
