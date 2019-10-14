@@ -52,6 +52,7 @@
     <Compile Include="TestTree.fs" />
     <Compile Include="TestDrag.fs" />
     <Compile Include="TestBoundry.fs" />
+    <Compile Include="TestTime.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">

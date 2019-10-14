@@ -9,11 +9,11 @@ namespace GraphicsSandbox
 {
     public class God // not sure if God should be static, or maybe immutable.
     {
-        private static double accelerationDueToGravity = 98.0;
-        private static int NumberOfBalls = 200;
+        private static double accelerationDueToGravity = -98.0;
+        private static int NumberOfBalls = 10;
         private static int BallSize = 20;
-        private static double loss = 0.01;
-        private static double viscosity = 0.001;
+        private static double loss = 1.0;
+        private static double viscosity = 0.01;
 
         public static Universe CreateUniverseFromFile(string path)
         {
