@@ -16,14 +16,14 @@ namespace GraphicsSandbox
             _leash = leash;
             _e1 = e1;
             X2 = leash.Pin.X;
-            Y2 = leash.Pin.Y;
+            Y2 = -leash.Pin.Y;
 
             e1.PropertyChanged += (sender, args) =>
             {
                 if (args.PropertyName == "Location")
                 {
                     X1 = e1.Location.X;
-                    Y1 = e1.Location.Y;
+                    Y1 = -e1.Location.Y;
                 }
                 OnPropertyChanged("Top");
                 OnPropertyChanged("Left");
@@ -52,9 +52,9 @@ namespace GraphicsSandbox
                 if (args.PropertyName == "Location")
                 {
                     X1 = e1.Location.X;
-                    Y1 = e1.Location.Y;
+                    Y1 = -e1.Location.Y;
                 }
-                OnPropertyChanged("Top");
+                OnPropertyChanged("Bottom");
                 OnPropertyChanged("Left");
             };
             e2.PropertyChanged += (sender, args) =>
@@ -62,8 +62,8 @@ namespace GraphicsSandbox
                 if (args.PropertyName == "Location")
                 {
                     X2 = e2.Location.X;
-                    Y2 = e2.Location.Y;
-                    OnPropertyChanged("Top");
+                    Y2 = -e2.Location.Y;
+                    OnPropertyChanged("Bottom");
                     OnPropertyChanged("Left");
                 }
             };
@@ -77,7 +77,7 @@ namespace GraphicsSandbox
 
     public abstract class ForceViewModel : INotifyPropertyChanged
     {
-        public double Top
+        public double Bottom
         {
             get { return 0; }
         }

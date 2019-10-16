@@ -82,7 +82,6 @@
   <ItemGroup>
     <Compile Include="Math.cs" />
     <Compile Include="TestAsserts.cs" />
-    <Compile Include="TestCollision.cs" />
     <Compile Include="TestCollisionDetector.cs" />
     <Compile Include="TestVelocity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

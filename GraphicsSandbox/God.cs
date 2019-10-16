@@ -10,10 +10,10 @@ namespace GraphicsSandbox
     public class God // not sure if God should be static, or maybe immutable.
     {
         private static double accelerationDueToGravity = -98.0;
-        private static int NumberOfBalls = 10;
+        private static int NumberOfBalls = 1;
         private static int BallSize = 20;
         private static double loss = 1.0;
-        private static double viscosity = 0.01;
+        private static double viscosity = 10.5;
 
         public static Universe CreateUniverseFromFile(string path)
         {
@@ -35,7 +35,7 @@ namespace GraphicsSandbox
             
             foreach (var element in nodeBall.Split())
             {
-                var leash = new Leash(new Vector(500.0, 10.0), nodeBall.Radius * 1.1, 10000.0);
+                var leash = new Leash(new Vector(800.0, 800.0), nodeBall.Radius * 1.1, 1000.0);
                 var leashVM = new LeashViewModel(leash, element);
                 universe.Add(element);
                 universe.Add(leashVM);
@@ -64,6 +64,15 @@ namespace GraphicsSandbox
             universe.Add(e2);
             return universe;
         }
+
+        public static Universe CreateSingleBallUniverse()
+        {
+            var universe = new Universe(0.0, 1.0, 0.0);
+            var e1 = (Ball)"1 | 20 | 100.0 | 100.0 | 700.0 | 200.0";
+            universe.Add(e1);
+            return universe;
+        }
+
 
         public static Universe CreateUniverseWithTwoBalls()
         {

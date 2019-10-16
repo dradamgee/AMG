@@ -47,7 +47,7 @@
             member this.Act interval elements = 
                 elements |> Seq.choose this.Bounce
    
-    type Collision (loss : float) =   
+    type SoftSphereCollision (loss : float) =   
         member this.Act(e1 : Element, e2 : Element) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
@@ -63,7 +63,7 @@
                         distance.Unit * compression * (e1.Mass + e2.Mass) * hysterisys
                     )
                     
-    type CollisionOld (Loss : float) =         
+    type HardSphereCollision (Loss : float) =         
         member this.Act(e1 : Element, e2 : Element) =
             if e1 = e2 then failwith "Cant collide with self"
             let sumOfRadii = e1.Radius + e2.Radius
@@ -81,7 +81,11 @@
                         * (e1.Mass * e2.Mass) 
                         / (e1.Mass + e2.Mass)
                         ) 
-
+    
+    type Collision (loss : float) =         
+        let collision = SoftSphereCollision(loss)
+        member this.Act(e1 : Element, e2 : Element) = collision.Act(e1, e2)
+            
     type Gravity(Acceleration : float) = 
         let Direction = new Vector(0.0, 1.0)     
         member this.act(interval: float, e : Element) =

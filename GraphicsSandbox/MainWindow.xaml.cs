@@ -15,9 +15,10 @@ namespace GraphicsSandbox {
         public MainWindow() {
             InitializeComponent();
 
-            _universe = God.CreateUniverse();
-            
-            //_universe = God.CreateUniverseFromFile(@"C:\_asd\log.txt");
+            //_universe = God.CreateUniverse();
+            //_universe = God.CreateSingleBallUniverse();
+
+            _universe = God.CreateUniverseFromFile(@"C:\_asd\log.txt");
 
             DataContext = _universe;
             
