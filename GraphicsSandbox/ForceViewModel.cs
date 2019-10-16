@@ -23,7 +23,7 @@ namespace GraphicsSandbox
                 if (args.PropertyName == "Location")
                 {
                     X1 = e1.Location.X;
-                    Y1 = -e1.Location.Y;
+                    Y1 = -e1.Location.Y;//WPF is upsidedown (ie up is negative)
                 }
                 OnPropertyChanged("Top");
                 OnPropertyChanged("Left");
@@ -52,7 +52,7 @@ namespace GraphicsSandbox
                 if (args.PropertyName == "Location")
                 {
                     X1 = e1.Location.X;
-                    Y1 = -e1.Location.Y;
+                    Y1 = -e1.Location.Y; //WPF is upsidedown (ie up is negative)
                 }
                 OnPropertyChanged("Bottom");
                 OnPropertyChanged("Left");
@@ -62,7 +62,7 @@ namespace GraphicsSandbox
                 if (args.PropertyName == "Location")
                 {
                     X2 = e2.Location.X;
-                    Y2 = -e2.Location.Y;
+                    Y2 = -e2.Location.Y; //WPF is upsidedown (ie up is negative)
                     OnPropertyChanged("Bottom");
                     OnPropertyChanged("Left");
                 }

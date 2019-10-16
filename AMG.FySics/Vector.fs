@@ -7,7 +7,7 @@
         member this.Inverse = Vector(Y, X)
         static member (*) (n : float, d: Vector) = Vector (d.X * n, d.Y * n)
         static member (*) (d: Vector, n : float) = n * d
-        static member (*) (d1: Vector, d2: Vector) = d1.X*d2.X + d1.Y*d2.Y
+        static member (*) (d1: Vector, d2: Vector) = Vector (d1.X*d2.X, d1.Y*d2.Y)
         static member (*) (d1: Vector, d2: Unit) = d1.X*d2.X + d1.Y*d2.Y
         static member (*) (d1: Unit, d2: Vector) = d1.X*d2.X + d1.Y*d2.Y
         static member (/) (d: Vector, n : float) = Vector (d.X / n, d.Y / n)
