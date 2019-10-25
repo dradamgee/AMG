@@ -80,7 +80,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Math.cs" />
     <Compile Include="TestAsserts.cs" />
     <Compile Include="TestCollisionDetector.cs" />
     <Compile Include="TestVelocity.cs" />
