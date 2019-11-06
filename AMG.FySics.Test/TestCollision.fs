@@ -15,7 +15,7 @@ let element(location:double, velocity:double) =
         let e1_loc = Vector(location, 0.0)
         let foo = Vector(velocity, 0.0)
         let e1_vel = Velocity foo
-        Element(1, e1_loc, e1_vel, 1.0, 10.0)
+        {Id = 1; Location = e1_loc; Velocity = e1_vel; Mass = 1.0; Radius = 10.0}
 
 [<TestFixture>] 
 type TestSoftSphereCollision()=

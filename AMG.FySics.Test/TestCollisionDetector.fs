@@ -30,7 +30,8 @@ type TestCollisionDetection() =
         stuff |> 
             List.iter(foo)
                 
-        Element(id, location, velocity, mass, radius)
+        {Id = id; Location = location; Velocity = velocity; Mass = mass; Radius = radius}
+
         
     let with_size value (parms : elfa list) = elfa.Radius(value) :: parms
     let with_location(value) (parms : elfa list) = elfa.Location(value) :: parms

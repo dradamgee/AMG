@@ -13,7 +13,7 @@ type TestDrag() =
         let location = Vector(0.0, 0.0)
         let velocity = Velocity(Vector(0.13, 0.0))
 
-        let element = [Element(0, location, velocity, 1.0, 1.0);]
+        let element = [{Id = 0; Location = location; Velocity = velocity; Mass = 1.0; Radius = 1.0};]
         
         let pendingImpulse = Seq.head ((sut :> ITimeDependentAction).Act 0.03 element)
 
@@ -25,8 +25,8 @@ type TestDrag() =
         let mutable location = Vector(0.0, 0.0)
         let mutable velocity = Velocity(Vector(0.13, 0.0))
 
-        let element = [Element(0, location, velocity, 1.0, 0.5);]
-
+        let element = [{Id = 0; Location = location; Velocity = velocity; Mass = 1.0; Radius = 0.5};]
+        
         let pendingImpulse = Seq.head ((sut :> ITimeDependentAction).Act 0.03 element)
 
         Assert.AreEqual(0.0001365, pendingImpulse.Impulse.Magnitude) 
@@ -38,7 +38,7 @@ type TestDrag() =
         let mutable location = Vector(0.0, 0.0)
         let mutable velocity = Velocity(Vector(1.0, 0.0))
 
-        let element = [Element(0, location, velocity, 1.0, 1.0);]
+        let element = [{Id = 0; Location = location; Velocity = velocity; Mass = 1.0; Radius = 1.0};]
 
         let pendingImpulse = Seq.head ((sut :> ITimeDependentAction).Act 0.03 element)
 

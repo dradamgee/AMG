@@ -2,6 +2,8 @@
 open NUnit.Framework
 open AMG.FySics
 
+
+
 [<TestFixture>]
 type TestBoundry()=
     [<Test>] member TestBoundry.ElementTooFarRight_Bounce_Left() = 
@@ -11,7 +13,7 @@ type TestBoundry()=
 
         let location = Vector(21.0, 5.0)
         let velocity = Velocity(Vector(3.0, 0.0))
-        let element = Element(1, location, velocity, 5.0, 1.0)
+        let element = {Id = 1; Location = location; Velocity = velocity; Mass = 5.0; Radius = 1.0}
 
         let impulse = sut.Bounce(element)
 
@@ -29,7 +31,7 @@ type TestBoundry()=
 
         let location = Vector(-1.0, 5.0)
         let velocity = Velocity(Vector(-3.0, 0.0))
-        let element = Element(1, location, velocity, 5.0, 1.0)
+        let element = {Id = 1; Location = location; Velocity = velocity; Mass = 5.0; Radius = 1.0}
 
         let impulse = sut.Bounce(element)
 
@@ -45,7 +47,7 @@ type TestBoundry()=
 
         let location = Vector(5.0, 11.0)
         let velocity = Velocity(Vector(0.0, 3.0))
-        let element = Element(1, location, velocity, 5.0, 1.0)
+        let element = {Id = 1; Location = location; Velocity = velocity; Mass = 5.0; Radius = 1.0}
 
         let impulse = sut.Bounce(element)
 
@@ -61,7 +63,7 @@ type TestBoundry()=
 
         let location = Vector(5.0, -1.0)
         let velocity = Velocity(Vector(0.0, -3.0))
-        let element = Element(1, location, velocity, 5.0, 1.0)
+        let element = {Id = 1; Location = location; Velocity = velocity; Mass = 5.0; Radius = 1.0}
 
         let impulse = sut.Bounce(element)
 
