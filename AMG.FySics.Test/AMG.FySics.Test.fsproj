@@ -54,6 +54,7 @@
     <Compile Include="TestBoundry.fs" />
     <Compile Include="TestTime.fs" />
     <Compile Include="TestCollision.fs" />
+    <Compile Include="TestCollisionDetector.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">

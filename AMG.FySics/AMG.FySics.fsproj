@@ -46,11 +46,13 @@
     <Content Include="packages.config" />
     <Compile Include="Vector.fs" />
     <Compile Include="Velocity.fs" />
+    <Compile Include="VelocityModule.fs" />
     <Compile Include="IElement.fs" />
     <Compile Include="ElementModule.fs" />
     <Compile Include="Dynamics.fs" />
     <Compile Include="Time.fs" />
     <Compile Include="Tree.fs" />
+    <Compile Include="CollisionDetector.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
