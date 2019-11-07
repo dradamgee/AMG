@@ -83,7 +83,7 @@
                         ) 
     
     type Collision (loss : float) =         
-        let collision = SoftSphereCollision(loss)
+        let collision = HardSphereCollision(loss)
         member this.Act(e1 : Element, e2 : Element) = collision.Act(e1, e2)
             
     type Gravity(Acceleration : float) = 

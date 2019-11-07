@@ -13,7 +13,7 @@ namespace GraphicsSandbox
         private static int NumberOfBalls = 1;
         private static int BallSize = 20;
         private static double loss = 1.0;
-        private static double viscosity = 10.5;
+        private static double viscosity = 2.5;
 
         public static Universe CreateUniverseFromFile(string path)
         {
