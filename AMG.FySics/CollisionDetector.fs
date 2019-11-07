@@ -13,9 +13,10 @@ let detect2 (e1: Element, elements: Element list) =
     List.map(fun e2 -> (e1, e2) )
             
 let rec detect(elements : Element list) = 
-    match (elements.Head, elements.Tail) with
-    | el, [] -> []
-    | el, els -> List.append (detect2(elements.Head, elements.Tail)) (detect(elements.Tail))
+    match elements with
+    | []
+    | [_] -> []
+    | head::tail -> List.append (detect2(head, tail)) (detect(tail))
        
 
 

@@ -98,5 +98,13 @@ type TestCollisionDetection() =
         
         Assert.AreEqual(2, result.Length)
 
+    [<Test>] 
+    member TestCollisionDetection.NoItems_NoPairReturned()=        
+        let result = CollisionDetector.detect([])
+        
+        SanityCheck(result)
+        
+        Assert.AreEqual(0, result.Length)
+
 
  

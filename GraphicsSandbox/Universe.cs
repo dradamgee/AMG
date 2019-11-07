@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Microsoft.FSharp.Collections;
 
 namespace GraphicsSandbox {
     //TODO move this to FySics
@@ -122,7 +123,7 @@ namespace GraphicsSandbox {
             var gravity = new Gravity(accelerationDueToGravity);
             var drag = new Drag(viscosity);
             
-            ICollisionDetector collisions = new PairCollisionDetector();
+            //ICollisionDetector collisions = new PairCollisionDetector();
             //ICollisionDetector collisions = new QuadTreeCollisionDetector(elementViewModels, _boundry);
             //ICollisionDetector collisions = new StatefullCollisionDetector(elementViewModels);
             CollisionResolution collisionResolution = new CollisionResolution(loss);
@@ -201,7 +202,9 @@ namespace GraphicsSandbox {
 
                         var pendingBondImpulses = bondViewModels.SelectMany(b => b.Act(interval));
 
-                        var possibleCollisions = collisions.Detect(elementViewModels.Values.Select(vm => vm.Element));
+                        FSharpList<Element> elemenfs = ListModule.OfSeq(elementViewModels.Values.Select(vm => vm.Element));
+
+                        var possibleCollisions = CollisionDetector.detect(elemenfs);
                         var pendingCollisionImpulses = collisionResolution.Act(possibleCollisions);
                         
                         var allImpulses = pendingGravityImpulses
