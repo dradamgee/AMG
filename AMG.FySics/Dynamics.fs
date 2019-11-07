@@ -87,7 +87,7 @@
         member this.Act(e1 : Element, e2 : Element) = collision.Act(e1, e2)
             
     type Gravity(Acceleration : float) = 
-        let Direction = new Vector(0.0, 1.0)     
+        let Direction = new Vector(0.0, -1.0)     
         member this.act(interval: float, e : Element) =
             PendingImpulse(e, Direction * e.Mass * Acceleration * interval)
         interface ITimeDependentAction with 
