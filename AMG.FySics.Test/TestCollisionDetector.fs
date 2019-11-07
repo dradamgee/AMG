@@ -2,47 +2,56 @@
 
 open NUnit.Framework
 open AMG.FySics
-  
-type elfa = 
-    | Id of int
-    | Location of Vector
-    | Velocity of Velocity
-    | Mass of float
-    | Radius of double
 
+let SanityCheck(result : (Element * Element) list) =
+        result |>
+            List.iter (fun r -> 
+                            match result.Head with
+                                | (r1, r2) -> Assert.AreNotEqual(r1, r2)
+                )
+                  
 [<TestFixture>]
 type TestCollisionDetection() = 
-      
-    let an_element (stuff : elfa list) = 
-        let mutable id = 0
-        let mutable location = Vector(11.0, 0.0)
-        let mutable velocity = VelocityModule.stationary
-        let mutable mass = 1.0
-        let mutable radius = 7.0
-
-        let foo item = match item with
-                | Id(x) -> do id <- x
-                | Location(x) -> do location <- x
-                | Velocity(x) -> do velocity <- x
-                | Mass(x) -> do mass <- x
-                | Radius(x) -> do radius <- x
+    
+    let an_element = {Element.Id = 0; Element.Location = Vector(0.0,0.0); Element.Velocity = Velocity(Vector(0.0,0.0)); Element.Mass = 0.0; Element.Radius = 0.0}
         
-        stuff |> 
-            List.iter(foo)
-                
-        {Id = id; Location = location; Velocity = velocity; Mass = mass; Radius = radius}
-
-        
-    let with_size value (parms : elfa list) = elfa.Radius(value) :: parms
-    let with_location(value) (parms : elfa list) = elfa.Location(value) :: parms
-    let with_velocity(value) (parms : elfa list) = elfa.Velocity(value) :: parms
-    let with_mass(value) (parms : elfa list) = elfa.Mass(value) :: parms
-    let with_radius(value) (parms : elfa list) = elfa.Location(value) :: parms
-        
-    [<Test>] member TestCollisionDetection.ItemsAreOverlaying_detect_IsTrue()=
-        let element1 = [] |> with_size 1.0 |> an_element 
-        let element2 = [] |> with_size 1.0 |> an_element 
+    let with_size value (element : Element) = {element with Radius = value}
+    let with_location(value) (element : Element) = {element with Location = Vector(value, 0.0)}
+    let with_velocity(value) (element : Element) = {element with Velocity = value}
+    let with_mass(value) (element : Element) = {element with Mass = value}
+    let with_radius(value) (element : Element) = {element with Location = value}
+       
+    [<Test>] member TestCollisionDetection.ItemsAreOverlaying_overlap_IsTrue()=
+        let element1 = an_element |> with_size 1.0  
+        let element2 = an_element |> with_size 1.0
 
         let result = CollisionDetector.overlap(element1, element2)
         Assert.IsTrue(result)
 
+    [<Test>] member TestCollisionDetection.ItemsAreOverlapping_overlap_IsTrue()=
+        let element1 = an_element |> with_size 7.0 |> with_location 3.0  
+        let element2 = an_element |> with_size 5.0 |> with_location 13.0  
+        
+        let result = CollisionDetector.overlap(element1, element2)
+        Assert.IsTrue(result)
+
+    [<Test>] member TestCollisionDetection.ItemsNotOverlapping_overlap_IsFails()=
+        let element1 = an_element |> with_size 7.0 |> with_location 3.0  
+        let element2 = an_element |> with_size 5.0 |> with_location 17.0  
+        
+        let result = CollisionDetector.overlap(element1, element2)
+        Assert.IsFalse(result)
+    
+    
+    [<Test>] member TestCollisionDetection.TwoItems_overlap_OnePairReturned()=
+        let element1 = an_element |> with_size 7.0 |> with_location 3.0  
+        let element2 = an_element |> with_size 5.0 |> with_location 13.0  
+        
+        let result = CollisionDetector.detect([element1; element2])
+        
+        SanityCheck(result)
+        
+        Assert.AreEqual(1, result.Length)
+
+
+ 

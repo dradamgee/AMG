@@ -2,8 +2,10 @@
 
 open AMG.FySics
 
-let overlap (element1: Element, element2: Element) = 
-    true
+let overlap (e1: Element, e2: Element) = 
+    let sumOfRadii = e1.Radius + e2.Radius
+    let distance = (e1.Location - e2.Location).Magnitude
+    sumOfRadii > distance
 
 let detect2 (e1: Element, elements: Element list) = 
     elements |> 
