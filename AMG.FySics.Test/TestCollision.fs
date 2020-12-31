@@ -11,6 +11,10 @@ let areClose2(expected: Vector , actual: Vector) =
         areClose(expected.X, actual.X)
         areClose(expected.Y, actual.Y)
 
+let areApproximate (spread:double) (expected : double) (actual : double) = 
+    Assert.IsTrue(abs(expected - actual) < spread, String.concat " " [actual.ToString(); "is not very equal to"; expected.ToString()])
+      
+
 let element(location:double, velocity:double) = 
         let e1_loc = Vector(location, 0.0)
         let foo = Vector(velocity, 0.0)
@@ -41,8 +45,8 @@ type TestSoftSphereCollision()=
         
         System.Console.WriteLine(count)
 
-        areClose(10.0, e1.Velocity.Vector.X)
-        areClose(-10.0, e2.Velocity.Vector.X)
+        areApproximate 0.75 10.0 e1.Velocity.Vector.X 
+        areApproximate 0.75 -10.0 e2.Velocity.Vector.X
 
 
 
