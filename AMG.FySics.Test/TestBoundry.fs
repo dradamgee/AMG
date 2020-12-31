@@ -1,4 +1,4 @@
-﻿module TestBoundry
+﻿namespace TestBoundry
 open NUnit.Framework
 open AMG.FySics
 
