@@ -1,7 +1,6 @@
 ﻿namespace AMGService
-{
-    using System.ComponentModel.DataAnnotations;
-    using System.IO;
+{    
+    using System.IO;    
     using System.Text.Json;
 
     public enum Side
@@ -17,10 +16,10 @@
         Trade = 1,
     }
 
-    public class OrderStore : IDisposable
+    public class OrderStore 
     {
         private EventPlayer eventPlayer = new EventPlayer();
-
+        
         public OrderStore(string _) 
         {
             StorePath = _;
@@ -44,7 +43,7 @@
                     {
                         case 0:
                             var submitEvent = JsonSerializer.Deserialize<SubmitEvent>(eventImage);
-                            equityOrder = eventPlayer.Submit(ID, submitEvent);
+                            equityOrder = eventPlayer.Submit(submitEvent);
                             break;
                         case 1:
                             var tradeEvent = JsonSerializer.Deserialize<TradeEvent>(eventImage);
@@ -54,87 +53,92 @@
                             break;
                     }
                 }
-                orders.Add(equityOrder.ID, equityOrder);
+                orders.Add(ID, equityOrder);
             }
         }
         private Dictionary<int, EquityOrder> orders = new Dictionary<int, EquityOrder>();
         private string StorePath;
        
 
-        public void Add(SubmitEvent submitEvent, EquityOrder equityOrder)
-        {
-            string filePath = StorePath + equityOrder.ID + ".txt";            
+        public void Submit(int ID, SubmitEvent submitEvent)
+        {            
+            EquityOrder newOrder = eventPlayer.Submit(submitEvent);
+
+            string filePath = StorePath + ID + ".txt";            
             var eventImage = JsonSerializer.Serialize(submitEvent);
             using (StreamWriter writetext = new StreamWriter(filePath))
             {
                 writetext.WriteLine((int)EventType.Submit + eventImage);                
             }
-            orders.Add(equityOrder.ID, equityOrder);
+            orders.Add(ID, newOrder);
         }
 
-        public EquityOrder Get(int ID){
+        public EquityOrder GetOrderSync(int ID) {  return GetOrder(ID); }
+
+        public EquityOrder GetOrder(int ID){
             return orders[ID];
         }
 
-        public void Dispose()
-        {
-            
-        }
 
-        public void Update(EquityOrder equityOrder, TradeEvent tradeEvent)
+
+        public void Trade(int ID, TradeEvent tradeEvent)
         {
-            string filePath = StorePath + equityOrder.ID + ".txt";
+            var order = orders[ID];
+            EquityOrder newOrder = eventPlayer.Trade(order, tradeEvent);
+
+            string filePath = StorePath + ID + ".txt";
             var eventImage = JsonSerializer.Serialize(tradeEvent);
             using (StreamWriter writetext = File.AppendText(filePath))
             {                
                 writetext.WriteLine((int)EventType.Trade + eventImage);
             }
-            orders[equityOrder.ID] =  equityOrder;
+            orders[ID] = newOrder;
         }
     }
 
 
     public class EventPlayer
     {
-        public EquityOrder Submit(int id, SubmitEvent submitEvent)
+        public EquityOrder Submit(SubmitEvent submitEvent)
         {            
-            return new EquityOrder(id, submitEvent.Size, submitEvent.Side, submitEvent.Asset);            
+            return new EquityOrder(submitEvent.Size, submitEvent.Side, submitEvent.Asset);            
         }
 
         public EquityOrder Trade(EquityOrder equityOrder, TradeEvent tradeEvent)
         {
-            var newPrice = (equityOrder.Traded * equityOrder.Price + tradeEvent.Size * tradeEvent.Price) / (equityOrder.Traded + tradeEvent.Size);
+            var newPrice = (equityOrder.TradedSize * equityOrder.TradedPrice + tradeEvent.Size * tradeEvent.Price) / (equityOrder.TradedSize + tradeEvent.Size);
             return new EquityOrder(
-                equityOrder.ID,
+                //equityOrder.ID,
                 equityOrder.Size,
                 equityOrder.Side,
                 equityOrder.Asset,
                 new List<TradeEvent>(equityOrder.Trades.Append(tradeEvent)),
-                equityOrder.Traded + tradeEvent.Size,
-                equityOrder.Price + tradeEvent.Price);
+                equityOrder.TradedSize + tradeEvent.Size,
+                equityOrder.TradedPrice + tradeEvent.Price);
         }
     }
 
     public class EquityOrder
     {       
 
-        public EquityOrder(int id, decimal size, Side buy, string asset, List<TradeEvent> trades = null, decimal traded = 0, decimal price = 0)
+        public EquityOrder(//int id, 
+            decimal size, Side side, string asset, List<TradeEvent> trades = null, decimal tradedSize = 0, decimal tradedPrice = 0)
         {
-            ID = id;
+            //ID = id;
             Size = size;
-            Side = buy;
+            Side = side;
             Asset = asset;
-            Traded = traded;
-            Price = price;
+            TradedSize = tradedSize;
+            TradedPrice = tradedPrice;
             Trades = trades?? new List<TradeEvent>();
         }
 
-        public int ID { get; }
+        //public int ID { get; }
         public decimal Size { get; }
         public Side Side { get; }
         public string Asset { get; }
-        public decimal Traded { get; }
-        public decimal Price { get; }
+        public decimal TradedSize { get; }
+        public decimal TradedPrice { get; }
         public List<TradeEvent> Trades { get; }
     }
 
@@ -167,34 +171,34 @@
 
     public class OrderService
     {
-        int nextID = 1;
-        EventPlayer player = new EventPlayer();
+        int nextID = 1;        
         OrderStore orders;
 
         private int NextID { get { return nextID++; } }
-        
 
-        public EquityOrder GetOrder(int orderID)
+
+        public EquityOrder GetOrder(int orderID) { return GetOrderSync(orderID); }
+
+        public EquityOrder GetOrderSync(int orderID)
         {
-            return orders.Get(orderID);
+            return orders.GetOrderSync(orderID);
         }
 
-        public void Start(string path) {
+
+        public OrderService(string path) {
             orders = new OrderStore(path);
         }
 
         public int Submit(SubmitEvent submitEvent)
         {
             var id = NextID;
-            orders.Add(submitEvent, player.Submit(id, submitEvent));
+            orders.Submit(id, submitEvent);
             return id;
         }
 
         public void Trade(int orderID, TradeEvent tradeEvent)
-        {
-            var order = orders.Get(orderID);
-            EquityOrder newOrder = player.Trade(order, tradeEvent);
-            orders.Update(newOrder, tradeEvent);
+        {            
+            orders.Trade(orderID, tradeEvent);
         }
     }
 }
