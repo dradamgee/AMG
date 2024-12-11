@@ -60,7 +60,7 @@
         private string StorePath;
        
 
-        public void Submit(int ID, SubmitEvent submitEvent)
+        public async Task Submit(int ID, SubmitEvent submitEvent)
         {            
             EquityOrder newOrder = eventPlayer.Submit(submitEvent);
 
@@ -68,7 +68,7 @@
             var eventImage = JsonSerializer.Serialize(submitEvent);
             using (StreamWriter writetext = new StreamWriter(filePath))
             {
-                writetext.WriteLine((int)EventType.Submit + eventImage);                
+                await writetext.WriteLineAsync((int)EventType.Submit + eventImage);                
             }
             orders.Add(ID, newOrder);
         }
@@ -78,8 +78,6 @@
         public EquityOrder GetOrder(int ID){
             return orders[ID];
         }
-
-
 
         public void Trade(int ID, TradeEvent tradeEvent)
         {
@@ -114,7 +112,7 @@
                 equityOrder.Asset,
                 new List<TradeEvent>(equityOrder.Trades.Append(tradeEvent)),
                 equityOrder.TradedSize + tradeEvent.Size,
-                equityOrder.TradedPrice + tradeEvent.Price);
+                newPrice);
         }
     }
 
@@ -189,10 +187,10 @@
             orders = new OrderStore(path);
         }
 
-        public int Submit(SubmitEvent submitEvent)
+        public async Task<int> Submit(SubmitEvent submitEvent)
         {
             var id = NextID;
-            orders.Submit(id, submitEvent);
+            await orders.Submit(id, submitEvent);
             return id;
         }
 

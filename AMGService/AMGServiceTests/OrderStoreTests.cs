@@ -1,6 +1,6 @@
 ﻿namespace AMGServiceTests
 {
-    using AMGService;
+    using AMFService;
     public class OrderStoreTests
     {
         string pathRoot = @"c:\AMG\";
@@ -10,7 +10,7 @@
         }
 
         [Test]
-        public void OrderStorePersistsNewOrder()
+        public async Task OrderStorePersistsNewOrder()
         {
             var id = 5;
 
@@ -19,7 +19,7 @@
             OrderStore orderStore1 = new OrderStore(path);
             
             SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");            
-            orderStore1.Submit(id, submitEvent);
+            await orderStore1.Submit(id, submitEvent);
             var orderV1 = orderStore1.GetOrderSync(id);
 
 
@@ -32,7 +32,7 @@
         }
 
         [Test]
-        public void OrderStorePersistsUpdatedOrder()
+        public async Task OrderStorePersistsUpdatedOrder()
         {
             var id = 5;
             var path = pathRoot + Guid.NewGuid() + @"\";
@@ -41,13 +41,13 @@
             
             SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");
             var orderV1 = new EquityOrder(7, Side.Buy, "MyAsset");
-            orderStore1.Submit(id, submitEvent);
+            await orderStore1.Submit(id, submitEvent);
             var tradeEvent = new TradeEvent(13, 17);            
             orderStore1.Trade(id, tradeEvent);
             orderStore1.GetOrderSync(id);
 
             OrderStore orderStore2 = new OrderStore(path);
-            orderStore1.GetOrderSync(id);
+            orderStore2.GetOrderSync(id);
             var order = orderStore2.GetOrder(id);
             Assert.IsNotNull(order);            
             Assert.That(order.Size, Is.EqualTo(7));

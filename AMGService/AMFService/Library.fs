@@ -42,7 +42,7 @@ module OrderEventPlayer =
     
 module FileReader = 
     let ExractEvents (fileName:string, id:int) = 
-        File.ReadLines(fileName)         
+        File.ReadLines(fileName)
         |> Seq.map (fun readLine -> (readLine[0], readLine.Substring(1)))
         |> Seq.map (fun readLineTuple  -> match readLineTuple with 
                                           | ('0', serializedEvent) -> OrderEvent.Submit (JsonSerializer.Deserialize<SubmitEvent>(serializedEvent))
@@ -71,18 +71,14 @@ module FileReader =
         |> Seq.map(CreateOrderFromFile) 
         //|> Seq.filter(fun (_, _, orderOption) -> orderOption.IsSome)        
 
-    let WriteEventToFile(filePath, orderEvent) = 
-        
-        
+    let WriteEventToFile(orderEvent, streamWriter:StreamWriter) = 
         match orderEvent with
             | Submit submitEvent -> 
-                let eventImage = JsonSerializer.Serialize(submitEvent);
-                use writetext = File.AppendText(filePath)
-                writetext.WriteLine("0" + eventImage) |> ignore
+                let eventImage = JsonSerializer.Serialize(submitEvent);                
+                streamWriter.WriteLine("0" + eventImage) |> ignore
             | Trade tradeEvent -> 
-                let eventImage = JsonSerializer.Serialize(tradeEvent);
-                use writetext = File.AppendText(filePath)
-                writetext.WriteLine("1" + eventImage) |> ignore
+                let eventImage = JsonSerializer.Serialize(tradeEvent);                
+                streamWriter.WriteLine("1" + eventImage) |> ignore
             | Unknown -> () |> ignore
 
 type orderReaderMessage = 
@@ -109,24 +105,38 @@ type OrderStoreActor(id:int, rootPath:string, initialState) =
             messageLoop (initialState)
             )
     
+    let dropFileWhenIdle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
+        match inbox.CurrentQueueLength with 
+            | 0 ->                 
+                None
+            | _ ->
+                Some streamWriter
+
     let eventPlayerAgent = MailboxProcessor.Start(fun inbox ->
-            let rec messageLoop (orderState: EquityOrder option) = async{
-                let! msg = inbox.Receive()                               
+            let dfwi = dropFileWhenIdle inbox
+            let rec messageLoop (orderState: EquityOrder option, streamWriterOption: StreamWriter option) = async{
+                
+                use streamWriter = match streamWriterOption with 
+                                           | None -> File.AppendText(filePath)
+                                           | Some sw -> sw
+
+                let! msg = inbox.Receive()                
                 match msg with 
                     | orderPlayerMessage.GetOrderState arc -> 
                         arc.Reply(orderState)
-                        return! messageLoop (orderState)
+                        return! messageLoop (orderState, dfwi streamWriter)
                     | orderPlayerMessage.Play orderEvent -> 
-                        FileReader.WriteEventToFile(filePath, orderEvent) |> ignore
+                        FileReader.WriteEventToFile(orderEvent, streamWriter) |> ignore
                         let newState = OrderEventPlayer.play(orderState, orderEvent)
                         orderReaderAgent.Post(Set (Some newState))
-                        return! messageLoop (Some newState)
+                        return! messageLoop (Some newState, dfwi streamWriter)
                 }
-            messageLoop (initialState)
+            messageLoop (initialState, None)
         )
 
     member this.WriteEvent (orderEvent) = eventPlayerAgent.Post (Play orderEvent)
     member this.GetOrderSync(timeout) = eventPlayerAgent.PostAndReply ((fun arc -> GetOrderState arc), timeout)
+    member this.GetOrderSync1(timeout) = eventPlayerAgent.PostAndAsyncReply ((fun arc -> GetOrderState arc), timeout) // todo use async reply
     member this.TryGetOrder (timeout) = orderReaderAgent.PostAndReply((fun arc -> Get arc), timeout)
     member this.ID = id
     member this.StorePath = rootPath
@@ -147,10 +157,12 @@ type OrderStore(rootPath:string) =
 
     member this.RootPath = rootPath
     member this.Submit(id:int, submitEvent:SubmitEvent) =
+        task {
         let actor = OrderStoreActor(id, rootPath, None)
         actor.WriteEvent(Submit submitEvent)
         actorDictionary.Add(id, actor) //todo fix this mutability.
-        actor
+        return actor
+        }
     member this.Trade(id:int, tradeEvent:TradeEvent) = 
         let actor = actorDictionary[id]
         actor.WriteEvent(Trade tradeEvent)
@@ -171,10 +183,13 @@ type OrderService(rootPath:string) =
     let mutable nextID:int = 1 //todo fix this mutability.
     let orderStore = new OrderStore(rootPath)
     member this.Submit(submitEvent:SubmitEvent) = 
-        let id = nextID
-        let nextID = nextID + 1
-        orderStore.Submit(id, submitEvent) |> ignore
-        id
+        task {
+            let id = nextID
+            let nextID = nextID + 1
+            orderStore.Submit(id, submitEvent) |> ignore
+            return id
+        }
+        
     member this.Trade(id, submitEvent) = orderStore.Trade(id, submitEvent)
 
     member this.GetOrder(id) = orderStore.GetOrder(id)
