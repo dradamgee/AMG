@@ -22,7 +22,6 @@
             await orderStore1.Submit(id, submitEvent);
             var orderV1 = orderStore1.GetOrderSync(id);
 
-
             OrderStore orderStore2 = new OrderStore(path);            
             var orderV2 = orderStore2.GetOrderSync(id);
 

@@ -105,31 +105,35 @@ type OrderStoreActor(id:int, rootPath:string, initialState) =
             messageLoop (initialState)
             )
     
-    let dropFileWhenIdle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
+    let dropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
         match inbox.CurrentQueueLength with 
-            | 0 ->                 
+            | 0 ->     
+                streamWriter.Flush()
+                streamWriter.Dispose()
                 None
             | _ ->
                 Some streamWriter
 
     let eventPlayerAgent = MailboxProcessor.Start(fun inbox ->
-            let dfwi = dropFileWhenIdle inbox
-            let rec messageLoop (orderState: EquityOrder option, streamWriterOption: StreamWriter option) = async{
-                
-                use streamWriter = match streamWriterOption with 
-                                           | None -> File.AppendText(filePath)
-                                           | Some sw -> sw
-
-                let! msg = inbox.Receive()                
-                match msg with 
-                    | orderPlayerMessage.GetOrderState arc -> 
-                        arc.Reply(orderState)
-                        return! messageLoop (orderState, dfwi streamWriter)
-                    | orderPlayerMessage.Play orderEvent -> 
-                        FileReader.WriteEventToFile(orderEvent, streamWriter) |> ignore
-                        let newState = OrderEventPlayer.play(orderState, orderEvent)
-                        orderReaderAgent.Post(Set (Some newState))
-                        return! messageLoop (Some newState, dfwi streamWriter)
+            let difh = dropIdleFileHandle inbox
+            let rec messageLoop (orderState: EquityOrder option, streamWriterOption: StreamWriter option) = 
+                async{
+                    let! msg = inbox.Receive()
+                    match msg with 
+                        | orderPlayerMessage.GetOrderState arc ->   
+                            let asd = match streamWriterOption with                                                 
+                                                                 | None -> None
+                                                                 | Some sw -> difh sw
+                            arc.Reply(orderState)
+                            return! messageLoop (orderState, asd)
+                        | orderPlayerMessage.Play orderEvent -> 
+                            let streamWriter = match streamWriterOption with 
+                                                    | None -> File.AppendText(filePath)
+                                                    | Some sw -> sw
+                            FileReader.WriteEventToFile(orderEvent, streamWriter) |> ignore
+                            let newState = OrderEventPlayer.play(orderState, orderEvent)
+                            orderReaderAgent.Post(Set (Some newState))
+                            return! messageLoop (Some newState, difh streamWriter)
                 }
             messageLoop (initialState, None)
         )

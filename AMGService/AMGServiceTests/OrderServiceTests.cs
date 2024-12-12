@@ -55,7 +55,7 @@ namespace AMGServiceTests
             }
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
 
-            //await Task.Delay(new TimeSpan(0, 0, 4));
+            //await Task.Delay(new TimeSpan(0, 0, 0));
 
             var orderService2 = new OrderService(path);            
             var order = orderService2.GetOrderSync(orderID);
