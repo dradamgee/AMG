@@ -1,8 +1,12 @@
 ﻿namespace AMFService
 
+open System
 open System.IO
 open System.Collections.Generic
-open System.Text.Json
+open Microsoft.FSharp.Collections
+
+//open System.Text.Json
+
 type Side = | Buy = 0 | Sell = 1
 //type ID = | ID of int
 
@@ -12,6 +16,30 @@ type OrderEvent =
       | Submit of SubmitEvent
       | Trade of TradeEvent
       | Unknown
+
+module EventSerializer = 
+    let SerializeDecimal(writer:IO.BinaryWriter, value:Decimal) =         
+        writer.Write(value)
+    let SerializeInt32(writer:IO.BinaryWriter, value:int) =         
+        writer.Write(value)
+    let SerializeString(writer:IO.BinaryWriter, value:string) = 
+        writer.Write(value)
+    let SerializeSubmitEvent(writer, {Size=size; Side=side; Asset=asset}) =
+        SerializeDecimal (writer, size)
+        SerializeInt32 (writer, int side)
+        SerializeString (writer, asset)
+    let SerializeTradeEvent(writer, {Size=size; Price=price}) =
+        SerializeDecimal (writer, size)
+        SerializeDecimal (writer, price)
+    let DeserializeSubmitEvent(reader:IO.BinaryReader) = 
+        let size = reader.ReadDecimal()
+        let side = reader.ReadInt32()
+        let asset = reader.ReadString()
+        {Size=size; Side=enum<Side> side; Asset=asset}
+    let DeserializeTradeEvent(reader:IO.BinaryReader) =
+        let size = reader.ReadDecimal()
+        let price = reader.ReadDecimal()
+        {Size=size; Price=price}
 
 //type EquityOrderRECORD = {Size:decimal; Side:Side; Asset:string; TradedSize:decimal; TradedPrice:decimal}
 type EquityOrder (size:decimal, side:Side, asset:string, tradeEvents:TradeEvent list, tradedSize:decimal, tradedPrice:decimal) = 
@@ -41,14 +69,61 @@ module OrderEventPlayer =
             
     
 module FileReader = 
-    let ExractEvents (fileName:string, id:int) = 
-        File.ReadLines(fileName)
-        |> Seq.map (fun readLine -> (readLine[0], readLine.Substring(1)))
-        |> Seq.map (fun readLineTuple  -> match readLineTuple with 
-                                          | ('0', serializedEvent) -> OrderEvent.Submit (JsonSerializer.Deserialize<SubmitEvent>(serializedEvent))
-                                          | ('1', serializedEvent) -> OrderEvent.Trade (JsonSerializer.Deserialize<TradeEvent>(serializedEvent))                                      
-                                          | (_, _) -> OrderEvent.Unknown
-                    )
+    let encoding = System.Text.Encoding.UTF8
+    
+    let SerializeXXX<'T> (serializable: 'T) =                 
+        //json
+        System.Text.Json.JsonSerializer.Serialize(serializable)
+        //Hyper
+        //let mybytepan = Hyper.HyperSerializer.Serialize(serializable)
+        //encoding.GetString(mybytepan.ToArray())        
+        //
+        //ProtoBuf
+        //let stream = new MemoryStream()
+        //ProtoBuf.Serializer.Serialize<'T>(stream, serializable)
+        //let reader = new StreamReader( stream, System.Text.Encoding.UTF8);
+        //reader.ReadToEnd()
+    let Deserialize<'T>(serialized: string) : 'T = 
+        //json
+        System.Text.Json.JsonSerializer.Deserialize<'T>(serialized)        
+        //Hyper
+        //let bytearray = encoding.GetBytes(serialized)
+        //let bytespan = System.Span<byte>(bytearray)
+        //Hyper.HyperSerializer.Deserialize(bytespan)
+        //ProtoBuf
+        //ProtoBuf.Serializer.Deserialize<'T>(MemoryStream (System.Text.Encoding.UTF8.GetBytes(serialized)))       
+    
+        
+
+    let nextEventType(reader: IO.BinaryReader) = 
+        try reader.ReadInt32() with
+            | :? System.IO.EndOfStreamException as _ -> 0
+    
+    let ExractEvents (binaryReader:IO.BinaryReader, id:int) = 
+        let rec ExtractEventLoop(reader:IO.BinaryReader, eventType) =             
+            seq {
+                match eventType with    
+                              | 0 -> ignore 
+                              | 1 -> yield OrderEvent.Submit (EventSerializer.DeserializeSubmitEvent(reader))
+                                     yield! ExtractEventLoop(reader, nextEventType(reader))
+                              | 2 -> yield OrderEvent.Trade (EventSerializer.DeserializeTradeEvent(reader))    
+                                     yield! ExtractEventLoop(reader, nextEventType(reader))                                         
+            }    
+        ExtractEventLoop (binaryReader, nextEventType(binaryReader))
+        
+        //let filestream = new IO.FileStream(fileName, IO.FileMode.Open)        
+        //let reader = new IO.BinaryReader(filestream)
+        //do reader.Dispose() 
+        //do filestream.Dispose() 
+        
+    //let ExractEventsOld (fileName:string, id:int) = 
+    //    File.ReadLines(fileName)
+    //    |> Seq.map (fun readLine -> (readLine[0], readLine.Substring(1)))
+    //    |> Seq.map (fun readLineTuple  -> match readLineTuple with 
+    //                                      | ('0', serializedEvent) -> OrderEvent.Submit (Deserialize<SubmitEvent>(serializedEvent))
+    //                                      | ('1', serializedEvent) -> OrderEvent.Trade (Deserialize<TradeEvent>(serializedEvent))                                      
+    //                                      | (_, _) -> OrderEvent.Unknown
+    //                )
 
     let GetIDfromFileName (fileName:string) =                 
         System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
@@ -62,23 +137,42 @@ module FileReader =
             | (false, equityOrder) -> equityOrder
             
     let CreateOrderFromFile (fileName:string) = 
-        let id = GetIDfromFileName fileName
-        let events = ExractEvents (fileName, id) 
-        (id, fileName, CreateOrderFromEvents(events.GetEnumerator(), None))
+        async {
+            let fso = new FileStreamOptions()
+            fso.Access <- FileAccess.Read
+            fso.BufferSize  <- 4096
+            use filestream = new IO.FileStream(fileName, fso)        
+            use reader = new IO.BinaryReader(filestream)
+               
+            let id = GetIDfromFileName fileName
+            let events = ExractEvents (reader, id) 
+            return 
+                (id, fileName, CreateOrderFromEvents(events.GetEnumerator(), None))
+        }
+        //do reader.Dispose() 
+        //do filestream.Dispose() 
+
 
     let LoadFromFolder(path:string) = 
-        Directory.GetFiles(path) 
-        |> Seq.map(CreateOrderFromFile) 
+        Directory.GetFiles(path)
+        |> Seq.map CreateOrderFromFile
+        |> Async.Parallel
+        |> Async.RunSynchronously
         //|> Seq.filter(fun (_, _, orderOption) -> orderOption.IsSome)        
 
-    let WriteEventToFile(orderEvent, streamWriter:StreamWriter) = 
+    let WriteEventToFile(orderEvent, binaryWriter:BinaryWriter) = 
         match orderEvent with
             | Submit submitEvent -> 
-                let eventImage = JsonSerializer.Serialize(submitEvent);                
-                streamWriter.WriteLine("0" + eventImage) |> ignore
+                //let eventImage = Serialize(submitEvent);                
+                //streamWriter.Write(0 + eventImage) |> ignore
+                binaryWriter.Write(1) |> ignore                               
+                EventSerializer.SerializeSubmitEvent(binaryWriter, submitEvent)
             | Trade tradeEvent -> 
-                let eventImage = JsonSerializer.Serialize(tradeEvent);                
-                streamWriter.WriteLine("1" + eventImage) |> ignore
+                //let eventImage = Serialize(tradeEvent);                
+                //streamWriter.WriteLine("1" + eventImage) |> ignore
+                binaryWriter.Write(2) |> ignore                               
+                EventSerializer.SerializeTradeEvent(binaryWriter, tradeEvent)
+
             | Unknown -> () |> ignore
 
 type orderReaderMessage = 
@@ -105,35 +199,36 @@ type OrderStoreActor(id:int, rootPath:string, initialState) =
             messageLoop (initialState)
             )
     
-    let dropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
+    let dropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (binaryWriter:IO.BinaryWriter) = 
         match inbox.CurrentQueueLength with 
             | 0 ->     
-                streamWriter.Flush()
-                streamWriter.Dispose()
+                binaryWriter.Flush()
+                binaryWriter.Dispose()
                 None
             | _ ->
-                Some streamWriter
+                Some binaryWriter
 
     let eventPlayerAgent = MailboxProcessor.Start(fun inbox ->
             let difh = dropIdleFileHandle inbox
-            let rec messageLoop (orderState: EquityOrder option, streamWriterOption: StreamWriter option) = 
+            let rec messageLoop (orderState: EquityOrder option, binaryWriterOption: BinaryWriter option) = 
                 async{
                     let! msg = inbox.Receive()
                     match msg with 
                         | orderPlayerMessage.GetOrderState arc ->   
-                            let asd = match streamWriterOption with                                                 
+                            let binaryWriter = match binaryWriterOption with                                                 
                                                                  | None -> None
-                                                                 | Some sw -> difh sw
+                                                                 | Some bw -> difh bw
                             arc.Reply(orderState)
-                            return! messageLoop (orderState, asd)
+                            return! messageLoop (orderState, binaryWriter)
                         | orderPlayerMessage.Play orderEvent -> 
-                            let streamWriter = match streamWriterOption with 
-                                                    | None -> File.AppendText(filePath)
-                                                    | Some sw -> sw
-                            FileReader.WriteEventToFile(orderEvent, streamWriter) |> ignore
+                            let binaryWriter = match binaryWriterOption with 
+                                                    | None -> let filestream = IO.File.Create(filePath)
+                                                              new IO.BinaryWriter(filestream)
+                                                    | Some bw -> bw
+                            FileReader.WriteEventToFile(orderEvent, binaryWriter) |> ignore
                             let newState = OrderEventPlayer.play(orderState, orderEvent)
                             orderReaderAgent.Post(Set (Some newState))
-                            return! messageLoop (Some newState, difh streamWriter)
+                            return! messageLoop (Some newState, difh binaryWriter)
                 }
             messageLoop (initialState, None)
         )
@@ -153,8 +248,9 @@ type OrderStore(rootPath:string) =
             | false -> 
                 Directory.CreateDirectory(rootPath) |> ignore
                 []
-            | true -> FileReader.LoadFromFolder(rootPath) 
-                      |> Seq.toList 
+            | true -> 
+                    let asd = FileReader.LoadFromFolder(rootPath) 
+                    asd |> Seq.toList 
                       |> List.map OrderStoreActor
     
     let actorDictionary = Dictionary<int, OrderStoreActor>(actorList |> List.map(fun oa -> KeyValuePair(oa.ID, oa)))
@@ -162,10 +258,10 @@ type OrderStore(rootPath:string) =
     member this.RootPath = rootPath
     member this.Submit(id:int, submitEvent:SubmitEvent) =
         task {
-        let actor = OrderStoreActor(id, rootPath, None)
-        actor.WriteEvent(Submit submitEvent)
-        actorDictionary.Add(id, actor) //todo fix this mutability.
-        return actor
+            let actor = OrderStoreActor(id, rootPath, None)
+            actor.WriteEvent(Submit submitEvent)
+            actorDictionary.Add(id, actor) //todo fix this mutability.
+            return actor
         }
     member this.Trade(id:int, tradeEvent:TradeEvent) = 
         let actor = actorDictionary[id]
@@ -173,11 +269,11 @@ type OrderStore(rootPath:string) =
         actor
     member this.GetActor(id:int) = actorDictionary[id]
     member this.GetOrder(id:int) = 
-        match actorDictionary[id].TryGetOrder(10000) with 
+        match actorDictionary[id].TryGetOrder(1000000) with 
             | Some order -> order
             | None -> failwith "can't find order"            
     member this.GetOrderSync(id:int) = 
-        match actorDictionary[id].GetOrderSync(10000) with             
+        match actorDictionary[id].GetOrderSync(1000000) with             
             | Some order -> order
             | None -> failwith "can't find order"
         
@@ -189,9 +285,8 @@ type OrderService(rootPath:string) =
     member this.Submit(submitEvent:SubmitEvent) = 
         task {
             let id = nextID
-            let nextID = nextID + 1
-            orderStore.Submit(id, submitEvent) |> ignore
-            return id
+            nextID <- nextID + 1
+            return orderStore.Submit(id, submitEvent).Result.ID
         }
         
     member this.Trade(id, submitEvent) = orderStore.Trade(id, submitEvent)
