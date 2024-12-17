@@ -16,7 +16,7 @@ type OrderEvent =
       | Trade of TradeEvent
       | Unknown
 
-module EventSerializer = 
+module EventSerializerxx = 
     let SerializeDecimal(writer:IO.BinaryWriter, value:Decimal) =         
         writer.Write(value)
     let SerializeInt32(writer:IO.BinaryWriter, value:int) =         
@@ -78,15 +78,15 @@ type DAL<'T> =
     abstract member FileAccess: string -> 'T
     abstract member WriteEventToFile: OrderEvent * 'T -> unit
     abstract member DropIdleFileHandle: MailboxProcessor<orderPlayerMessage> -> 'T -> 'T option
-    abstract member CreateOrderFromFile: string -> Async<int * string * EquityOrder option>
+    abstract member CreateOrderFromFile: string -> Async<DAL<'T> * int * string * EquityOrder option>
             
     
 module FileReader = 
     let encoding = System.Text.Encoding.UTF8
     
-    let SerializeXXX<'T> (serializable: 'T) =                 
+    //let SerializeXXX<'T> (serializable: 'T) =                 
         //json
-        System.Text.Json.JsonSerializer.Serialize(serializable)
+        //System.Text.Json.JsonSerializer.Serialize(serializable)
         //Hyper
         //let mybytepan = Hyper.HyperSerializer.Serialize(serializable)
         //encoding.GetString(mybytepan.ToArray())        
@@ -96,9 +96,9 @@ module FileReader =
         //ProtoBuf.Serializer.Serialize<'T>(stream, serializable)
         //let reader = new StreamReader( stream, System.Text.Encoding.UTF8);
         //reader.ReadToEnd()
-    let Deserialize<'T>(serialized: string) : 'T = 
+    //let Deserialize<'T>(serialized: string) : 'T = 
         //json
-        System.Text.Json.JsonSerializer.Deserialize<'T>(serialized)        
+        //System.Text.Json.JsonSerializer.Deserialize<'T>(serialized)        
         //Hyper
         //let bytearray = encoding.GetBytes(serialized)
         //let bytespan = System.Span<byte>(bytearray)
@@ -128,7 +128,7 @@ module FileReader =
             | (true, equityOrder) -> CreateOrderFromEvents (events, Some (OrderEventPlayer.play (equityOrder, events.Current)))
             | (false, equityOrder) -> equityOrder
             
-    let LoadFromFolder(dal: DAL<'T>, path:string) = 
+    let LoadFromFolder<'T>(dal: DAL<'T>, path:string) = 
         Directory.GetFiles(path)
         |> Seq.map dal.CreateOrderFromFile
         |> Async.Parallel
@@ -147,67 +147,9 @@ module FileReader =
 
 
 
-type binaryDAL() =
-    let GetIDfromFileName (fileName:string) =                 
-        System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
-        //try        //    Some (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))        //with _ -> None
-    let nextEventType(reader: IO.BinaryReader) = 
-        try reader.ReadInt32() with
-            | :? System.IO.EndOfStreamException as _ -> 0
-    let ExractBinaryEvents (binaryReader:IO.BinaryReader, id:int) = 
-            let rec ExtractEventLoop(reader:IO.BinaryReader, eventType) =             
-                seq {
-                    match eventType with    
-                                  | 0 -> ignore 
-                                  | 1 -> yield OrderEvent.Submit (EventSerializer.DeserializeSubmitEvent(reader))
-                                         yield! ExtractEventLoop(reader, nextEventType(reader))
-                                  | 2 -> yield OrderEvent.Trade (EventSerializer.DeserializeTradeEvent(reader))    
-                                         yield! ExtractEventLoop(reader, nextEventType(reader))                                         
-                }    
-            ExtractEventLoop (binaryReader, nextEventType(binaryReader))
-
-    interface DAL<IO.BinaryWriter> with
-        member this.FileAccess (path:string) = 
-            let filestream = IO.File.Create(path)
-            new IO.BinaryWriter(filestream)
-        member this.WriteEventToFile (orderEvent, binaryWriter:BinaryWriter) = 
-            match orderEvent with
-            | Submit submitEvent -> 
-                //let eventImage = Serialize(submitEvent);                
-                //streamWriter.Write(0 + eventImage) |> ignore
-                binaryWriter.Write(1) |> ignore                               
-                EventSerializer.SerializeSubmitEvent(binaryWriter, submitEvent)
-            | Trade tradeEvent -> 
-                //let eventImage = Serialize(tradeEvent);                
-                //streamWriter.WriteLine("1" + eventImage) |> ignore
-                binaryWriter.Write(2) |> ignore                               
-                EventSerializer.SerializeTradeEvent(binaryWriter, tradeEvent)
-            | Unknown -> () |> ignore
-        member this.DropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (binaryWriter:IO.BinaryWriter) = 
-            match inbox.CurrentQueueLength with 
-            | 0 ->     
-                binaryWriter.Flush()
-                binaryWriter.Dispose()
-                None
-            | _ ->
-                Some binaryWriter
-        member this.CreateOrderFromFile (fileName:string) = 
-            async {
-                let fso = new FileStreamOptions()
-                fso.Access <- FileAccess.Read
-                fso.BufferSize  <- 4096
-                use filestream = new IO.FileStream(fileName, fso)        
-                use reader = new IO.BinaryReader(filestream)
-               
-                let id = GetIDfromFileName fileName
-                let events = ExractBinaryEvents (reader, id) 
-                return 
-                    (id, fileName, FileReader.CreateOrderFromEvents(events.GetEnumerator(), None))
-            }   
 
 
-
-type OrderStoreActor(dal:DAL<'T>, id:int, rootPath:string, initialState) =
+type OrderStoreActor<'T>(dal:DAL<'T>, id:int, rootPath:string, initialState) =
     let filePath = rootPath + id.ToString() + ".txt"    
     let orderReaderAgent = MailboxProcessor.Start(fun inbox ->
             let rec messageLoop (state) = async{
@@ -274,8 +216,7 @@ type OrderStoreActor(dal:DAL<'T>, id:int, rootPath:string, initialState) =
 
 
 
-type OrderStore(rootPath:string) = 
-    let dal = binaryDAL() //:> DAL<BinaryWriter>
+type OrderStore<'T> (rootPath:string, dal:DAL<'T>)=     
     let pathExists = Directory.Exists(rootPath)    
     let actorList = 
         match pathExists with
@@ -283,16 +224,16 @@ type OrderStore(rootPath:string) =
                 Directory.CreateDirectory(rootPath) |> ignore
                 []
             | true -> 
-                    let asd = FileReader.LoadFromFolder(dal, rootPath) 
+                    let asd = FileReader.LoadFromFolder<'T>(dal, rootPath) 
                     asd |> Seq.toList 
-                      |> List.map (fun (a, b, c) -> OrderStoreActor(dal, a, b, c))
+                      |> List.map OrderStoreActor
     
-    let actorDictionary = Dictionary<int, OrderStoreActor>(actorList |> List.map(fun oa -> KeyValuePair(oa.ID, oa)))
+    let actorDictionary = Dictionary<int, OrderStoreActor<'T>>(actorList |> List.map(fun oa -> KeyValuePair(oa.ID, oa)))
 
     member this.RootPath = rootPath
     member this.Submit(id:int, submitEvent:SubmitEvent) =
         task {
-            let actor = OrderStoreActor(dal, id, rootPath, None)
+            let actor = OrderStoreActor<'T>(dal, id, rootPath, None)
             actor.WriteEvent(Submit submitEvent)
             actorDictionary.Add(id, actor) //todo fix this mutability.
             return actor
@@ -312,22 +253,7 @@ type OrderStore(rootPath:string) =
             | None -> failwith "can't find order"
         
 
-[<AllowNullLiteral>]
-type OrderService(rootPath:string) = 
-    let mutable nextID:int = 1 //todo fix this mutability.
-    let orderStore = new OrderStore(rootPath)
-    member this.Submit(submitEvent:SubmitEvent) = 
-        task {
-            let id = nextID
-            nextID <- nextID + 1
-            return orderStore.Submit(id, submitEvent).Result.ID
-        }
-        
-    member this.Trade(id, submitEvent) = orderStore.Trade(id, submitEvent)
 
-    member this.GetOrder(id) = orderStore.GetOrder(id)
-
-    member this.GetOrderSync(ID:int) = orderStore.GetOrderSync(ID)
 
 
 

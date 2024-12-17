@@ -1,8 +1,12 @@
 ﻿namespace AMGServiceTests
 {
+    using System.IO;
     using AMFService;
+    using AMFServiceBinaryDAL;
+
     public class OrderStoreTests
     {
+        DAL<BinaryWriter> dal = new BinaryDAL();
         string pathRoot = @"c:\AMG\";
         [SetUp]
         public void Setup()
@@ -16,13 +20,13 @@
 
             var path = pathRoot + Guid.NewGuid() + @"\";
 
-            OrderStore orderStore1 = new OrderStore(path);
+            var orderStore1 = new OrderStore<BinaryWriter>(path, dal);
             
             SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");            
             await orderStore1.Submit(id, submitEvent);
             var orderV1 = orderStore1.GetOrderSync(id);
 
-            OrderStore orderStore2 = new OrderStore(path);            
+            var orderStore2 = new OrderStore<BinaryWriter>(path, dal);            
             var orderV2 = orderStore2.GetOrderSync(id);
 
             Assert.IsNotNull(orderV2);            
@@ -36,7 +40,7 @@
             var id = 5;
             var path = pathRoot + Guid.NewGuid() + @"\";
 
-            OrderStore orderStore1 = new OrderStore(path);
+            var orderStore1 = new OrderStore<BinaryWriter>(path, dal);
             
             SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");
             var orderV1 = new EquityOrder(7, Side.Buy, "MyAsset");
@@ -45,7 +49,7 @@
             orderStore1.Trade(id, tradeEvent);
             orderStore1.GetOrderSync(id);
 
-            OrderStore orderStore2 = new OrderStore(path);
+            var orderStore2 = new OrderStore<BinaryWriter>(path, dal);
             orderStore2.GetOrderSync(id);
             var order = orderStore2.GetOrder(id);
             Assert.IsNotNull(order);            
