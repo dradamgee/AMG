@@ -4,8 +4,7 @@ open System
 open System.IO
 open System.Collections.Generic
 open Microsoft.FSharp.Collections
-
-//open System.Text.Json
+open System.Text.Json
 
 type Side = | Buy = 0 | Sell = 1
 //type ID = | ID of int
@@ -99,7 +98,7 @@ module FileReader =
         try reader.ReadInt32() with
             | :? System.IO.EndOfStreamException as _ -> 0
     
-    let ExractEvents (binaryReader:IO.BinaryReader, id:int) = 
+    let ExractBinaryEvents (binaryReader:IO.BinaryReader, id:int) = 
         let rec ExtractEventLoop(reader:IO.BinaryReader, eventType) =             
             seq {
                 match eventType with    
@@ -136,7 +135,7 @@ module FileReader =
             | (true, equityOrder) -> CreateOrderFromEvents (events, Some (OrderEventPlayer.play (equityOrder, events.Current)))
             | (false, equityOrder) -> equityOrder
             
-    let CreateOrderFromFile (fileName:string) = 
+    let CreateOrderFromBinaryFile (fileName:string) = 
         async {
             let fso = new FileStreamOptions()
             fso.Access <- FileAccess.Read
@@ -145,23 +144,51 @@ module FileReader =
             use reader = new IO.BinaryReader(filestream)
                
             let id = GetIDfromFileName fileName
-            let events = ExractEvents (reader, id) 
+            let events = ExractBinaryEvents (reader, id) 
             return 
                 (id, fileName, CreateOrderFromEvents(events.GetEnumerator(), None))
-        }
-        //do reader.Dispose() 
-        //do filestream.Dispose() 
+        }        
 
 
-    let LoadFromFolder(path:string) = 
+    let LoadFromBinaryFolder(path:string) = 
         Directory.GetFiles(path)
-        |> Seq.map CreateOrderFromFile
+        |> Seq.map CreateOrderFromBinaryFile
         |> Async.Parallel
         |> Async.RunSynchronously
         //|> Seq.filter(fun (_, _, orderOption) -> orderOption.IsSome)        
 
-    let WriteEventToFile(orderEvent, binaryWriter:BinaryWriter) = 
+    let WriteEventToJsonFile(orderEvent, streamWriter:StreamWriter) = 
         match orderEvent with
+            | Submit submitEvent -> 
+                let eventImage = JsonSerializer.Serialize(submitEvent);                
+                streamWriter.WriteLine("0" + eventImage) |> ignore
+            | Trade tradeEvent -> 
+                let eventImage = JsonSerializer.Serialize(tradeEvent);                
+                streamWriter.WriteLine("1" + eventImage) |> ignore
+            | Unknown -> () |> ignore
+
+
+
+type orderReaderMessage = 
+    | Get of AsyncReplyChannel<EquityOrder option>
+    | Set of EquityOrder option
+
+type orderPlayerMessage = 
+    | GetOrderState of AsyncReplyChannel<EquityOrder option>
+    | Play of OrderEvent
+
+type DAL<'T> = 
+    abstract member FileAccess: string -> 'T
+    abstract member WriteEventToFile: OrderEvent * 'T -> unit
+    abstract member DropIdleFileHandle: MailboxProcessor<orderPlayerMessage> -> 'T -> 'T option
+
+type binaryDAL() =
+    interface DAL<IO.BinaryWriter> with
+        member this.FileAccess (path:string) = 
+            let filestream = IO.File.Create(path)
+            new IO.BinaryWriter(filestream)
+        member this.WriteEventToFile (orderEvent, binaryWriter:BinaryWriter) = 
+            match orderEvent with
             | Submit submitEvent -> 
                 //let eventImage = Serialize(submitEvent);                
                 //streamWriter.Write(0 + eventImage) |> ignore
@@ -172,16 +199,18 @@ module FileReader =
                 //streamWriter.WriteLine("1" + eventImage) |> ignore
                 binaryWriter.Write(2) |> ignore                               
                 EventSerializer.SerializeTradeEvent(binaryWriter, tradeEvent)
-
             | Unknown -> () |> ignore
+        member this.DropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (binaryWriter:IO.BinaryWriter) = 
+            match inbox.CurrentQueueLength with 
+            | 0 ->     
+                binaryWriter.Flush()
+                binaryWriter.Dispose()
+                None
+            | _ ->
+                Some binaryWriter
 
-type orderReaderMessage = 
-    | Get of AsyncReplyChannel<EquityOrder option>
-    | Set of EquityOrder option
 
-type orderPlayerMessage = 
-    | GetOrderState of AsyncReplyChannel<EquityOrder option>
-    | Play of OrderEvent
+
 
 type OrderStoreActor(id:int, rootPath:string, initialState) =
     let filePath = rootPath + id.ToString() + ".txt"    
@@ -199,46 +228,55 @@ type OrderStoreActor(id:int, rootPath:string, initialState) =
             messageLoop (initialState)
             )
     
-    let dropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (binaryWriter:IO.BinaryWriter) = 
+    
+
+    let dropIdleJsonFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
         match inbox.CurrentQueueLength with 
             | 0 ->     
-                binaryWriter.Flush()
-                binaryWriter.Dispose()
+                streamWriter.Flush()
+                streamWriter.Dispose()
                 None
             | _ ->
-                Some binaryWriter
+                Some streamWriter
 
-    let eventPlayerAgent = MailboxProcessor.Start(fun inbox ->
-            let difh = dropIdleFileHandle inbox
-            let rec messageLoop (orderState: EquityOrder option, binaryWriterOption: BinaryWriter option) = 
+    let eventPlayerAgentBuilder (dal: DAL<'T>) = MailboxProcessor.Start(fun inbox ->
+            let difh = dal.DropIdleFileHandle inbox
+            let rec messageLoop (orderState: EquityOrder option, fileAccessOption: 'T option) = 
                 async{
                     let! msg = inbox.Receive()
                     match msg with 
                         | orderPlayerMessage.GetOrderState arc ->   
-                            let binaryWriter = match binaryWriterOption with                                                 
+                            let fileAccess = match fileAccessOption with                                                 
                                                                  | None -> None
                                                                  | Some bw -> difh bw
                             arc.Reply(orderState)
-                            return! messageLoop (orderState, binaryWriter)
+                            return! messageLoop (orderState, fileAccess)
                         | orderPlayerMessage.Play orderEvent -> 
-                            let binaryWriter = match binaryWriterOption with 
-                                                    | None -> let filestream = IO.File.Create(filePath)
-                                                              new IO.BinaryWriter(filestream)
+                            let fileAccess = match fileAccessOption with                                 
+                                                    | None -> 
+                                                        dal.FileAccess filePath                                                        
                                                     | Some bw -> bw
-                            FileReader.WriteEventToFile(orderEvent, binaryWriter) |> ignore
+                            dal.WriteEventToFile (orderEvent, fileAccess) |> ignore //
                             let newState = OrderEventPlayer.play(orderState, orderEvent)
                             orderReaderAgent.Post(Set (Some newState))
-                            return! messageLoop (Some newState, difh binaryWriter)
+                            return! messageLoop (Some newState, difh fileAccess)
                 }
             messageLoop (initialState, None)
         )
+    
+    let jsonFileAccess (path:string) = File.AppendText(path)
 
-    member this.WriteEvent (orderEvent) = eventPlayerAgent.Post (Play orderEvent)
-    member this.GetOrderSync(timeout) = eventPlayerAgent.PostAndReply ((fun arc -> GetOrderState arc), timeout)
-    member this.GetOrderSync1(timeout) = eventPlayerAgent.PostAndAsyncReply ((fun arc -> GetOrderState arc), timeout) // todo use async reply
+    let dal = binaryDAL() //:> DAL<BinaryWriter>
+
+    let orderEventMailbox = eventPlayerAgentBuilder(dal)
+    
+    member this.WriteEvent (orderEvent) = orderEventMailbox.Post (Play orderEvent)
+    member this.GetOrderSync(timeout) = orderEventMailbox.PostAndReply ((fun arc -> GetOrderState arc), timeout)
+    member this.GetOrderSync1(timeout) = orderEventMailbox.PostAndAsyncReply ((fun arc -> GetOrderState arc), timeout) // todo use async reply
     member this.TryGetOrder (timeout) = orderReaderAgent.PostAndReply((fun arc -> Get arc), timeout)
     member this.ID = id
     member this.StorePath = rootPath
+
 
 
 type OrderStore(rootPath:string) = 
@@ -249,7 +287,7 @@ type OrderStore(rootPath:string) =
                 Directory.CreateDirectory(rootPath) |> ignore
                 []
             | true -> 
-                    let asd = FileReader.LoadFromFolder(rootPath) 
+                    let asd = FileReader.LoadFromBinaryFolder(rootPath) 
                     asd |> Seq.toList 
                       |> List.map OrderStoreActor
     
