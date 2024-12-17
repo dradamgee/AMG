@@ -65,6 +65,20 @@ module OrderEventPlayer =
             | (_, OrderEvent.Submit submitevent) -> playSubmit (submitevent)
             | (Some equityOrder, OrderEvent.Trade tradeEvent) -> playTrade (equityOrder, tradeEvent)
             | (None, OrderEvent.Trade _) -> failwith "Unsolicited Trades are not supported"
+
+type orderReaderMessage = 
+    | Get of AsyncReplyChannel<EquityOrder option>
+    | Set of EquityOrder option
+
+type orderPlayerMessage = 
+    | GetOrderState of AsyncReplyChannel<EquityOrder option>
+    | Play of OrderEvent
+
+type DAL<'T> = 
+    abstract member FileAccess: string -> 'T
+    abstract member WriteEventToFile: OrderEvent * 'T -> unit
+    abstract member DropIdleFileHandle: MailboxProcessor<orderPlayerMessage> -> 'T -> 'T option
+    abstract member CreateOrderFromFile: string -> Async<int * string * EquityOrder option>
             
     
 module FileReader = 
@@ -93,23 +107,6 @@ module FileReader =
         //ProtoBuf.Serializer.Deserialize<'T>(MemoryStream (System.Text.Encoding.UTF8.GetBytes(serialized)))       
     
         
-
-    let nextEventType(reader: IO.BinaryReader) = 
-        try reader.ReadInt32() with
-            | :? System.IO.EndOfStreamException as _ -> 0
-    
-    let ExractBinaryEvents (binaryReader:IO.BinaryReader, id:int) = 
-        let rec ExtractEventLoop(reader:IO.BinaryReader, eventType) =             
-            seq {
-                match eventType with    
-                              | 0 -> ignore 
-                              | 1 -> yield OrderEvent.Submit (EventSerializer.DeserializeSubmitEvent(reader))
-                                     yield! ExtractEventLoop(reader, nextEventType(reader))
-                              | 2 -> yield OrderEvent.Trade (EventSerializer.DeserializeTradeEvent(reader))    
-                                     yield! ExtractEventLoop(reader, nextEventType(reader))                                         
-            }    
-        ExtractEventLoop (binaryReader, nextEventType(binaryReader))
-        
         //let filestream = new IO.FileStream(fileName, IO.FileMode.Open)        
         //let reader = new IO.BinaryReader(filestream)
         //do reader.Dispose() 
@@ -124,35 +121,16 @@ module FileReader =
     //                                      | (_, _) -> OrderEvent.Unknown
     //                )
 
-    let GetIDfromFileName (fileName:string) =                 
-        System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
-        //try
-        //    Some (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))
-        //with _ -> None
+
     
     let rec CreateOrderFromEvents (events:IEnumerator<OrderEvent>, equityOrder:EquityOrder option) = 
         match (events.MoveNext(), equityOrder) with 
             | (true, equityOrder) -> CreateOrderFromEvents (events, Some (OrderEventPlayer.play (equityOrder, events.Current)))
             | (false, equityOrder) -> equityOrder
             
-    let CreateOrderFromBinaryFile (fileName:string) = 
-        async {
-            let fso = new FileStreamOptions()
-            fso.Access <- FileAccess.Read
-            fso.BufferSize  <- 4096
-            use filestream = new IO.FileStream(fileName, fso)        
-            use reader = new IO.BinaryReader(filestream)
-               
-            let id = GetIDfromFileName fileName
-            let events = ExractBinaryEvents (reader, id) 
-            return 
-                (id, fileName, CreateOrderFromEvents(events.GetEnumerator(), None))
-        }        
-
-
-    let LoadFromBinaryFolder(path:string) = 
+    let LoadFromFolder(dal: DAL<'T>, path:string) = 
         Directory.GetFiles(path)
-        |> Seq.map CreateOrderFromBinaryFile
+        |> Seq.map dal.CreateOrderFromFile
         |> Async.Parallel
         |> Async.RunSynchronously
         //|> Seq.filter(fun (_, _, orderOption) -> orderOption.IsSome)        
@@ -169,20 +147,25 @@ module FileReader =
 
 
 
-type orderReaderMessage = 
-    | Get of AsyncReplyChannel<EquityOrder option>
-    | Set of EquityOrder option
-
-type orderPlayerMessage = 
-    | GetOrderState of AsyncReplyChannel<EquityOrder option>
-    | Play of OrderEvent
-
-type DAL<'T> = 
-    abstract member FileAccess: string -> 'T
-    abstract member WriteEventToFile: OrderEvent * 'T -> unit
-    abstract member DropIdleFileHandle: MailboxProcessor<orderPlayerMessage> -> 'T -> 'T option
-
 type binaryDAL() =
+    let GetIDfromFileName (fileName:string) =                 
+        System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
+        //try        //    Some (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))        //with _ -> None
+    let nextEventType(reader: IO.BinaryReader) = 
+        try reader.ReadInt32() with
+            | :? System.IO.EndOfStreamException as _ -> 0
+    let ExractBinaryEvents (binaryReader:IO.BinaryReader, id:int) = 
+            let rec ExtractEventLoop(reader:IO.BinaryReader, eventType) =             
+                seq {
+                    match eventType with    
+                                  | 0 -> ignore 
+                                  | 1 -> yield OrderEvent.Submit (EventSerializer.DeserializeSubmitEvent(reader))
+                                         yield! ExtractEventLoop(reader, nextEventType(reader))
+                                  | 2 -> yield OrderEvent.Trade (EventSerializer.DeserializeTradeEvent(reader))    
+                                         yield! ExtractEventLoop(reader, nextEventType(reader))                                         
+                }    
+            ExtractEventLoop (binaryReader, nextEventType(binaryReader))
+
     interface DAL<IO.BinaryWriter> with
         member this.FileAccess (path:string) = 
             let filestream = IO.File.Create(path)
@@ -208,11 +191,23 @@ type binaryDAL() =
                 None
             | _ ->
                 Some binaryWriter
+        member this.CreateOrderFromFile (fileName:string) = 
+            async {
+                let fso = new FileStreamOptions()
+                fso.Access <- FileAccess.Read
+                fso.BufferSize  <- 4096
+                use filestream = new IO.FileStream(fileName, fso)        
+                use reader = new IO.BinaryReader(filestream)
+               
+                let id = GetIDfromFileName fileName
+                let events = ExractBinaryEvents (reader, id) 
+                return 
+                    (id, fileName, FileReader.CreateOrderFromEvents(events.GetEnumerator(), None))
+            }   
 
 
 
-
-type OrderStoreActor(id:int, rootPath:string, initialState) =
+type OrderStoreActor(dal:DAL<'T>, id:int, rootPath:string, initialState) =
     let filePath = rootPath + id.ToString() + ".txt"    
     let orderReaderAgent = MailboxProcessor.Start(fun inbox ->
             let rec messageLoop (state) = async{
@@ -266,7 +261,7 @@ type OrderStoreActor(id:int, rootPath:string, initialState) =
     
     let jsonFileAccess (path:string) = File.AppendText(path)
 
-    let dal = binaryDAL() //:> DAL<BinaryWriter>
+    
 
     let orderEventMailbox = eventPlayerAgentBuilder(dal)
     
@@ -280,6 +275,7 @@ type OrderStoreActor(id:int, rootPath:string, initialState) =
 
 
 type OrderStore(rootPath:string) = 
+    let dal = binaryDAL() //:> DAL<BinaryWriter>
     let pathExists = Directory.Exists(rootPath)    
     let actorList = 
         match pathExists with
@@ -287,16 +283,16 @@ type OrderStore(rootPath:string) =
                 Directory.CreateDirectory(rootPath) |> ignore
                 []
             | true -> 
-                    let asd = FileReader.LoadFromBinaryFolder(rootPath) 
+                    let asd = FileReader.LoadFromFolder(dal, rootPath) 
                     asd |> Seq.toList 
-                      |> List.map OrderStoreActor
+                      |> List.map (fun (a, b, c) -> OrderStoreActor(dal, a, b, c))
     
     let actorDictionary = Dictionary<int, OrderStoreActor>(actorList |> List.map(fun oa -> KeyValuePair(oa.ID, oa)))
 
     member this.RootPath = rootPath
     member this.Submit(id:int, submitEvent:SubmitEvent) =
         task {
-            let actor = OrderStoreActor(id, rootPath, None)
+            let actor = OrderStoreActor(dal, id, rootPath, None)
             actor.WriteEvent(Submit submitEvent)
             actorDictionary.Add(id, actor) //todo fix this mutability.
             return actor
