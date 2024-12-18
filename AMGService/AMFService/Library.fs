@@ -83,46 +83,10 @@ type DAL<'T> =
     
 module FileReader = 
     let encoding = System.Text.Encoding.UTF8
-    
-    //let SerializeXXX<'T> (serializable: 'T) =                 
-        //json
-        //System.Text.Json.JsonSerializer.Serialize(serializable)
-        //Hyper
-        //let mybytepan = Hyper.HyperSerializer.Serialize(serializable)
-        //encoding.GetString(mybytepan.ToArray())        
-        //
-        //ProtoBuf
-        //let stream = new MemoryStream()
-        //ProtoBuf.Serializer.Serialize<'T>(stream, serializable)
-        //let reader = new StreamReader( stream, System.Text.Encoding.UTF8);
-        //reader.ReadToEnd()
-    //let Deserialize<'T>(serialized: string) : 'T = 
-        //json
-        //System.Text.Json.JsonSerializer.Deserialize<'T>(serialized)        
-        //Hyper
-        //let bytearray = encoding.GetBytes(serialized)
-        //let bytespan = System.Span<byte>(bytearray)
-        //Hyper.HyperSerializer.Deserialize(bytespan)
-        //ProtoBuf
-        //ProtoBuf.Serializer.Deserialize<'T>(MemoryStream (System.Text.Encoding.UTF8.GetBytes(serialized)))       
-    
-        
-        //let filestream = new IO.FileStream(fileName, IO.FileMode.Open)        
-        //let reader = new IO.BinaryReader(filestream)
-        //do reader.Dispose() 
-        //do filestream.Dispose() 
-        
-    //let ExractEventsOld (fileName:string, id:int) = 
-    //    File.ReadLines(fileName)
-    //    |> Seq.map (fun readLine -> (readLine[0], readLine.Substring(1)))
-    //    |> Seq.map (fun readLineTuple  -> match readLineTuple with 
-    //                                      | ('0', serializedEvent) -> OrderEvent.Submit (Deserialize<SubmitEvent>(serializedEvent))
-    //                                      | ('1', serializedEvent) -> OrderEvent.Trade (Deserialize<TradeEvent>(serializedEvent))                                      
-    //                                      | (_, _) -> OrderEvent.Unknown
-    //                )
+    let GetIDfromFileName (fileName:string) =                 
+        System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
+        //try        //    Some (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))        //with _ -> None
 
-
-    
     let rec CreateOrderFromEvents (events:IEnumerator<OrderEvent>, equityOrder:EquityOrder option) = 
         match (events.MoveNext(), equityOrder) with 
             | (true, equityOrder) -> CreateOrderFromEvents (events, Some (OrderEventPlayer.play (equityOrder, events.Current)))

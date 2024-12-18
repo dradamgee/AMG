@@ -26,9 +26,6 @@ type BinaryDAL() =
         let size = reader.ReadDecimal()
         let price = reader.ReadDecimal()
         {Size=size; Price=price}
-    let GetIDfromFileName (fileName:string) =                 
-        System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
-        //try        //    Some (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))        //with _ -> None
     let nextEventType(reader: IO.BinaryReader) = 
         try reader.ReadInt32() with
             | :? System.IO.EndOfStreamException as _ -> 0
@@ -77,7 +74,7 @@ type BinaryDAL() =
                 use filestream = new IO.FileStream(fileName, fso)        
                 use reader = new IO.BinaryReader(filestream)
                
-                let id = GetIDfromFileName fileName
+                let id = FileReader.GetIDfromFileName fileName
                 let events = ExractBinaryEvents (reader, id) 
                 return 
                     (this, id, fileName, FileReader.CreateOrderFromEvents(events.GetEnumerator(), None))

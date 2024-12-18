@@ -94,8 +94,8 @@ namespace AMGServiceTests
             var order = orderService2.GetOrderSync(orderVolume);
 
             Assert.That(order.Size, Is.EqualTo(123456789012345621341m));
-//            Assert.That(decimal.Round(order.TradedPrice,5), Is.EqualTo(68m));
-//            Assert.That(order.TradedSize, Is.EqualTo(5050m));
+            Assert.That(decimal.Round(order.TradedPrice,5), Is.EqualTo(666668m));
+            Assert.That(order.TradedSize, Is.EqualTo(500000500000m));
         }
 
     }

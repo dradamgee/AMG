@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Library.fs" />
     <Compile Include="BinaryDAL.fs" />
+    <Compile Include="JsonDAL.fs" />
     <Compile Include="OrderService.fs" />
   </ItemGroup>
 

@@ -1,11 +1,13 @@
 ﻿namespace AMFService
 open AMFServiceBinaryDAL
+open AMFServiceJsonDAL
 open AMFService
 
 [<AllowNullLiteral>]
 type OrderService (rootPath:string) = 
     let mutable nextID:int = 1 //todo fix this mutability.
-    let orderStore = new OrderStore<_> (rootPath, BinaryDAL())
+    //let orderStore = new OrderStore<_> (rootPath, BinaryDAL())
+    let orderStore = new OrderStore<_> (rootPath, JsonDAL())
     member this.Submit(submitEvent:SubmitEvent) = 
         task {
             let id = nextID
