@@ -6,66 +6,6 @@ open System.Collections.Generic
 open Microsoft.FSharp.Collections
 open System.Text.Json
 
-type Side = | Buy = 0 | Sell = 1
-//type ID = | ID of int
-
-type SubmitEvent = {Size:decimal; Side:Side; Asset:string}
-type TradeEvent = {Size:decimal; Price:decimal}
-type OrderEvent =
-      | Submit of SubmitEvent
-      | Trade of TradeEvent
-      | Unknown
-
-module EventSerializerxx = 
-    let SerializeDecimal(writer:IO.BinaryWriter, value:Decimal) =         
-        writer.Write(value)
-    let SerializeInt32(writer:IO.BinaryWriter, value:int) =         
-        writer.Write(value)
-    let SerializeString(writer:IO.BinaryWriter, value:string) = 
-        writer.Write(value)
-    let SerializeSubmitEvent(writer, {Size=size; Side=side; Asset=asset}) =
-        SerializeDecimal (writer, size)
-        SerializeInt32 (writer, int side)
-        SerializeString (writer, asset)
-    let SerializeTradeEvent(writer, {Size=size; Price=price}) =
-        SerializeDecimal (writer, size)
-        SerializeDecimal (writer, price)
-    let DeserializeSubmitEvent(reader:IO.BinaryReader) = 
-        let size = reader.ReadDecimal()
-        let side = reader.ReadInt32()
-        let asset = reader.ReadString()
-        {Size=size; Side=enum<Side> side; Asset=asset}
-    let DeserializeTradeEvent(reader:IO.BinaryReader) =
-        let size = reader.ReadDecimal()
-        let price = reader.ReadDecimal()
-        {Size=size; Price=price}
-
-//type EquityOrderRECORD = {Size:decimal; Side:Side; Asset:string; TradedSize:decimal; TradedPrice:decimal}
-type EquityOrder (size:decimal, side:Side, asset:string, tradeEvents:TradeEvent list, tradedSize:decimal, tradedPrice:decimal) = 
-      new (size:decimal, side:Side, asset:string) = EquityOrder (size, side, asset, [], 0m, 0m)
-      member this.Size = size
-      member this.Side = side
-      member this.Asset = asset      
-      member this.TradeEvents = tradeEvents
-      member this.TradedSize = tradedSize
-      member this.TradedPrice = tradedPrice
-      
-
-module OrderEventPlayer =     
-    let playSubmit ({Size=size; Side=side; Asset=asset}) = 
-        EquityOrder(size, side, asset)
-    let playTrade (equityOrder:EquityOrder, tradeEvent ) = 
-        let newTradeEvents = tradeEvent :: equityOrder.TradeEvents
-        let {Size=tradedSize; Price=tradedPrice} = tradeEvent
-        let newTradedSize = tradedSize+equityOrder.TradedSize
-        let newTradedPrice=((tradedPrice*tradedSize)+(equityOrder.TradedPrice*equityOrder.TradedSize))/(tradedSize+equityOrder.TradedSize)
-        EquityOrder(equityOrder.Size, equityOrder.Side, equityOrder.Asset, newTradeEvents, newTradedSize, newTradedPrice)
-    let play asd =         
-        match asd with
-            | (_, OrderEvent.Submit submitevent) -> playSubmit (submitevent)
-            | (Some equityOrder, OrderEvent.Trade tradeEvent) -> playTrade (equityOrder, tradeEvent)
-            | (None, OrderEvent.Trade _) -> failwith "Unsolicited Trades are not supported"
-
 type orderReaderMessage = 
     | Get of AsyncReplyChannel<EquityOrder option>
     | Set of EquityOrder option
@@ -99,15 +39,7 @@ module FileReader =
         |> Async.RunSynchronously
         //|> Seq.filter(fun (_, _, orderOption) -> orderOption.IsSome)        
 
-    let WriteEventToJsonFile(orderEvent, streamWriter:StreamWriter) = 
-        match orderEvent with
-            | Submit submitEvent -> 
-                let eventImage = JsonSerializer.Serialize(submitEvent);                
-                streamWriter.WriteLine("0" + eventImage) |> ignore
-            | Trade tradeEvent -> 
-                let eventImage = JsonSerializer.Serialize(tradeEvent);                
-                streamWriter.WriteLine("1" + eventImage) |> ignore
-            | Unknown -> () |> ignore
+
 
 
 
@@ -193,8 +125,7 @@ type OrderStore<'T> (rootPath:string, dal:DAL<'T>)=
                       |> List.map OrderStoreActor
     
     let actorDictionary = Dictionary<int, OrderStoreActor<'T>>(actorList |> List.map(fun oa -> KeyValuePair(oa.ID, oa)))
-
-    member this.RootPath = rootPath
+        
     member this.Submit(id:int, submitEvent:SubmitEvent) =
         task {
             let actor = OrderStoreActor<'T>(dal, id, rootPath, None)

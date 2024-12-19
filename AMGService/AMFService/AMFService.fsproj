@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Domain.fs" />
     <Compile Include="Library.fs" />
     <Compile Include="BinaryDAL.fs" />
     <Compile Include="JsonDAL.fs" />

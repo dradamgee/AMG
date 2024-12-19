@@ -3,7 +3,7 @@ open AMFService
 open System
 open System.IO
 
-type BinaryDAL() =    
+module BinarySerializer =   
     let SerializeDecimal(writer:IO.BinaryWriter, value:Decimal) =         
         writer.Write(value)
     let SerializeInt32(writer:IO.BinaryWriter, value:int) =         
@@ -26,17 +26,20 @@ type BinaryDAL() =
         let size = reader.ReadDecimal()
         let price = reader.ReadDecimal()
         {Size=size; Price=price}
-    let nextEventType(reader: IO.BinaryReader) = 
-        try reader.ReadInt32() with
-            | :? System.IO.EndOfStreamException as _ -> 0
-    let ExractBinaryEvents (binaryReader:IO.BinaryReader, id:int) = 
+
+type BinaryDAL() =    
+    let ExractEvents (binaryReader:IO.BinaryReader, id:int) = 
+            let nextEventType(reader: IO.BinaryReader) = 
+                try reader.ReadInt32() with
+                | :? System.IO.EndOfStreamException as _ -> 0
+
             let rec ExtractEventLoop(reader:IO.BinaryReader, eventType) =             
                 seq {
                     match eventType with    
                                   | 0 -> ignore 
-                                  | 1 -> yield OrderEvent.Submit (DeserializeSubmitEvent(reader))
+                                  | 1 -> yield OrderEvent.Submit (BinarySerializer.DeserializeSubmitEvent(reader))
                                          yield! ExtractEventLoop(reader, nextEventType(reader))
-                                  | 2 -> yield OrderEvent.Trade (DeserializeTradeEvent(reader))    
+                                  | 2 -> yield OrderEvent.Trade (BinarySerializer.DeserializeTradeEvent(reader))    
                                          yield! ExtractEventLoop(reader, nextEventType(reader))                                         
                 }    
             ExtractEventLoop (binaryReader, nextEventType(binaryReader))
@@ -51,12 +54,12 @@ type BinaryDAL() =
                 //let eventImage = Serialize(submitEvent);                
                 //streamWriter.Write(0 + eventImage) |> ignore
                 binaryWriter.Write(1) |> ignore                               
-                SerializeSubmitEvent(binaryWriter, submitEvent)
+                BinarySerializer.SerializeSubmitEvent(binaryWriter, submitEvent)
             | Trade tradeEvent -> 
                 //let eventImage = Serialize(tradeEvent);                
                 //streamWriter.WriteLine("1" + eventImage) |> ignore
                 binaryWriter.Write(2) |> ignore                               
-                SerializeTradeEvent(binaryWriter, tradeEvent)
+                BinarySerializer.SerializeTradeEvent(binaryWriter, tradeEvent)
             | Unknown -> () |> ignore
         member this.DropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (binaryWriter:IO.BinaryWriter) = 
             match inbox.CurrentQueueLength with 
@@ -75,7 +78,7 @@ type BinaryDAL() =
                 use reader = new IO.BinaryReader(filestream)
                
                 let id = FileReader.GetIDfromFileName fileName
-                let events = ExractBinaryEvents (reader, id) 
+                let events = ExractEvents (reader, id) 
                 return 
                     (this, id, fileName, FileReader.CreateOrderFromEvents(events.GetEnumerator(), None))
             }   
