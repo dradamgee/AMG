@@ -7,18 +7,18 @@ open Microsoft.FSharp.Collections
 open System.Text.Json
 
 type orderReaderMessage = 
-    | Get of AsyncReplyChannel<EquityOrder option>
-    | Set of EquityOrder option
+    | Get of AsyncReplyChannel<BlockOrder option>
+    | Set of BlockOrder option
 
 type orderPlayerMessage = 
-    | GetOrderState of AsyncReplyChannel<EquityOrder option>
+    | GetOrderState of AsyncReplyChannel<BlockOrder option>
     | Play of OrderEvent
 
 type DAL<'T> = 
     abstract member FileAccess: string -> 'T
     abstract member WriteEventToFile: OrderEvent * 'T -> unit
     abstract member DropIdleFileHandle: MailboxProcessor<orderPlayerMessage> -> 'T -> 'T option
-    abstract member CreateOrderFromFile: string -> Async<DAL<'T> * int * string * EquityOrder option>
+    abstract member CreateOrderFromFile: string -> Async<DAL<'T> * int * string * BlockOrder option>
             
     
 module FileReader = 
@@ -27,10 +27,10 @@ module FileReader =
         System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
         //try        //    Some (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))        //with _ -> None
 
-    let rec CreateOrderFromEvents (events:IEnumerator<OrderEvent>, equityOrder:EquityOrder option) = 
-        match (events.MoveNext(), equityOrder) with 
-            | (true, equityOrder) -> CreateOrderFromEvents (events, Some (OrderEventPlayer.play (equityOrder, events.Current)))
-            | (false, equityOrder) -> equityOrder
+    let rec CreateOrderFromEvents (events:IEnumerator<OrderEvent>, blockOrder:BlockOrder option) = 
+        match (events.MoveNext(), blockOrder) with 
+            | (true, blockOrder) -> CreateOrderFromEvents (events, Some (OrderEventPlayer.play (blockOrder, events.Current)))
+            | (false, blockOrder) -> blockOrder
             
     let LoadFromFolder<'T>(dal: DAL<'T>, path:string) = 
         Directory.GetFiles(path)
@@ -74,7 +74,7 @@ type OrderStoreActor<'T>(dal:DAL<'T>, id:int, rootPath:string, initialState) =
 
     let eventPlayerAgentBuilder (dal: DAL<'T>) = MailboxProcessor.Start(fun inbox ->
             let difh = dal.DropIdleFileHandle inbox
-            let rec messageLoop (orderState: EquityOrder option, fileAccessOption: 'T option) = 
+            let rec messageLoop (orderState: BlockOrder option, fileAccessOption: 'T option) = 
                 async{
                     let! msg = inbox.Receive()
                     match msg with 

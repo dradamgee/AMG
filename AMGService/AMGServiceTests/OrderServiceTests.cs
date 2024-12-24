@@ -34,7 +34,7 @@ namespace AMGServiceTests
             int orderID = await orderService.Submit(submitEvent);
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
             var order = orderService.GetOrder(orderID);
-            Assert.That(order.Size, Is.EqualTo(13));
+            Assert.That(order.Orders.Head.Size, Is.EqualTo(13));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace AMGServiceTests
             orderService.Trade(orderID, new TradeEvent(13, 17));
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
             var order = orderService.GetOrder(orderID);
-            Assert.That(order.Size, Is.EqualTo(13));
+            Assert.That(order.Orders.Head.Size, Is.EqualTo(13));
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace AMGServiceTests
 
             var orderService2 = new OrderService(path, mode);            
             var order = orderService2.GetOrderSync(orderID);
-            Assert.That(order.Size, Is.EqualTo(123456789012345621341m));
+            Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
             Assert.That(decimal.Round(order.TradedPrice, 5), Is.EqualTo(6668m));
             Assert.That(order.TradedSize, Is.EqualTo(50005000m));            
         }
@@ -99,7 +99,7 @@ namespace AMGServiceTests
             var orderService2 = new OrderService(path, mode);
             var order = orderService2.GetOrderSync(orderVolume);
 
-            Assert.That(order.Size, Is.EqualTo(123456789012345621341m));
+            Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
             Assert.That(decimal.Round(order.TradedPrice,5), Is.EqualTo(666668m));
             Assert.That(order.TradedSize, Is.EqualTo(500000500000m));
         }

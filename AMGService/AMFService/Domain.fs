@@ -9,27 +9,36 @@ type OrderEvent =
       | Trade of TradeEvent
       | Unknown
 
-
-//type EquityOrderRECORD = {Size:decimal; Side:Side; Asset:string; TradedSize:decimal; TradedPrice:decimal}
-type EquityOrder (size:decimal, side:Side, asset:string, tradeEvents:TradeEvent list, tradedSize:decimal, tradedPrice:decimal) = 
-      new (size:decimal, side:Side, asset:string) = EquityOrder (size, side, asset, [], 0m, 0m)
+type EquityOrder (size:decimal, side:Side, asset:string) = 
+      //new (size:decimal, side:Side, asset:string) = EquityOrder (size, side, asset, [], 0m, 0m)
       member this.Size = size
       member this.Side = side
       member this.Asset = asset      
+
+
+type EquityPlacement (size:decimal) =
+      member this.Size = size
+      
+type BlockOrder(orders, tradeEvents:TradeEvent list, tradedSize:decimal, tradedPrice:decimal) = 
+      new (orders) = BlockOrder (orders, [], 0m, 0m)
+      member this.Orders : EquityOrder list = orders
       member this.TradeEvents = tradeEvents
       member this.TradedSize = tradedSize
       member this.TradedPrice = tradedPrice
+
+type EquityFill (size:decimal) = 
+      member this.Size = size
       
 
 module OrderEventPlayer =     
-    let playSubmit ({Size=size; Side=side; Asset=asset}) = 
-        EquityOrder(size, side, asset)
-    let playTrade (equityOrder:EquityOrder, tradeEvent ) = 
-        let newTradeEvents = tradeEvent :: equityOrder.TradeEvents
+    let private playSubmit ({Size=size; Side=side; Asset=asset}) = 
+        BlockOrder([EquityOrder(size, side, asset)])
+    let private playTrade (blockOrder:BlockOrder, tradeEvent) = 
+        let newTradeEvents = tradeEvent :: blockOrder.TradeEvents
         let {Size=tradedSize; Price=tradedPrice} = tradeEvent
-        let newTradedSize = tradedSize+equityOrder.TradedSize
-        let newTradedPrice=((tradedPrice*tradedSize)+(equityOrder.TradedPrice*equityOrder.TradedSize))/(tradedSize+equityOrder.TradedSize)
-        EquityOrder(equityOrder.Size, equityOrder.Side, equityOrder.Asset, newTradeEvents, newTradedSize, newTradedPrice)
+        let newTradedSize = tradedSize+blockOrder.TradedSize
+        let newTradedPrice=((tradedPrice*tradedSize)+(blockOrder.TradedPrice*blockOrder.TradedSize))/(tradedSize+blockOrder.TradedSize)
+        BlockOrder(blockOrder.Orders, newTradeEvents, newTradedSize, newTradedPrice)
     let play asd =         
         match asd with
             | (_, OrderEvent.Submit submitevent) -> playSubmit (submitevent)

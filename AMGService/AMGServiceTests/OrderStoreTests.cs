@@ -30,8 +30,8 @@
             var orderV2 = orderStore2.GetOrderSync(id);
 
             Assert.IsNotNull(orderV2);            
-            Assert.That(orderV2.Size, Is.EqualTo(7));
-            Assert.That(orderV2.Asset, Is.EqualTo("MyAsset"));                        
+            Assert.That(orderV2.Orders.Head.Size, Is.EqualTo(7));
+            Assert.That(orderV2.Orders.Head.Asset, Is.EqualTo("MyAsset"));                        
         }
 
         [Test]
@@ -53,8 +53,8 @@
             orderStore2.GetOrderSync(id);
             var order = orderStore2.GetOrder(id);
             Assert.IsNotNull(order);            
-            Assert.That(order.Size, Is.EqualTo(7));
-            Assert.That(order.Asset, Is.EqualTo("MyAsset"));
+            Assert.That(order.Orders.Head.Size, Is.EqualTo(7));
+            Assert.That(order.Orders.Head.Asset, Is.EqualTo("MyAsset"));
             Assert.That(order.TradedSize, Is.EqualTo(13));
             Assert.That(order.TradedPrice, Is.EqualTo(17));
         }

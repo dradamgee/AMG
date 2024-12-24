@@ -18,7 +18,7 @@ type JsonDAL() =
         
         member this.FileAccess (path:string) = 
             File.AppendText(path)
-        member this.CreateOrderFromFile(fileName: string): Async<DAL<StreamWriter> * int * string * EquityOrder option> = 
+        member this.CreateOrderFromFile(fileName: string): Async<DAL<StreamWriter> * int * string * BlockOrder option> = 
             async{
                 let id = FileReader.GetIDfromFileName fileName
                 let events = ExractEvents (fileName, id) 
