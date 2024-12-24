@@ -31,8 +31,11 @@ type EquityFill (size:decimal) =
       
 
 module OrderEventPlayer =     
-    let private playSubmit ({Size=size; Side=side; Asset=asset}) = 
-        BlockOrder([EquityOrder(size, side, asset)])
+    let private playSubmit (blockOrder:BlockOrder option, {Size=size; Side=side; Asset=asset}) = 
+        match blockOrder with 
+        | None -> BlockOrder([EquityOrder(size, side, asset)])
+        | Some bo -> BlockOrder(EquityOrder(size, side, asset) :: bo.Orders, bo.TradeEvents, bo.TradedSize, bo.TradedPrice)
+        
     let private playTrade (blockOrder:BlockOrder, tradeEvent) = 
         let newTradeEvents = tradeEvent :: blockOrder.TradeEvents
         let {Size=tradedSize; Price=tradedPrice} = tradeEvent
@@ -41,8 +44,8 @@ module OrderEventPlayer =
         BlockOrder(blockOrder.Orders, newTradeEvents, newTradedSize, newTradedPrice)
     let play asd =         
         match asd with
-            | (_, OrderEvent.Submit submitevent) -> playSubmit (submitevent)
-            | (Some equityOrder, OrderEvent.Trade tradeEvent) -> playTrade (equityOrder, tradeEvent)
+            | (bo, OrderEvent.Submit submitevent) -> playSubmit (bo, submitevent)
+            | (Some blockOrder, OrderEvent.Trade tradeEvent) -> playTrade (blockOrder, tradeEvent)
             | (None, OrderEvent.Trade _) -> failwith "Unsolicited Trades are not supported"
 
 
