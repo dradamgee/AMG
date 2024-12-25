@@ -30,10 +30,10 @@ type OrderService (rootPath:string, mode:OrderServiceMode) =
                    | Binary orderStore -> orderStore.Submit(id, submitEvent).Result.ID
         }
         
-    member this.Trade(id, submitEvent) = 
+    member this.Fill(id, submitEvent) = 
         match orderStore with 
-        | Json orderStore -> orderStore.Trade(id, submitEvent) |> ignore
-        | Binary orderStore -> orderStore.Trade(id, submitEvent) |> ignore
+        | Json orderStore -> orderStore.Fill(id, submitEvent) |> ignore
+        | Binary orderStore -> orderStore.Fill(id, submitEvent) |> ignore
     
     member this.GetOrder(id) = 
         match orderStore with 

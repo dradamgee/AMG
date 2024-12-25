@@ -14,7 +14,7 @@ module BinarySerializer =
         SerializeDecimal (writer, size)
         SerializeInt32 (writer, int side)
         SerializeString (writer, asset)
-    let SerializeTradeEvent(writer, {PlaceID=placeID; Size=size; Price=price}) =
+    let SerializeFillEvent(writer, {PlaceID=placeID; Size=size; Price=price}) =
         SerializeInt32 (writer, placeID)
         SerializeDecimal (writer, size)
         SerializeDecimal (writer, price)        
@@ -23,7 +23,7 @@ module BinarySerializer =
         let side = reader.ReadInt32()
         let asset = reader.ReadString()
         {Size=size; Side=enum<Side> side; Asset=asset}
-    let DeserializeTradeEvent(reader:IO.BinaryReader) =
+    let DeserializeFillEvent(reader:IO.BinaryReader) =
         let placeID = reader.ReadInt32()
         let size = reader.ReadDecimal()
         let price = reader.ReadDecimal()
@@ -41,7 +41,7 @@ type BinaryDAL() =
                                   | 0 -> ignore 
                                   | 1 -> yield OrderEvent.Submit (BinarySerializer.DeserializeSubmitEvent(reader))
                                          yield! ExtractEventLoop(reader, nextEventType(reader))
-                                  | 2 -> yield OrderEvent.Trade (BinarySerializer.DeserializeTradeEvent(reader))    
+                                  | 2 -> yield OrderEvent.Fill (BinarySerializer.DeserializeFillEvent(reader))    
                                          yield! ExtractEventLoop(reader, nextEventType(reader))                                         
                 }    
             ExtractEventLoop (binaryReader, nextEventType(binaryReader))
@@ -53,15 +53,11 @@ type BinaryDAL() =
         member this.WriteEventToFile (orderEvent, binaryWriter:BinaryWriter) = 
             match orderEvent with
             | Submit submitEvent -> 
-                //let eventImage = Serialize(submitEvent);                
-                //streamWriter.Write(0 + eventImage) |> ignore
                 binaryWriter.Write(1) |> ignore                               
                 BinarySerializer.SerializeSubmitEvent(binaryWriter, submitEvent)
-            | Trade tradeEvent -> 
-                //let eventImage = Serialize(tradeEvent);                
-                //streamWriter.WriteLine("1" + eventImage) |> ignore
+            | Fill fillEvent ->                 
                 binaryWriter.Write(2) |> ignore                               
-                BinarySerializer.SerializeTradeEvent(binaryWriter, tradeEvent)
+                BinarySerializer.SerializeFillEvent(binaryWriter, fillEvent)
             | Unknown -> () |> ignore
         member this.DropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (binaryWriter:IO.BinaryWriter) = 
             match inbox.CurrentQueueLength with 

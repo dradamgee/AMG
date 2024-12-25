@@ -38,12 +38,12 @@ namespace AMGServiceTests
         }
 
         [Test]
-        public async Task TradedOrderHasAPrice()
+        public async Task FilledOrderHasAPrice()
         {
             var path = pathRoot + Guid.NewGuid() + @"\";
             var orderService = new OrderService(path, mode);            
             int orderID = await orderService.Submit(new SubmitEvent(13, Side.Buy, "AMG Group"));
-            orderService.Trade(orderID, new TradeEvent(0, 13, 17));
+            orderService.Fill(orderID, new FillEvent(0, 13, 17));
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
             var order = orderService.GetOrder(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(13));
@@ -57,15 +57,15 @@ namespace AMGServiceTests
             int orderID = await orderService.Submit(new SubmitEvent(123456789012345621341m, Side.Buy, "AMG Group"));
             for (int i = 0; i < 10000; i++)
             {
-                orderService.Trade(orderID, new TradeEvent(0, 1m + i, 2m+i));
+                orderService.Fill(orderID, new FillEvent(0, 1m + i, 2m+i));
             }
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
 
             var orderService2 = new OrderService(path, mode);            
             var order = orderService2.GetOrderSync(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
-            Assert.That(decimal.Round(order.TradedPrice, 5), Is.EqualTo(6668m));
-            Assert.That(order.TradedSize, Is.EqualTo(50005000m));            
+            Assert.That(decimal.Round(order.FilledPrice, 5), Is.EqualTo(6668m));
+            Assert.That(order.FilledSize, Is.EqualTo(50005000m));            
         }
 
         [Test]        
@@ -90,7 +90,7 @@ namespace AMGServiceTests
             {
                 for (int i = 0; i < executionVolume; i++)
                 {
-                    orderService.Trade(j, new TradeEvent(0, 1m + i, 2m + i));
+                    orderService.Fill(j, new FillEvent(0, 1m + i, 2m + i));
                 }
             }
 
@@ -100,8 +100,8 @@ namespace AMGServiceTests
             var order = orderService2.GetOrderSync(orderVolume);
 
             Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
-            Assert.That(decimal.Round(order.TradedPrice,5), Is.EqualTo(666668m));
-            Assert.That(order.TradedSize, Is.EqualTo(500000500000m));
+            Assert.That(decimal.Round(order.FilledPrice,5), Is.EqualTo(666668m));
+            Assert.That(order.FilledSize, Is.EqualTo(500000500000m));
         }
 
     }

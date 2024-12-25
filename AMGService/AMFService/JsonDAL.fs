@@ -11,7 +11,7 @@ type JsonDAL() =
         |> Seq.map (fun readLine -> (readLine[0], readLine.Substring(1)))
         |> Seq.map (fun readLineTuple  -> match readLineTuple with 
                                           | ('0', serializedEvent) -> OrderEvent.Submit (JsonSerializer.Deserialize<SubmitEvent>(serializedEvent))
-                                          | ('1', serializedEvent) -> OrderEvent.Trade (JsonSerializer.Deserialize<TradeEvent>(serializedEvent))                                      
+                                          | ('1', serializedEvent) -> OrderEvent.Fill (JsonSerializer.Deserialize<FillEvent>(serializedEvent))                                      
                                           | (_, _) -> OrderEvent.Unknown
                     )
     interface DAL<StreamWriter> with
@@ -37,7 +37,7 @@ type JsonDAL() =
             | Submit submitEvent -> 
                 let eventImage = JsonSerializer.Serialize(submitEvent);                
                 streamWriter.WriteLine("0" + eventImage) |> ignore
-            | Trade tradeEvent -> 
+            | Fill tradeEvent -> 
                 let eventImage = JsonSerializer.Serialize(tradeEvent);                
                 streamWriter.WriteLine("1" + eventImage) |> ignore
             | Unknown -> () |> ignore

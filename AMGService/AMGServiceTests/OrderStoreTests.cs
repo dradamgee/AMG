@@ -45,8 +45,8 @@
             SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");
             var orderV1 = new EquityOrder(7, Side.Buy, "MyAsset");
             await orderStore1.Submit(id, submitEvent);
-            var tradeEvent = new TradeEvent(0, 13, 17);            
-            orderStore1.Trade(id, tradeEvent);
+            var fillEvent = new FillEvent(0, 13, 17);            
+            orderStore1.Fill(id, fillEvent);
             orderStore1.GetOrderSync(id);
 
             var orderStore2 = new OrderStore<BinaryWriter>(path, dal);
@@ -55,8 +55,8 @@
             Assert.IsNotNull(order);            
             Assert.That(order.Orders.Head.Size, Is.EqualTo(7));
             Assert.That(order.Orders.Head.Asset, Is.EqualTo("MyAsset"));
-            Assert.That(order.TradedSize, Is.EqualTo(13));
-            Assert.That(order.TradedPrice, Is.EqualTo(17));
+            Assert.That(order.FilledSize, Is.EqualTo(13));
+            Assert.That(order.FilledPrice, Is.EqualTo(17));
         }
     }
 }

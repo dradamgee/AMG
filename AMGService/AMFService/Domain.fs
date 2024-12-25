@@ -4,10 +4,10 @@ type Side = | Buy = 0 | Sell = 1
 
 type SubmitEvent = {Size:decimal; Side:Side; Asset:string}
 type PlaceEvent = {PlaceID:int; Size:decimal; CounterpartyID:int}
-type TradeEvent = {PlaceID:int; Size:decimal; Price:decimal}
+type FillEvent = {PlaceID:int; Size:decimal; Price:decimal}
 type OrderEvent =
       | Submit of SubmitEvent
-      | Trade of TradeEvent
+      | Fill of FillEvent
       | Place of PlaceEvent
       | Unknown
 
@@ -17,18 +17,18 @@ type EquityOrder (size:decimal, side:Side, asset:string) =
       member this.Side = side
       member this.Asset = asset      
 
-type EquityPlacement (placeEvent:PlaceEvent, trades: TradeEvent list) =
+type EquityPlacement (placeEvent:PlaceEvent, fills: FillEvent list) =
       member this.PlaceID = placeEvent.Size
       member this.Size = placeEvent.Size
       member this.CounterpartyID = placeEvent.Size
       
-type BlockOrder(orders,  placements:EquityPlacement list, tradeEvents:TradeEvent list, tradedSize:decimal, tradedPrice:decimal) = 
+type BlockOrder(orders,  placements:EquityPlacement list, fillEvents:FillEvent list, filledSize:decimal, filledPrice:decimal) = 
       new (orders) = BlockOrder (orders, [], [], 0m, 0m)
       member this.Orders : EquityOrder list = orders
       member this.PlacementEvents =  placements      
-      member this.TradeEvents = tradeEvents      
-      member this.TradedSize = tradedSize
-      member this.TradedPrice = tradedPrice
+      member this.FillEvents = fillEvents      
+      member this.FilledSize = filledSize
+      member this.FilledPrice = filledPrice
 
       
 
@@ -36,24 +36,24 @@ module OrderEventPlayer =
     let private playSubmit (blockOrder:BlockOrder option, {Size=size; Side=side; Asset=asset}) = 
         match blockOrder with 
         | None -> BlockOrder([EquityOrder(size, side, asset)])
-        | Some bo -> BlockOrder(EquityOrder(size, side, asset) :: bo.Orders, bo.PlacementEvents, bo.TradeEvents, bo.TradedSize, bo.TradedPrice)
+        | Some bo -> BlockOrder(EquityOrder(size, side, asset) :: bo.Orders, bo.PlacementEvents, bo.FillEvents, bo.FilledSize, bo.FilledPrice)
         
     let private playPlace (blockOrder:BlockOrder, placeEvent) = 
         let newPlaceEvents = EquityPlacement(placeEvent, []) :: blockOrder.PlacementEvents
-        BlockOrder(blockOrder.Orders, newPlaceEvents, blockOrder.TradeEvents, blockOrder.TradedSize, blockOrder.TradedPrice)
+        BlockOrder(blockOrder.Orders, newPlaceEvents, blockOrder.FillEvents, blockOrder.FilledSize, blockOrder.FilledPrice)
 
-    let private playTrade (blockOrder:BlockOrder, tradeEvent) = 
-        let newTradeEvents = tradeEvent :: blockOrder.TradeEvents
-        let {Size=tradedSize; Price=tradedPrice} = tradeEvent
-        let newTradedSize = tradedSize+blockOrder.TradedSize
-        let newTradedPrice=((tradedPrice*tradedSize)+(blockOrder.TradedPrice*blockOrder.TradedSize))/(tradedSize+blockOrder.TradedSize)
-        BlockOrder(blockOrder.Orders, blockOrder.PlacementEvents, newTradeEvents, newTradedSize, newTradedPrice)
+    let private playFill (blockOrder:BlockOrder, fillEvent) = 
+        let newFillEvents = fillEvent :: blockOrder.FillEvents
+        let {Size=filledSize; Price=filledPrice} = fillEvent
+        let newFilledSize = filledSize+blockOrder.FilledSize
+        let newFilledPrice=((filledPrice*filledSize)+(blockOrder.FilledPrice*blockOrder.FilledSize))/(filledSize+blockOrder.FilledSize)
+        BlockOrder(blockOrder.Orders, blockOrder.PlacementEvents, newFillEvents, newFilledSize, newFilledPrice)
 
     let play asd =         
         match asd with
             | (bo, OrderEvent.Submit submitevent) -> playSubmit (bo, submitevent)
             | (Some blockOrder, OrderEvent.Place placeEvent) -> playPlace (blockOrder, placeEvent)
-            | (Some blockOrder, OrderEvent.Trade tradeEvent) -> playTrade (blockOrder, tradeEvent)
-            | (None, OrderEvent.Trade _) -> failwith "Unsolicited Trades are not supported"
+            | (Some blockOrder, OrderEvent.Fill fillEvent) -> playFill (blockOrder, fillEvent)
+            | (None, OrderEvent.Fill _) -> failwith "Unsolicited fills are not supported"
 
 
