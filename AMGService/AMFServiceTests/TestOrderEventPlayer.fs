@@ -20,4 +20,10 @@ type TestOrderEventPlayer () =
         let asd = List.fold (fun acc (order:EquityOrder) -> acc + order.Size) 0m blockOrder.Orders
         Assert.AreEqual(12m, asd )
 
+    [<TestMethod>]
+    member this.TestPlaceSingleOrder () = 
+        let blockOrder = OrderEventPlayer.play(None, OrderEvent.Submit {Size=5m; Side=Side.Buy; Asset=""} )
+        let blockOrder = OrderEventPlayer.play(Some blockOrder, OrderEvent.Place {Size=5m; CounterpartyID=1} )
+        Assert.AreEqual(5m, blockOrder.PlacementEvents.Head.Size)
+
         
