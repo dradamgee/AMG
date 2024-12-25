@@ -43,7 +43,7 @@ namespace AMGServiceTests
             var path = pathRoot + Guid.NewGuid() + @"\";
             var orderService = new OrderService(path, mode);            
             int orderID = await orderService.Submit(new SubmitEvent(13, Side.Buy, "AMG Group"));
-            orderService.Trade(orderID, new TradeEvent(13, 17));
+            orderService.Trade(orderID, new TradeEvent(0, 13, 17));
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
             var order = orderService.GetOrder(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(13));
@@ -57,7 +57,7 @@ namespace AMGServiceTests
             int orderID = await orderService.Submit(new SubmitEvent(123456789012345621341m, Side.Buy, "AMG Group"));
             for (int i = 0; i < 10000; i++)
             {
-                orderService.Trade(orderID, new TradeEvent(1m+i, 2m+i));
+                orderService.Trade(orderID, new TradeEvent(0, 1m + i, 2m+i));
             }
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
 
@@ -90,7 +90,7 @@ namespace AMGServiceTests
             {
                 for (int i = 0; i < executionVolume; i++)
                 {
-                    orderService.Trade(j, new TradeEvent(1m + i, 2m + i));
+                    orderService.Trade(j, new TradeEvent(0, 1m + i, 2m + i));
                 }
             }
 

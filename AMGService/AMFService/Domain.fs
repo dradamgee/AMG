@@ -3,8 +3,8 @@
 type Side = | Buy = 0 | Sell = 1
 
 type SubmitEvent = {Size:decimal; Side:Side; Asset:string}
-type PlaceEvent = {Size:decimal; CounterpartyID:int}
-type TradeEvent = {Size:decimal; Price:decimal}
+type PlaceEvent = {PlaceID:int; Size:decimal; CounterpartyID:int}
+type TradeEvent = {PlaceID:int; Size:decimal; Price:decimal}
 type OrderEvent =
       | Submit of SubmitEvent
       | Trade of TradeEvent
@@ -17,13 +17,15 @@ type EquityOrder (size:decimal, side:Side, asset:string) =
       member this.Side = side
       member this.Asset = asset      
 
-type EquityPlacement (size:decimal) =
-      member this.Size = size
+type EquityPlacement (placeEvent:PlaceEvent, trades: TradeEvent list) =
+      member this.PlaceID = placeEvent.Size
+      member this.Size = placeEvent.Size
+      member this.CounterpartyID = placeEvent.Size
       
-type BlockOrder(orders, placementEvents:PlaceEvent list, tradeEvents:TradeEvent list, tradedSize:decimal, tradedPrice:decimal) = 
+type BlockOrder(orders,  placements:EquityPlacement list, tradeEvents:TradeEvent list, tradedSize:decimal, tradedPrice:decimal) = 
       new (orders) = BlockOrder (orders, [], [], 0m, 0m)
       member this.Orders : EquityOrder list = orders
-      member this.PlacementEvents = placementEvents      
+      member this.PlacementEvents =  placements      
       member this.TradeEvents = tradeEvents      
       member this.TradedSize = tradedSize
       member this.TradedPrice = tradedPrice
@@ -37,7 +39,7 @@ module OrderEventPlayer =
         | Some bo -> BlockOrder(EquityOrder(size, side, asset) :: bo.Orders, bo.PlacementEvents, bo.TradeEvents, bo.TradedSize, bo.TradedPrice)
         
     let private playPlace (blockOrder:BlockOrder, placeEvent) = 
-        let newPlaceEvents = placeEvent :: blockOrder.PlacementEvents
+        let newPlaceEvents = EquityPlacement(placeEvent, []) :: blockOrder.PlacementEvents
         BlockOrder(blockOrder.Orders, newPlaceEvents, blockOrder.TradeEvents, blockOrder.TradedSize, blockOrder.TradedPrice)
 
     let private playTrade (blockOrder:BlockOrder, tradeEvent) = 

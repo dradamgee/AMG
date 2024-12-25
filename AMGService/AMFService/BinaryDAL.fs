@@ -14,18 +14,20 @@ module BinarySerializer =
         SerializeDecimal (writer, size)
         SerializeInt32 (writer, int side)
         SerializeString (writer, asset)
-    let SerializeTradeEvent(writer, {Size=size; Price=price}) =
+    let SerializeTradeEvent(writer, {PlaceID=placeID; Size=size; Price=price}) =
+        SerializeInt32 (writer, placeID)
         SerializeDecimal (writer, size)
-        SerializeDecimal (writer, price)
+        SerializeDecimal (writer, price)        
     let DeserializeSubmitEvent(reader:IO.BinaryReader) = 
         let size = reader.ReadDecimal()
         let side = reader.ReadInt32()
         let asset = reader.ReadString()
         {Size=size; Side=enum<Side> side; Asset=asset}
     let DeserializeTradeEvent(reader:IO.BinaryReader) =
+        let placeID = reader.ReadInt32()
         let size = reader.ReadDecimal()
         let price = reader.ReadDecimal()
-        {Size=size; Price=price}
+        {PlaceID=placeID; Size=size; Price=price}
 
 type BinaryDAL() =    
     let ExractEvents (binaryReader:IO.BinaryReader, id:int) = 

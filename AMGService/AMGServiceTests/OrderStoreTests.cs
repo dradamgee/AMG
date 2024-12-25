@@ -45,7 +45,7 @@
             SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");
             var orderV1 = new EquityOrder(7, Side.Buy, "MyAsset");
             await orderStore1.Submit(id, submitEvent);
-            var tradeEvent = new TradeEvent(13, 17);            
+            var tradeEvent = new TradeEvent(0, 13, 17);            
             orderStore1.Trade(id, tradeEvent);
             orderStore1.GetOrderSync(id);
 
