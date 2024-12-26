@@ -21,8 +21,8 @@ namespace AMGServiceTests
         {
             var path = pathRoot + Guid.NewGuid() + @"\";            
             var orderService = new OrderService(path, mode);            
-            var submitEvent = new SubmitEvent(13, Side.Buy, "AMG Group");
-            int orderID = await orderService.Submit(submitEvent);
+            var submitCommand = new SubmitCommand(13, Side.Buy, "AMG Group");
+            int orderID = await orderService.Submit(submitCommand);
             Assert.That(orderID, Is.EqualTo(1));            
         }
 
@@ -31,8 +31,8 @@ namespace AMGServiceTests
         {
             var path = pathRoot + Guid.NewGuid() + @"\";
             var orderService = new OrderService(path, mode);            
-            var submitEvent = new SubmitEvent(13, Side.Buy, "AMG Group");
-            int orderID = await orderService.Submit(submitEvent);
+            var submitCommand = new SubmitCommand(13, Side.Buy, "AMG Group");
+            int orderID = await orderService.Submit(submitCommand);
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
             var order = orderService.GetOrder(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(13));
@@ -43,7 +43,7 @@ namespace AMGServiceTests
         {
             var path = pathRoot + Guid.NewGuid() + @"\";
             var orderService = new OrderService(path, mode);            
-            int orderID = await orderService.Submit(new SubmitEvent(13, Side.Buy, "AMG Group"));            
+            int orderID = await orderService.Submit(new SubmitCommand(13, Side.Buy, "AMG Group"));            
             orderService.Place(orderID, new PlaceEvent(0, 1000m, 531));
             orderService.Fill(orderID, new FillEvent(0, 13, 17));
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
@@ -56,7 +56,7 @@ namespace AMGServiceTests
         {
             var path = pathRoot + Guid.NewGuid() + @"\";
             var orderService = new OrderService(path, mode);            
-            int orderID = await orderService.Submit(new SubmitEvent(123456789012345621341m, Side.Buy, "AMG Group"));
+            int orderID = await orderService.Submit(new SubmitCommand(123456789012345621341m, Side.Buy, "AMG Group"));
             orderService.Place(orderID, new PlaceEvent(0, 1000m, 531));
             for (int i = 0; i < 10000; i++)
             {
@@ -84,7 +84,7 @@ namespace AMGServiceTests
 
             for (int j = 1; j <= orderVolume; j++)
             {
-                tasks.Add(orderService.Submit(new SubmitEvent(123456789012345621341m, Side.Buy, "AMG Group")));
+                tasks.Add(orderService.Submit(new SubmitCommand(123456789012345621341m, Side.Buy, "AMG Group")));
 
             }
 

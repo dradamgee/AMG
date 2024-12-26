@@ -21,13 +21,16 @@ type OrderService (rootPath:string, mode:OrderServiceMode) =
         | OrderServiceMode.BinaryMode -> Binary (OrderStore<_> (rootPath, BinaryDAL()))
     
     
-    member this.Submit(submitEvent:SubmitEvent) = 
+    member this.Submit(submitCommand:SubmitCommand) = 
         task {
             let id = nextID
             nextID <- nextID + 1
+
+            let submitEvent = {OrderID=id; Size=submitCommand.Size; Side=submitCommand.Side; Asset=submitCommand.Asset}
+
             return match orderStore with 
-                   | Json orderStore -> orderStore.Submit(id, submitEvent).Result.ID
-                   | Binary orderStore -> orderStore.Submit(id, submitEvent).Result.ID
+                   | Json orderStore -> orderStore.Submit(submitEvent).Result.ID
+                   | Binary orderStore -> orderStore.Submit(submitEvent).Result.ID
         }
 
     member this.Place(id, placeEvent:PlaceEvent) =         

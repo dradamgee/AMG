@@ -3,7 +3,9 @@
 
 type Side = | Buy = 0 | Sell = 1
 
-type SubmitEvent = {Size:decimal; Side:Side; Asset:string}
+type SubmitCommand = {Size:decimal; Side:Side; Asset:string}
+type SubmitEvent = {OrderID:int; Size:decimal; Side:Side; Asset:string}
+
 type PlaceEvent = {PlaceID:int; Size:decimal; CounterpartyID:int}
 type FillEvent = {PlaceID:int; Size:decimal; Price:decimal}
 type OrderEvent =
@@ -37,7 +39,7 @@ type BlockOrder(orders,  placements:EquityPlacement list) =
       
 
 module OrderEventPlayer =     
-    let private playSubmit (blockOrder:BlockOrder option, {Size=size; Side=side; Asset=asset}) = 
+    let private playSubmit (blockOrder:BlockOrder option, {OrderID=orderID;Size=size; Side=side; Asset=asset}) = 
         match blockOrder with 
         | None -> BlockOrder([EquityOrder(size, side, asset)])
         | Some bo -> BlockOrder(EquityOrder(size, side, asset) :: bo.Orders, bo.Placements)

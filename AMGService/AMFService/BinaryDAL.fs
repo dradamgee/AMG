@@ -10,7 +10,8 @@ module BinarySerializer =
         writer.Write(value)
     let SerializeString(writer:IO.BinaryWriter, value:string) = 
         writer.Write(value)
-    let SerializeSubmitEvent(writer, {Size=size; Side=side; Asset=asset}) =
+    let SerializeSubmitEvent(writer, {OrderID=orderID; Size=size; Side=side; Asset=asset}) =
+        SerializeInt32 (writer, int orderID)
         SerializeDecimal (writer, size)
         SerializeInt32 (writer, int side)
         SerializeString (writer, asset)
@@ -23,10 +24,11 @@ module BinarySerializer =
         SerializeDecimal (writer, size)
         SerializeDecimal (writer, price)        
     let DeserializeSubmitEvent(reader:IO.BinaryReader) = 
+        let orderID = reader.ReadInt32()
         let size = reader.ReadDecimal()
         let side = reader.ReadInt32()
         let asset = reader.ReadString()
-        {Size=size; Side=enum<Side> side; Asset=asset}
+        {OrderID=orderID; Size=size; Side=enum<Side> side; Asset=asset}
     let DeserializePlaceEvent(reader:IO.BinaryReader) = 
         let placeID = reader.ReadInt32()
         let size = reader.ReadDecimal()

@@ -126,11 +126,11 @@ type OrderStore<'T> (rootPath:string, dal:DAL<'T>)=
     
     let actorDictionary = Dictionary<int, OrderStoreActor<'T>>(actorList |> List.map(fun oa -> KeyValuePair(oa.ID, oa)))
         
-    member this.Submit(id:int, submitEvent:SubmitEvent) =
+    member this.Submit(submitEvent:SubmitEvent) =
         task {
-            let actor = OrderStoreActor<'T>(dal, id, rootPath, None)
+            let actor = OrderStoreActor<'T>(dal, submitEvent.OrderID, rootPath, None)
             actor.WriteEvent(Submit submitEvent)
-            actorDictionary.Add(id, actor) //todo fix this mutability.
+            actorDictionary.Add(submitEvent.OrderID, actor) //todo fix this mutability. also each stream/actor could have multiple orders in a block.
             return actor
         }
     member this.Place(id:int, placeEvent:PlaceEvent) = 

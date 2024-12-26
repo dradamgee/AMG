@@ -21,9 +21,9 @@
             var path = pathRoot + Guid.NewGuid() + @"\";
 
             var orderStore1 = new OrderStore<BinaryWriter>(path, dal);
-            
-            SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");            
-            await orderStore1.Submit(id, submitEvent);
+
+            SubmitEvent submitEvent = new SubmitEvent(id, 7, Side.Buy, "MyAsset");            
+            await orderStore1.Submit(submitEvent);
             var orderV1 = orderStore1.GetOrderSync(id);
 
             var orderStore2 = new OrderStore<BinaryWriter>(path, dal);            
@@ -42,9 +42,9 @@
 
             var orderStore1 = new OrderStore<BinaryWriter>(path, dal);
             
-            SubmitEvent submitEvent = new SubmitEvent(7, Side.Buy, "MyAsset");
+            SubmitEvent submitEvent = new SubmitEvent(id, 7, Side.Buy, "MyAsset");
             var orderV1 = new EquityOrder(7, Side.Buy, "MyAsset");
-            await orderStore1.Submit(id, submitEvent);
+            await orderStore1.Submit(submitEvent);
             orderStore1.Place(id, new PlaceEvent(0, 1000m, 531));
             var fillEvent = new FillEvent(0, 13, 17);            
             orderStore1.Fill(id, fillEvent);
