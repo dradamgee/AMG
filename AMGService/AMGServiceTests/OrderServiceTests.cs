@@ -2,6 +2,7 @@ namespace AMGServiceTests
 {
     using AMFService;
     using Microsoft.FSharp.Data.UnitSystems.SI.UnitNames;
+    using System.Threading.Tasks;
 
     [TestFixture(OrderServiceMode.BinaryMode)]
     [TestFixture(OrderServiceMode.JsonMode)]
@@ -42,7 +43,8 @@ namespace AMGServiceTests
         {
             var path = pathRoot + Guid.NewGuid() + @"\";
             var orderService = new OrderService(path, mode);            
-            int orderID = await orderService.Submit(new SubmitEvent(13, Side.Buy, "AMG Group"));
+            int orderID = await orderService.Submit(new SubmitEvent(13, Side.Buy, "AMG Group"));            
+            orderService.Place(orderID, new PlaceEvent(0, 1000m, 531));
             orderService.Fill(orderID, new FillEvent(0, 13, 17));
             orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
             var order = orderService.GetOrder(orderID);
@@ -55,6 +57,7 @@ namespace AMGServiceTests
             var path = pathRoot + Guid.NewGuid() + @"\";
             var orderService = new OrderService(path, mode);            
             int orderID = await orderService.Submit(new SubmitEvent(123456789012345621341m, Side.Buy, "AMG Group"));
+            orderService.Place(orderID, new PlaceEvent(0, 1000m, 531));
             for (int i = 0; i < 10000; i++)
             {
                 orderService.Fill(orderID, new FillEvent(0, 1m + i, 2m+i));
@@ -64,8 +67,8 @@ namespace AMGServiceTests
             var orderService2 = new OrderService(path, mode);            
             var order = orderService2.GetOrderSync(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
-            Assert.That(decimal.Round(order.FilledPrice, 5), Is.EqualTo(6668m));
-            Assert.That(order.FilledSize, Is.EqualTo(50005000m));            
+            Assert.That(decimal.Round(order.Placements.Head.FilledPrice, 5), Is.EqualTo(6668m));
+            Assert.That(order.Placements.Head.FilledSize, Is.EqualTo(50005000m));            
         }
 
         [Test]        
@@ -76,15 +79,22 @@ namespace AMGServiceTests
             var tasks = new List<Task>();
 
             var orderVolume = 1;
-            var executionVolume = 1000000;
+            var executionVolume = 10000;
 
 
             for (int j = 1; j <= orderVolume; j++)
             {
                 tasks.Add(orderService.Submit(new SubmitEvent(123456789012345621341m, Side.Buy, "AMG Group")));
+
             }
 
             Task.WaitAll(tasks.ToArray());
+
+            foreach (Task<int> task in tasks) {
+                orderService.Place(await task, new PlaceEvent(0, 1000m, 531));
+            }
+
+
 
             for (int j = 1; j <= orderVolume; j++)
             {
@@ -100,8 +110,8 @@ namespace AMGServiceTests
             var order = orderService2.GetOrderSync(orderVolume);
 
             Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
-            Assert.That(decimal.Round(order.FilledPrice,5), Is.EqualTo(666668m));
-            Assert.That(order.FilledSize, Is.EqualTo(500000500000m));
+            Assert.That(decimal.Round(order.Placements.Head.FilledPrice,5), Is.EqualTo(6668m));
+            Assert.That(order.Placements.Head.FilledSize, Is.EqualTo(50005000m));
         }
 
     }

@@ -29,6 +29,11 @@ type OrderService (rootPath:string, mode:OrderServiceMode) =
                    | Json orderStore -> orderStore.Submit(id, submitEvent).Result.ID
                    | Binary orderStore -> orderStore.Submit(id, submitEvent).Result.ID
         }
+
+    member this.Place(id, placeEvent:PlaceEvent) =         
+        match orderStore with 
+                | Json orderStore -> orderStore.Place(id, placeEvent) |> ignore
+                | Binary orderStore -> orderStore.Place(id, placeEvent) |> ignore        
         
     member this.Fill(id, submitEvent) = 
         match orderStore with 

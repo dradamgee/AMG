@@ -1,5 +1,6 @@
 ﻿namespace AMFService
 
+
 type Side = | Buy = 0 | Sell = 1
 
 type SubmitEvent = {Size:decimal; Side:Side; Asset:string}
@@ -17,18 +18,21 @@ type EquityOrder (size:decimal, side:Side, asset:string) =
       member this.Side = side
       member this.Asset = asset      
 
-type EquityPlacement (placeEvent:PlaceEvent, fills: FillEvent list) =
-      member this.PlaceID = placeEvent.Size
-      member this.Size = placeEvent.Size
-      member this.CounterpartyID = placeEvent.Size
-      
-type BlockOrder(orders,  placements:EquityPlacement list, fillEvents:FillEvent list, filledSize:decimal, filledPrice:decimal) = 
-      new (orders) = BlockOrder (orders, [], [], 0m, 0m)
-      member this.Orders : EquityOrder list = orders
-      member this.PlacementEvents =  placements      
-      member this.FillEvents = fillEvents      
+type EquityPlacement (placeID, size, counterpartyID, fills: FillEvent list, filledSize : decimal, filledPrice:decimal) =
+      new (placeEvent:PlaceEvent) = EquityPlacement(placeEvent.PlaceID, placeEvent.Size, placeEvent.Size, [], 0m, 0m)
+      member this.PlaceID = placeID      
+      member this.Size = size
+      member this.CounterpartyID = counterpartyID
+      member this.Fills = fills
       member this.FilledSize = filledSize
       member this.FilledPrice = filledPrice
+      
+type BlockOrder(orders,  placements:EquityPlacement list) = 
+      new (orders) = BlockOrder (orders, [])
+      member this.Orders : EquityOrder list = orders
+      member this.Placements =  placements            
+      //member this.FilledSize = filledSize
+      //member this.FilledPrice = filledPrice
 
       
 
@@ -36,18 +40,23 @@ module OrderEventPlayer =
     let private playSubmit (blockOrder:BlockOrder option, {Size=size; Side=side; Asset=asset}) = 
         match blockOrder with 
         | None -> BlockOrder([EquityOrder(size, side, asset)])
-        | Some bo -> BlockOrder(EquityOrder(size, side, asset) :: bo.Orders, bo.PlacementEvents, bo.FillEvents, bo.FilledSize, bo.FilledPrice)
+        | Some bo -> BlockOrder(EquityOrder(size, side, asset) :: bo.Orders, bo.Placements)
         
     let private playPlace (blockOrder:BlockOrder, placeEvent) = 
-        let newPlaceEvents = EquityPlacement(placeEvent, []) :: blockOrder.PlacementEvents
-        BlockOrder(blockOrder.Orders, newPlaceEvents, blockOrder.FillEvents, blockOrder.FilledSize, blockOrder.FilledPrice)
+        let newPlaceEvents = EquityPlacement(placeEvent) :: blockOrder.Placements
+        BlockOrder(blockOrder.Orders, newPlaceEvents)
 
     let private playFill (blockOrder:BlockOrder, fillEvent) = 
-        let newFillEvents = fillEvent :: blockOrder.FillEvents
-        let {Size=filledSize; Price=filledPrice} = fillEvent
-        let newFilledSize = filledSize+blockOrder.FilledSize
-        let newFilledPrice=((filledPrice*filledSize)+(blockOrder.FilledPrice*blockOrder.FilledSize))/(filledSize+blockOrder.FilledSize)
-        BlockOrder(blockOrder.Orders, blockOrder.PlacementEvents, newFillEvents, newFilledSize, newFilledPrice)
+        let {PlaceID=placeID; Size=filledSize; Price=filledPrice} = fillEvent
+        let placement =  (blockOrder.Placements |> List.filter (fun asd -> asd.PlaceID = placeID)).Head
+        let newFills = fillEvent :: placement.Fills
+        let newFilledSize = filledSize+placement.FilledSize
+        let newFilledPrice=((filledPrice*filledSize)+(placement.FilledPrice*placement.FilledSize))/(filledSize+placement.FilledSize)
+        let newPlacement = EquityPlacement(placement.PlaceID, placement.Size, placement.CounterpartyID, newFills, newFilledSize, newFilledPrice)
+
+        let newPlacements = newPlacement :: (blockOrder.Placements |> List.filter (fun asd -> asd.PlaceID <> placeID))
+
+        BlockOrder(blockOrder.Orders, newPlacements)
 
     let play asd =         
         match asd with

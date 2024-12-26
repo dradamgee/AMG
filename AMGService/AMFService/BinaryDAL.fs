@@ -14,6 +14,10 @@ module BinarySerializer =
         SerializeDecimal (writer, size)
         SerializeInt32 (writer, int side)
         SerializeString (writer, asset)
+    let SerializePlaceEvent(writer, {PlaceID=placeID; Size=size; CounterpartyID=counterpartyID}) = 
+        SerializeInt32 (writer, placeID)
+        SerializeDecimal (writer, size)
+        SerializeInt32 (writer, counterpartyID)
     let SerializeFillEvent(writer, {PlaceID=placeID; Size=size; Price=price}) =
         SerializeInt32 (writer, placeID)
         SerializeDecimal (writer, size)
@@ -23,6 +27,11 @@ module BinarySerializer =
         let side = reader.ReadInt32()
         let asset = reader.ReadString()
         {Size=size; Side=enum<Side> side; Asset=asset}
+    let DeserializePlaceEvent(reader:IO.BinaryReader) = 
+        let placeID = reader.ReadInt32()
+        let size = reader.ReadDecimal()
+        let counterpartyID = reader.ReadInt32()
+        {PlaceID=placeID; Size=size; CounterpartyID=counterpartyID}
     let DeserializeFillEvent(reader:IO.BinaryReader) =
         let placeID = reader.ReadInt32()
         let size = reader.ReadDecimal()
@@ -41,8 +50,11 @@ type BinaryDAL() =
                                   | 0 -> ignore 
                                   | 1 -> yield OrderEvent.Submit (BinarySerializer.DeserializeSubmitEvent(reader))
                                          yield! ExtractEventLoop(reader, nextEventType(reader))
-                                  | 2 -> yield OrderEvent.Fill (BinarySerializer.DeserializeFillEvent(reader))    
-                                         yield! ExtractEventLoop(reader, nextEventType(reader))                                         
+                                  | 2 -> yield OrderEvent.Place (BinarySerializer.DeserializePlaceEvent(reader))
+                                         yield! ExtractEventLoop(reader, nextEventType(reader))                                                         
+                                  | 3 -> yield OrderEvent.Fill (BinarySerializer.DeserializeFillEvent(reader))    
+                                         yield! ExtractEventLoop(reader, nextEventType(reader))                                       
+                    
                 }    
             ExtractEventLoop (binaryReader, nextEventType(binaryReader))
 
@@ -55,8 +67,11 @@ type BinaryDAL() =
             | Submit submitEvent -> 
                 binaryWriter.Write(1) |> ignore                               
                 BinarySerializer.SerializeSubmitEvent(binaryWriter, submitEvent)
-            | Fill fillEvent ->                 
+            | Place placeEvent ->                 
                 binaryWriter.Write(2) |> ignore                               
+                BinarySerializer.SerializePlaceEvent(binaryWriter, placeEvent)
+            | Fill fillEvent ->                 
+                binaryWriter.Write(3) |> ignore                               
                 BinarySerializer.SerializeFillEvent(binaryWriter, fillEvent)
             | Unknown -> () |> ignore
         member this.DropIdleFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (binaryWriter:IO.BinaryWriter) = 

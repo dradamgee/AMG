@@ -133,6 +133,10 @@ type OrderStore<'T> (rootPath:string, dal:DAL<'T>)=
             actorDictionary.Add(id, actor) //todo fix this mutability.
             return actor
         }
+    member this.Place(id:int, placeEvent:PlaceEvent) = 
+        let actor = actorDictionary[id]
+        actor.WriteEvent(Place placeEvent)
+        actor
     member this.Fill(id:int, tradeEvent:FillEvent) = 
         let actor = actorDictionary[id]
         actor.WriteEvent(Fill tradeEvent)

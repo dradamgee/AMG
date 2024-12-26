@@ -24,14 +24,16 @@ type TestOrderEventPlayer () =
     member this.TestPlaceSingleOrder () = 
         let blockOrder = OrderEventPlayer.play(None, OrderEvent.Submit {Size=5m; Side=Side.Buy; Asset=""} )
         let blockOrder = OrderEventPlayer.play(Some blockOrder, OrderEvent.Place {PlaceID=1; Size=5m; CounterpartyID=1} )
-        Assert.AreEqual(5m, blockOrder.PlacementEvents.Head.Size)
+        Assert.AreEqual(5m, blockOrder.Placements.Head.Size)
 
     [<TestMethod>]
     member this.TestPlaceAndFill () = 
         let blockOrder = OrderEventPlayer.play(None, OrderEvent.Submit {Size=5m; Side=Side.Buy; Asset=""} )
         let blockOrder = OrderEventPlayer.play(Some blockOrder, OrderEvent.Place {PlaceID=1; Size=5m; CounterpartyID=1} )
         let blockOrder = OrderEventPlayer.play(Some blockOrder, OrderEvent.Fill {PlaceID=1; Size=5m; Price=7m} )
-        Assert.AreEqual(5m, blockOrder.FilledSize)
-        Assert.AreEqual(7m, blockOrder.FilledPrice)
+        Assert.AreEqual(5m, blockOrder.Placements.Head.FilledSize)
+        Assert.AreEqual(7m, blockOrder.Placements.Head.FilledPrice)
+        
+
 
         
