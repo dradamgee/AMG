@@ -23,16 +23,16 @@ type OrderService (rootPath:string, mode:OrderServiceMode) =
     
     member this.Submit(submitCommand:SubmitCommand) = 
         task {
-            let id = OrderID nextID
+            let orderID = OrderID nextID
             nextID <- nextID + 1
 
-            let submitEvent = {OrderID=id; Size=submitCommand.Size; Side=submitCommand.Side; Asset=submitCommand.Asset}
+            let submitEvent = {OrderID=orderID; Size=submitCommand.Size; Side=submitCommand.Side; Asset=submitCommand.Asset}
 
             match orderStore with 
                    | Json orderStore -> orderStore.Submit(submitEvent) |> ignore
                    | Binary orderStore -> orderStore.Submit(submitEvent) |> ignore
             
-            return id // TODO separate the stream id from the order id.
+            return orderID // TODO separate the stream id from the order id.
         }
 
     member this.Place(placeCommand:PlaceCommand) =  

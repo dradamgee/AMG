@@ -6,6 +6,8 @@ open System.Collections.Generic
 open Microsoft.FSharp.Collections
 open System.Text.Json
 
+type StreamID = StreamID of int
+
 type orderReaderMessage = 
     | Get of AsyncReplyChannel<BlockOrder option>
     | Set of BlockOrder option
@@ -40,8 +42,8 @@ module FileReader =
         //|> Seq.filter(fun (_, _, orderOption) -> orderOption.IsSome)        
 
 type OrderStoreActor<'T>(dal:DAL<'T>, orderID:OrderID, rootPath:string, initialState) =
-    let (OrderID id) = orderID 
-    let filePath = rootPath + id.ToString() + ".txt"    
+    let (OrderID orderIDint) = orderID 
+    let filePath = rootPath + orderIDint.ToString() + ".txt"    
     let orderReaderAgent = MailboxProcessor.Start(fun inbox ->
             let rec messageLoop (state) = async{
                 let! msg = inbox.Receive()
