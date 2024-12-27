@@ -10,16 +10,16 @@ module BinarySerializer =
         writer.Write(value)
     let SerializeString(writer:IO.BinaryWriter, value:string) = 
         writer.Write(value)
-    let SerializeSubmitEvent(writer, {OrderID=orderID; Size=size; Side=side; Asset=asset}) =
+    let SerializeSubmitEvent(writer, {OrderID=OrderID orderID; Size=size; Side=side; Asset=asset}) =
         SerializeInt32 (writer, int orderID)
         SerializeDecimal (writer, size)
         SerializeInt32 (writer, int side)
         SerializeString (writer, asset)
-    let SerializePlaceEvent(writer, {PlaceID=placeID; Size=size; CounterpartyID=counterpartyID}) = 
+    let SerializePlaceEvent(writer, {PlaceID=PlaceID placeID; Size=size; CounterpartyID=counterpartyID}) = 
         SerializeInt32 (writer, placeID)
         SerializeDecimal (writer, size)
         SerializeInt32 (writer, counterpartyID)
-    let SerializeFillEvent(writer, {PlaceID=placeID; Size=size; Price=price}) =
+    let SerializeFillEvent(writer, {PlaceID=PlaceID placeID; Size=size; Price=price}) =
         SerializeInt32 (writer, placeID)
         SerializeDecimal (writer, size)
         SerializeDecimal (writer, price)        
@@ -28,17 +28,17 @@ module BinarySerializer =
         let size = reader.ReadDecimal()
         let side = reader.ReadInt32()
         let asset = reader.ReadString()
-        {OrderID=orderID; Size=size; Side=enum<Side> side; Asset=asset}
+        {OrderID=OrderID orderID; Size=size; Side=enum<Side> side; Asset=asset}
     let DeserializePlaceEvent(reader:IO.BinaryReader) = 
         let placeID = reader.ReadInt32()
         let size = reader.ReadDecimal()
         let counterpartyID = reader.ReadInt32()
-        {PlaceID=placeID; Size=size; CounterpartyID=counterpartyID}
+        {PlaceID=PlaceID placeID; Size=size; CounterpartyID=counterpartyID}
     let DeserializeFillEvent(reader:IO.BinaryReader) =
         let placeID = reader.ReadInt32()
         let size = reader.ReadDecimal()
         let price = reader.ReadDecimal()
-        {PlaceID=placeID; Size=size; Price=price}
+        {PlaceID=PlaceID placeID; Size=size; Price=price}
 
 type BinaryDAL() =    
     let ExractEvents (binaryReader:IO.BinaryReader, id:int) = 

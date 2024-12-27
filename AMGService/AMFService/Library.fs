@@ -128,18 +128,21 @@ type OrderStore<'T> (rootPath:string, dal:DAL<'T>)=
         
     member this.Submit(submitEvent:SubmitEvent) =
         task {
-            let actor = OrderStoreActor<'T>(dal, submitEvent.OrderID, rootPath, None)
+            let (OrderID streamID) = submitEvent.OrderID
+            let actor = OrderStoreActor<'T>(dal, streamID, rootPath, None)
             actor.WriteEvent(Submit submitEvent)
-            actorDictionary.Add(submitEvent.OrderID, actor) //todo fix this mutability. also each stream/actor could have multiple orders in a block.
+            actorDictionary.Add(streamID, actor) //todo fix this mutability. also each stream/actor could have multiple orders in a block.
             return actor
         }
-    member this.Place(id:int, placeEvent:PlaceEvent) = 
-        let actor = actorDictionary[id]
-        actor.WriteEvent(Place placeEvent)
-        actor
-    member this.Fill(id:int, tradeEvent:FillEvent) = 
-        let actor = actorDictionary[id]
-        actor.WriteEvent(Fill tradeEvent)
+    member this.Place(OrderID orderID, placeEvent:PlaceEvent) = 
+        task {
+            let actor = actorDictionary[orderID]
+            actor.WriteEvent(Place placeEvent)
+            return placeEvent.PlaceID
+        }
+    member this.Fill(OrderID orderID, fillEvent:FillEvent) = 
+        let actor = actorDictionary[orderID]
+        actor.WriteEvent(Fill fillEvent)
         actor
     member this.GetActor(id:int) = actorDictionary[id]
     member this.GetOrder(id:int) = 

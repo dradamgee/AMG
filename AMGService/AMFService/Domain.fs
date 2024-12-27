@@ -3,11 +3,18 @@
 
 type Side = | Buy = 0 | Sell = 1
 
-type SubmitCommand = {Size:decimal; Side:Side; Asset:string}
-type SubmitEvent = {OrderID:int; Size:decimal; Side:Side; Asset:string}
+type OrderID = OrderID of int
+type PlaceID = PlaceID of int     
 
-type PlaceEvent = {PlaceID:int; Size:decimal; CounterpartyID:int}
-type FillEvent = {PlaceID:int; Size:decimal; Price:decimal}
+type SubmitCommand = {Size:decimal; Side:Side; Asset:string}
+type SubmitEvent = {OrderID:OrderID; Size:decimal; Side:Side; Asset:string}
+
+type PlaceCommand = {OrderID:OrderID; Size:decimal; CounterpartyID:int}
+type PlaceEvent = {PlaceID:PlaceID; Size:decimal; CounterpartyID:int}
+type FillEvent = {PlaceID:PlaceID; Size:decimal; Price:decimal}
+
+
+
 type OrderEvent =
       | Submit of SubmitEvent
       | Fill of FillEvent
