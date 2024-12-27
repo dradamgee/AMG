@@ -33,8 +33,8 @@ namespace AMGServiceTests
             var orderService = new OrderService(path, mode);            
             var submitCommand = new SubmitCommand(13, Side.Buy, "AMG Group");
             var orderID = await orderService.Submit(submitCommand);
-            orderService.GetOrderSync(orderID.Item); // wait for the events are processed by the actor
-            var order = orderService.GetOrder(orderID.Item);
+            orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
+            var order = orderService.GetOrder(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(13));
         }
 
@@ -45,10 +45,10 @@ namespace AMGServiceTests
             var orderService = new OrderService(path, mode);            
             var orderID = await orderService.Submit(new SubmitCommand(13, Side.Buy, "AMG Group"));            
             var placeID = await orderService.Place(new PlaceCommand(orderID, 1000m, 531));
-            orderService.GetOrderSync(orderID.Item);
+            orderService.GetOrderSync(orderID);
             orderService.Fill(orderID, new FillEvent(placeID, 13, 17));
-            orderService.GetOrderSync(orderID.Item); // wait for the events are processed by the actor
-            var order = orderService.GetOrder(orderID.Item);
+            orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
+            var order = orderService.GetOrder(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(13));
         }
 
@@ -63,10 +63,10 @@ namespace AMGServiceTests
             {
                 orderService.Fill(orderID, new FillEvent(placeID, 1m + i, 2m+i));
             }
-            orderService.GetOrderSync(orderID.Item); // wait for the events are processed by the actor
+            orderService.GetOrderSync(orderID); // wait for the events are processed by the actor
 
             var orderService2 = new OrderService(path, mode);            
-            var order = orderService2.GetOrderSync(orderID.Item);
+            var order = orderService2.GetOrderSync(orderID);
             Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
             Assert.That(decimal.Round(order.Placements.Head.FilledPrice, 5), Is.EqualTo(6668m));
             Assert.That(order.Placements.Head.FilledSize, Is.EqualTo(50005000m));            
@@ -102,13 +102,10 @@ namespace AMGServiceTests
             }
 
 
-
-
-
-            orderService.GetOrderSync(orderVolume); // wait for the events are processed by the actor
+            orderService.GetOrderSync(OrderID.NewOrderID(orderVolume)); // wait for the events are processed by the actor
 
             var orderService2 = new OrderService(path, mode);
-            var order = orderService2.GetOrderSync(orderVolume);
+            var order = orderService2.GetOrderSync(OrderID.NewOrderID(orderVolume));
 
             Assert.That(order.Orders.Head.Size, Is.EqualTo(123456789012345621341m));
             Assert.That(decimal.Round(order.Placements.Head.FilledPrice,5), Is.EqualTo(6668m));

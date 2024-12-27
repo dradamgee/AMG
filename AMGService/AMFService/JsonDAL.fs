@@ -6,7 +6,7 @@ open System.Collections.Generic
 open System.Text.Json
 
 type JsonDAL() = 
-    let ExractEvents (fileName:string, id:int) = 
+    let ExractEvents (fileName:string, orderID) = 
         File.ReadLines(fileName)
         |> Seq.map (fun readLine -> (readLine[0], readLine.Substring(1)))
         |> Seq.map (fun readLineTuple  -> match readLineTuple with 
@@ -19,7 +19,7 @@ type JsonDAL() =
         
         member this.FileAccess (path:string) = 
             File.AppendText(path)
-        member this.CreateOrderFromFile(fileName: string): Async<DAL<StreamWriter> * int * string * BlockOrder option> = 
+        member this.CreateOrderFromFile(fileName: string): Async<DAL<StreamWriter> * OrderID * string * BlockOrder option> = 
             async{
                 let id = FileReader.GetIDfromFileName fileName
                 let events = ExractEvents (fileName, id) 

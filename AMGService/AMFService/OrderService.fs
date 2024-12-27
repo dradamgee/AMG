@@ -29,8 +29,8 @@ type OrderService (rootPath:string, mode:OrderServiceMode) =
             let submitEvent = {OrderID=id; Size=submitCommand.Size; Side=submitCommand.Side; Asset=submitCommand.Asset}
 
             match orderStore with 
-                   | Json orderStore -> orderStore.Submit(submitEvent).Result.ID |> ignore
-                   | Binary orderStore -> orderStore.Submit(submitEvent).Result.ID |> ignore
+                   | Json orderStore -> orderStore.Submit(submitEvent) |> ignore
+                   | Binary orderStore -> orderStore.Submit(submitEvent) |> ignore
             
             return id // TODO separate the stream id from the order id.
         }
@@ -58,8 +58,8 @@ type OrderService (rootPath:string, mode:OrderServiceMode) =
         | Binary orderStore -> orderStore.GetOrder(id)
     
 
-    member this.GetOrderSync(ID:int) = 
+    member this.GetOrderSync(orderID) = 
         match orderStore with 
-        | Json orderStore -> orderStore.GetOrderSync(ID)
-        | Binary orderStore -> orderStore.GetOrderSync(ID)
+        | Json orderStore -> orderStore.GetOrderSync(orderID)
+        | Binary orderStore -> orderStore.GetOrderSync(orderID)
 

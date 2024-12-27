@@ -41,7 +41,7 @@ module BinarySerializer =
         {PlaceID=PlaceID placeID; Size=size; Price=price}
 
 type BinaryDAL() =    
-    let ExractEvents (binaryReader:IO.BinaryReader, id:int) = 
+    let ExractEvents (binaryReader:IO.BinaryReader) = 
             let nextEventType(reader: IO.BinaryReader) = 
                 try reader.ReadInt32() with
                 | :? System.IO.EndOfStreamException as _ -> 0
@@ -92,10 +92,10 @@ type BinaryDAL() =
                 use filestream = new IO.FileStream(fileName, fso)        
                 use reader = new IO.BinaryReader(filestream)
                
-                let id = FileReader.GetIDfromFileName fileName
-                let events = ExractEvents (reader, id) 
+                let orderID = FileReader.GetIDfromFileName fileName
+                let events = ExractEvents (reader) 
                 return 
-                    (this, id, fileName, FileReader.CreateOrderFromEvents(events.GetEnumerator(), None))
+                    (this, orderID, fileName, FileReader.CreateOrderFromEvents(events.GetEnumerator(), None))
             }   
 
 

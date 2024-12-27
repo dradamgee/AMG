@@ -18,13 +18,13 @@ type DAL<'T> =
     abstract member FileAccess: string -> 'T
     abstract member WriteEventToFile: OrderEvent * 'T -> unit
     abstract member DropIdleFileHandle: MailboxProcessor<orderPlayerMessage> -> 'T -> 'T option
-    abstract member CreateOrderFromFile: string -> Async<DAL<'T> * int * string * BlockOrder option>
+    abstract member CreateOrderFromFile: string -> Async<DAL<'T> * OrderID * string * BlockOrder option>
             
     
 module FileReader = 
     let encoding = System.Text.Encoding.UTF8
     let GetIDfromFileName (fileName:string) =                 
-        System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName))
+        OrderID (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))
         //try        //    Some (System.Int32.Parse (Path.GetFileNameWithoutExtension(fileName)))        //with _ -> None
 
     let rec CreateOrderFromEvents (events:IEnumerator<OrderEvent>, blockOrder:BlockOrder option) = 
@@ -39,13 +39,8 @@ module FileReader =
         |> Async.RunSynchronously
         //|> Seq.filter(fun (_, _, orderOption) -> orderOption.IsSome)        
 
-
-
-
-
-
-
-type OrderStoreActor<'T>(dal:DAL<'T>, id:int, rootPath:string, initialState) =
+type OrderStoreActor<'T>(dal:DAL<'T>, orderID:OrderID, rootPath:string, initialState) =
+    let (OrderID id) = orderID 
     let filePath = rootPath + id.ToString() + ".txt"    
     let orderReaderAgent = MailboxProcessor.Start(fun inbox ->
             let rec messageLoop (state) = async{
@@ -60,9 +55,7 @@ type OrderStoreActor<'T>(dal:DAL<'T>, id:int, rootPath:string, initialState) =
             }
             messageLoop (initialState)
             )
-    
-    
-
+   
     let dropIdleJsonFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
         match inbox.CurrentQueueLength with 
             | 0 ->     
@@ -107,7 +100,7 @@ type OrderStoreActor<'T>(dal:DAL<'T>, id:int, rootPath:string, initialState) =
     member this.GetOrderSync(timeout) = orderEventMailbox.PostAndReply ((fun arc -> GetOrderState arc), timeout)
     member this.GetOrderSync1(timeout) = orderEventMailbox.PostAndAsyncReply ((fun arc -> GetOrderState arc), timeout) // todo use async reply
     member this.TryGetOrder (timeout) = orderReaderAgent.PostAndReply((fun arc -> Get arc), timeout)
-    member this.ID = id
+    member this.OrderID = orderID
     member this.StorePath = rootPath
 
 
@@ -124,33 +117,32 @@ type OrderStore<'T> (rootPath:string, dal:DAL<'T>)=
                     asd |> Seq.toList 
                       |> List.map OrderStoreActor
     
-    let actorDictionary = Dictionary<int, OrderStoreActor<'T>>(actorList |> List.map(fun oa -> KeyValuePair(oa.ID, oa)))
+    let actorDictionary = Dictionary<OrderID, OrderStoreActor<'T>>(actorList |> List.map(fun oa -> KeyValuePair(oa.OrderID, oa)))
         
     member this.Submit(submitEvent:SubmitEvent) =
         task {
-            let (OrderID streamID) = submitEvent.OrderID
-            let actor = OrderStoreActor<'T>(dal, streamID, rootPath, None)
+            let actor = OrderStoreActor<'T>(dal, submitEvent.OrderID, rootPath, None)
             actor.WriteEvent(Submit submitEvent)
-            actorDictionary.Add(streamID, actor) //todo fix this mutability. also each stream/actor could have multiple orders in a block.
+            actorDictionary.Add(submitEvent.OrderID, actor) //todo fix this mutability. also each stream/actor could have multiple orders in a block.
             return actor
         }
-    member this.Place(OrderID orderID, placeEvent:PlaceEvent) = 
+    member this.Place(orderID, placeEvent:PlaceEvent) = 
         task {
             let actor = actorDictionary[orderID]
             actor.WriteEvent(Place placeEvent)
             return placeEvent.PlaceID
         }
-    member this.Fill(OrderID orderID, fillEvent:FillEvent) = 
+    member this.Fill(orderID, fillEvent:FillEvent) = 
         let actor = actorDictionary[orderID]
         actor.WriteEvent(Fill fillEvent)
         actor
-    member this.GetActor(id:int) = actorDictionary[id]
-    member this.GetOrder(id:int) = 
-        match actorDictionary[id].TryGetOrder(1000000) with 
+    member this.GetActor(orderID) = actorDictionary[orderID]
+    member this.GetOrder(orderID) = 
+        match actorDictionary[orderID].TryGetOrder(1000000) with 
             | Some order -> order
             | None -> failwith "can't find order"            
-    member this.GetOrderSync(id:int) = 
-        match actorDictionary[id].GetOrderSync(1000000) with             
+    member this.GetOrderSync(orderID) = 
+        match actorDictionary[orderID].GetOrderSync(1000000) with             
             | Some order -> order
             | None -> failwith "can't find order"
         
