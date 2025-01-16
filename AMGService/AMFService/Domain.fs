@@ -3,8 +3,15 @@
 
 type Side = | Buy = 0 | Sell = 1
 
+
+
+//type DomainID = 
+//     | OrderID of OrderID
+//     | PlaceID of PlaceID
+
 type OrderID = OrderID of int
 type PlaceID = PlaceID of int     
+
 
 type SubmitCommand = {Size:decimal; Side:Side; Asset:string}
 type SubmitEvent = {OrderID:OrderID; Size:decimal; Side:Side; Asset:string}

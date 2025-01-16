@@ -58,14 +58,14 @@ type OrderStoreActor<'T>(dal:DAL<'T>, orderID:OrderID, rootPath:string, initialS
             messageLoop (initialState)
             )
    
-    let dropIdleJsonFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
-        match inbox.CurrentQueueLength with 
-            | 0 ->     
-                streamWriter.Flush()
-                streamWriter.Dispose()
-                None
-            | _ ->
-                Some streamWriter
+    //let dropIdleJsonFileHandle (inbox:MailboxProcessor<orderPlayerMessage>) (streamWriter:StreamWriter) = 
+    //    match inbox.CurrentQueueLength with 
+    //        | 0 ->     
+    //            streamWriter.Flush()
+    //            streamWriter.Dispose()
+    //            None
+    //        | _ ->
+    //            Some streamWriter
 
     let eventPlayerAgentBuilder (dal: DAL<'T>) = MailboxProcessor.Start(fun inbox ->
             let difh = dal.DropIdleFileHandle inbox
@@ -115,36 +115,45 @@ type OrderStore<'T> (rootPath:string, dal:DAL<'T>)=
                 Directory.CreateDirectory(rootPath) |> ignore
                 []
             | true -> 
-                    let asd = FileReader.LoadFromFolder<'T>(dal, rootPath) 
-                    asd |> Seq.toList 
-                      |> List.map OrderStoreActor
+                    FileReader.LoadFromFolder<'T>(dal, rootPath) 
+                    |> Seq.toList 
+                    |> List.map OrderStoreActor
     
-    let actorDictionary = Dictionary<OrderID, OrderStoreActor<'T>>(actorList |> List.map(fun oa -> KeyValuePair(oa.OrderID, oa)))
+    let orderIDToActor = Dictionary<OrderID, OrderStoreActor<'T>>(actorList |> List.map(fun oa -> KeyValuePair(oa.OrderID, oa)))
+
+    let placeIDToActor = Dictionary<PlaceID, OrderStoreActor<'T>>(List.concat (actorList |> List.map(fun oa -> (oa, oa.GetOrderSync 100))
+                                     |> List.map(
+                                        fun oo -> 
+                                            match oo with 
+                                                | (_, None) -> []
+                                                | (osa, Some bo) -> (bo.Placements |> List.map(fun placement -> KeyValuePair(placement.PlaceID, osa) )))
+                                     ))
         
     member this.Submit(submitEvent:SubmitEvent) =
         task {
             let actor = OrderStoreActor<'T>(dal, submitEvent.OrderID, rootPath, None)
             actor.WriteEvent(Submit submitEvent)
-            actorDictionary.Add(submitEvent.OrderID, actor) //todo fix this mutability. also each stream/actor could have multiple orders in a block.
+            orderIDToActor.Add(submitEvent.OrderID, actor) //todo fix this mutability. also each stream/actor could have multiple orders in a block.
             return actor
         }
     member this.Place(orderID, placeEvent:PlaceEvent) = 
         task {
-            let actor = actorDictionary[orderID]
+            let actor = orderIDToActor[orderID]
             actor.WriteEvent(Place placeEvent)
+            placeIDToActor.Add(placeEvent.PlaceID, actor)
             return placeEvent.PlaceID
         }
-    member this.Fill(orderID, fillEvent:FillEvent) = 
-        let actor = actorDictionary[orderID]
+    member this.Fill(placeID, fillEvent:FillEvent) = 
+        let actor = orderIDToActor[placeID]
         actor.WriteEvent(Fill fillEvent)
         actor
-    member this.GetActor(orderID) = actorDictionary[orderID]
+    member this.GetActor(orderID) = orderIDToActor[orderID]
     member this.GetOrder(orderID) = 
-        match actorDictionary[orderID].TryGetOrder(1000000) with 
+        match orderIDToActor[orderID].TryGetOrder(1000000) with 
             | Some order -> order
             | None -> failwith "can't find order"            
     member this.GetOrderSync(orderID) = 
-        match actorDictionary[orderID].GetOrderSync(1000000) with             
+        match orderIDToActor[orderID].GetOrderSync(1000000) with             
             | Some order -> order
             | None -> failwith "can't find order"
         

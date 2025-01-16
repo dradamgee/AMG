@@ -94,8 +94,9 @@ type BinaryDAL() =
                
                 let orderID = FileReader.GetIDfromFileName fileName
                 let events = ExractEvents (reader) 
-                return 
-                    (this, orderID, fileName, FileReader.CreateOrderFromEvents(events.GetEnumerator(), None))
+                let blockOrder = FileReader.CreateOrderFromEvents(events.GetEnumerator(), None)
+                return                     
+                    (this, orderID, fileName, blockOrder)
             }   
 
 
